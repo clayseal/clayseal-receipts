@@ -1,0 +1,13 @@
+# Committed policy for the coding-assistant agent (code-execution demo).
+#
+# Dev-tool outputs are heterogeneous (file content vs pass/fail vs scan result),
+# so this policy deliberately has NO output_schema / numeric_ranges — a global
+# output check would misfire on tools that don't share fields. Enforcement of
+# WHICH tools may run is the agent's per-tool Biscuit capability grant; this
+# policy is the committed anchor every receipt references, plus a trust-tier
+# floor: the caller must present an attested, proof-of-possession-bound identity.
+version: 1
+name: dev_tools_review
+tier: structural
+capability: fully_proven
+min_trust_tier: sender_constrained

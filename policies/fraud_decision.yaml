@@ -1,0 +1,17 @@
+version: 1
+name: fraud_decision
+tier: structural
+capability: fully_proven
+
+numeric_ranges:
+  - field: fraud_score
+    min: 0.0
+    max: 1.0
+
+output_schema:
+  fields:
+    - decision
+    - fraud_score
+  required:
+    - decision
+    - fraud_score

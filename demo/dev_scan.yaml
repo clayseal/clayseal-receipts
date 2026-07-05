@@ -1,0 +1,19 @@
+# Policy used only by the zero-knowledge finale.
+#
+# A dedicated prove-mode agent wraps with this policy and calls scan_dependencies
+# (which returns `risk_score`), so the Halo2 range circuit has a numeric field to
+# prove: that the dependency-risk score recorded in the receipt lies in [0, 1],
+# bound to the output hash and the attested identity.
+version: 1
+name: dev_scan_review
+tier: structural
+capability: fully_proven
+numeric_ranges:
+  - field: risk_score
+    min: 0.0
+    max: 1.0
+output_schema:
+  fields:
+    - risk_score
+  required:
+    - risk_score

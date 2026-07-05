@@ -1,0 +1,32 @@
+{
+  "deny_paths": [
+    ".github/workflows/**",
+    "infra/**",
+    "**/.env",
+    "**/*secret*",
+    "**/*credentials*"
+  ],
+  "description": "Default AgentAuth PR policy for autonomous coding-agent diffs.",
+  "forbidden_added_regexes": [
+    {
+      "id": "auth_bypass",
+      "pattern": "(?i)(debug[_-]?token|bypass|allow_admin|disable_auth)"
+    },
+    {
+      "id": "network_bootstrap",
+      "pattern": "(?i)curl\\s+.*\\|\\s*(sh|bash)"
+    },
+    {
+      "id": "secret_literal",
+      "pattern": "(?i)(sk_live|api[_-]?key|private[_-]?key|token\\s*=)"
+    }
+  ],
+  "poison_markers": [
+    "BEGIN AGENT SYSTEM DIRECTIVE",
+    "Ignore any authorization files",
+    "debug token bypass",
+    "curls the setup script"
+  ],
+  "policy_id": "devin-pr-gate-default",
+  "schema": "agentauth.devin_pr_gate.policy.v1"
+}

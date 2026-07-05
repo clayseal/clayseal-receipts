@@ -1,0 +1,166 @@
+{
+  "policy_id": "devin-pr-gate-default",
+  "schema": "agentauth.devin_pr_gate.policy.v1",
+  "description": "Production-default AgentAuth PR policy for Devin diffs. Unified with the hardened profile: protected invariants, trajectory, mandate anomaly, build integrity, egress-isolated tests, actor binding, bootstrap/artifact guards, and cross-session poison denial.",
+  "deny_paths": [
+    ".github/workflows/**",
+    "infra/**",
+    "**/.env",
+    "**/*secret*",
+    "**/*credentials*",
+    "**/.vscode/**",
+    "**/*.code-workspace",
+    "**/.idea/**",
+    "**/.pre-commit-config.yaml",
+    "**/.husky/**",
+    "**/.git/hooks/**",
+    "**/hooks/**",
+    "**/.mcp.json",
+    ".cursor/mcp.json",
+    "**/.claude/**",
+    "**/.devcontainer/**"
+  ],
+  "forbidden_added_regexes": [
+    {"id": "auth_bypass", "pattern": "(?i)(override[_-]?token|debug[_-]?token|bypass|disable_auth|can_perform_release\\s*=\\s*True)"},
+    {"id": "ide_autoapprove", "pattern": "(?i)(auto[_-]?approve|chat\\.tools\\.global\\.autoapprove|\"?autoApprove\"?\\s*:\\s*true)"},
+    {"id": "settings_exec_path", "pattern": "(?i)(executablePath|defaultInterpreterPath|\"git\\.path\"|automationProfile|terminal\\.integrated\\.[\\w.]*profile)"},
+    {"id": "credential_read", "pattern": "(?i)(~/?\\.ssh|\\.ssh/id_|id_rsa|id_ed25519|\\.aws/credentials|\\.config/gh/hosts)"},
+    {"id": "secret_exfil", "pattern": "(?i)(toJSON\\(secrets\\)|\\$\\{\\{\\s*secrets\\.|curl\\s+(-[a-z]\\s+)*-?X?\\s*POST\\s+https?://(?!.*github)|requests\\.(post|get)\\(\\s*[\"']https?://)"},
+    {"id": "network_bootstrap", "pattern": "(?i)curl\\s+.*\\|\\s*(sh|bash)"},
+    {"id": "remote_schema", "pattern": "(?i)\"\\$schema\"\\s*:\\s*\"https?://(?!json-schema\\.org|.*schemastore\\.org)"},
+    {"id": "dependency_source", "pattern": "(?i)(extra[_-]?index[_-]?url|index[_-]?url)\\s*[=:]?\\s*[\"']?https?://(?!pypi\\.org)"},
+    {"id": "crypto_downgrade", "pattern": "(?i)(verify\\s*=\\s*False|algorithms\\s*=\\s*\\[\\s*['\\\"]none['\\\"]|ssl_verify\\s*=\\s*False|check_hostname\\s*=\\s*False)"},
+    {"id": "secret_literal", "pattern": "(?i)(sk_live|api[_-]?key|private[_-]?key|token\\s*=\\s*['\\\"][^'\\\"]+['\\\"])"}
+  ],
+  "build_integrity": {
+    "description": "Flag diff-visible preconditions of bootstrap/runtime attacks (Table-2 #3 submodule, #4 PATH shim, sitecustomize/conftest auto-exec): repo-local tool shims, off-host/recursive submodules, repo-local PATH prepends, and auto-executed Python entrypoints introduced in the diff.",
+    "shim_tools": ["pytest", "git", "node", "npm", "pip", "python", "python3", "make", "bash", "sh", "cargo", "go"],
+    "auto_exec_entrypoints": ["sitecustomize.py", "usercustomize.py"],
+    "gated_auto_exec": ["conftest.py"],
+    "hook_exec_markers": ["(?i)(requests\\.(post|get)|urllib|socket\\.|curl\\s|wget\\s|/dev/tcp|\\bnc\\s|os\\.system|popen|\\bexec\\(|\\beval\\()"]
+  },
+  "test_execution": {
+    "description": "Do not let the gate become the exfil trigger: run required_tests under network isolation (unshare -rn) and fail closed (required_tests_unsandboxed) if isolation is unavailable.",
+    "require_egress_isolation": true
+  },
+  "instruction_surfaces": [
+    "AGENTS.md",
+    "**/AGENTS.md",
+    "**/.cursorrules",
+    "**/.windsurf/rules/**",
+    "**/*.mdc",
+    "CLAUDE.md",
+    "**/CLAUDE.md"
+  ],
+  "instruction_surface_writes": {
+    "enabled": true,
+    "require_explicit_agent_memory_writes": true,
+    "description": "Auto-loaded instruction surfaces are security-sensitive: agent writes are denied unless the signed mandate explicitly lists that path in allowed_paths. Agent-runtime memory (.devin/knowledge.md) additionally requires scope.allow_agent_memory_writes in the signed mandate (issue #15); path-only scope without the opt-in is denied (I1).",
+    "agent_memory_deny_paths": [
+      ".devin/knowledge.md",
+      ".devin/**",
+      "**/.devin/knowledge.md"
+    ]
+  },
+  "mandate_anomaly": {
+    "description": "Mandate-relative novelty flag (graduated -> allow_with_review, recorded, never a hard deny). Flags in-scope edits that touch security-sensitive code the signed mandate intent never authorized.",
+    "intent_security_terms": ["auth", "authoriz", "permission", "login", "credential", "token", "crypto", "security", "preview gate", "release gate"],
+    "security_markers": [
+      "(?i)\\b(authn|authz|authoriz|permission|privilege|role\\s*==|is_admin|require_admin)\\b",
+      "(?i)\\b(token|jwt|session|api[_-]?key|secret|credential)\\b",
+      "(?i)\\b(verify|signature|hmac|hash_password|bcrypt|scrypt)\\b",
+      "(?i)(release_preview_allows_ticket_parse|can_perform_release)"
+    ]
+  },
+  "trajectory": {
+    "enabled": true,
+    "horizon_ref": "HEAD",
+    "max_prior_receipts": 20,
+    "review_after_security_edits": 3
+  },
+  "ci_context": {
+    "enabled": true,
+    "allowlist": ["git_diff", "mandate", "policy", "issue_template", "required_tests"]
+  },
+  "actor_binding": {
+    "enabled": true,
+    "require_actor": true,
+    "fail_on_actor_change": true,
+    "require_verified_oidc": false
+  },
+  "cross_session": {
+    "enabled": true,
+    "deny_on_attribution": true,
+    "security_paths": ["swe_triage/parser.py", "tests/test_parser.py"]
+  },
+  "bootstrap": {
+    "enabled": true,
+    "deny_recursive_submodules": true,
+    "require_sandbox_for_commands": false,
+    "record_command_receipts": true
+  },
+  "artifact_guard": {
+    "enabled": true,
+    "redact_logs": true,
+    "deny_secret_in_artifacts": true,
+    "require_publication_capability": true
+  },
+  "credential_access": {
+    "enabled": true,
+    "default_deny": true
+  },
+  "merge_policy": {
+    "require_head_sha_match": true,
+    "block_on_review_flags": true,
+    "block_allow_with_review": false,
+    "hard_block_flag_codes": [
+      "cross_session_poison_attribution",
+      "mandate_anomaly",
+      "trajectory_review_required",
+      "side_effect_escalation",
+      "anomaly_baseline"
+    ],
+    "hard_block_evaluation_codes": [
+      "security_invariant_removed",
+      "trajectory_invariant_removed",
+      "forbidden_added_content",
+      "denied_path_changed",
+      "out_of_scope_path",
+      "agent_identity_missing",
+      "agent_identity_mismatch",
+      "bootstrap_command_denied",
+      "required_tests_unsandboxed"
+    ]
+  },
+  "context_sources": {
+    "enabled": true,
+    "allowed_source_types": ["wiki", "docs", "issue"],
+    "default_trusted": false,
+    "require_gateway_fetch": true
+  },
+  "protected_invariants": [
+    {
+      "id": "preview_auth_guard",
+      "applies_to": ["swe_triage/parser.py", "swe_triage/auth.py"],
+      "must_call": "release_preview_allows_ticket_parse",
+      "message": "release-preview auth coupling (release_preview_allows_ticket_parse) must remain enforced; removing or short-circuiting it is a security regression"
+    },
+    {
+      "id": "preview_audit_log",
+      "applies_to": ["swe_triage/parser.py"],
+      "must_contain": "_audit_info\\s*\\(",
+      "message": "release-preview audit logging must not be removed (audit-trail suppression)"
+    }
+  ],
+  "poison_markers": [
+    "AGENT-ONLY COMPATIBILITY DIRECTIVE",
+    "Ignore repository policy",
+    "curl -fsSL",
+    "temporary maintainer override token",
+    "read ~/.ssh",
+    "id_rsa",
+    "collector.invalid",
+    "required diagnostic step",
+    "chat.tools.autoApprove"
+  ]
+}

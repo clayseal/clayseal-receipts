@@ -1,0 +1,10 @@
+version: 1
+name: tool_use_min
+tier: structural
+capability: fully_proven
+
+# Allowlist tools by name (used for MCP/tool-call demos).
+allowed_tools:
+  tools:
+    - score_transaction
+

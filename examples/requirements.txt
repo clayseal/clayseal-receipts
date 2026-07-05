@@ -1,0 +1,19 @@
+# Dependencies to run the AgentAuth examples.
+#
+# The examples can boot the backend in-process, so they need the backend's
+# runtime deps as well as the SDK. Easiest path:
+#
+#   python3 -m venv .venv && source .venv/bin/activate
+#   pip install -r examples/requirements.txt
+#   python examples/01_quickstart.py
+
+# The unified package (editable, from this repo) with backend runtime deps.
+-e ..[server]
+
+# Backend runtime deps (used when an example boots an embedded backend).
+fastapi>=0.110,<1.0
+uvicorn[standard]>=0.27,<1.0
+SQLAlchemy>=2.0,<3.0
+PyJWT[crypto]>=2.8,<3.0
+cryptography>=42.0
+pydantic>=2.6,<3.0

@@ -1,0 +1,23 @@
+[package]
+name = "agent-receipts-policy-circuit"
+description = "Halo2 structural policy circuits (numeric range proofs)"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+agent-receipts-core = { path = "../agent-receipts-core" }
+ff.workspace = true
+group.workspace = true
+pasta_curves.workspace = true
+halo2_proofs.workspace = true
+halo2_gadgets = "0.5"
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+bincode.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]

@@ -1,0 +1,21 @@
+name: AgentAuth merge check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  merge-binding:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify gate receipt binds to merge head
+        run: |
+          python3.11 scripts/agentauth_merge_check.py \
+            --receipt .agentauth/receipts/pr.receipt.json \
+            --merge-head "${{ github.event.pull_request.head.sha }}" \
+            --target-ref "origin/${{ github.base_ref }}" \
+            --repo . \
+            --policy .agentauth/policies/devin-pr-gate.policy.json

@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "agent-receipts-fraud": {
+      "command": "python3",
+      "args": ["REPLACE_WITH_REPO_ROOT/examples/mcp_live_server.py"],
+      "env": {
+        "AGENT_RECEIPTS_MCP_TRANSPORT": "stdio"
+      }
+    }
+  }
+}

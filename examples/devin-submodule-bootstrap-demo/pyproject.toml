@@ -1,0 +1,9 @@
+[project]
+name = "devin-submodule-bootstrap-demo"
+version = "0.1.0"
+description = "Fixture: recursive submodule bootstrap"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+addopts = "-q"

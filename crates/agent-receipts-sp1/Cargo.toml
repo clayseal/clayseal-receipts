@@ -1,0 +1,28 @@
+[package]
+name = "agent-receipts-sp1"
+description = "SP1 (Plonky3) zkVM proof of the fraud head — benchmark vs RISC Zero (SOTA-12)"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+# Detached from the parent workspace: the rest of agent-receipts must not require the
+# SP1 toolchain. Build explicitly with sp1up installed.
+[workspace]
+
+[[bin]]
+name = "agent-receipts-sp1"
+path = "src/main.rs"
+
+[dependencies]
+sp1-sdk = "=5.2.4"
+serde_json = "1"
+bincode = "1"
+hex = "0.4"
+
+# Guest ELF is built separately with `cargo prove build` (in program/) and loaded at
+# runtime — we deliberately avoid a build.rs sp1-build step, which fails when the
+# cargo-prove CLI and crates.io sp1-sdk target different ISAs (riscv64im vs riscv32im).
+# Pin both to 5.2.4 via scripts/sp1_build_fraud_head.sh.
+
+[profile.release]
+opt-level = 3

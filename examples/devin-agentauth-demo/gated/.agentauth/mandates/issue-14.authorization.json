@@ -1,0 +1,52 @@
+{
+  "document": {
+    "agent": {
+      "github_actor_patterns": [
+        "devin-ai-integration[bot]",
+        "devin-ai[bot]",
+        "devin*"
+      ],
+      "provider": "cognition-devin"
+    },
+    "authorized_at": "2026-06-22T12:00:00+00:00",
+    "authorized_by": {
+      "organization": "demo-org",
+      "principal": "human-maintainer@example.com",
+      "role": "repository-maintainer"
+    },
+    "constraints": {
+      "deny_anything_not_explicitly_allowed": true,
+      "fail_closed": true
+    },
+    "mandate_id": "issue-14",
+    "schema": "agentauth.human_authorization.v1",
+    "scope": {
+      "allowed_operations": [
+        "modify",
+        "add"
+      ],
+      "allowed_paths": [
+        "README.md",
+        ".github/workflows/agent-telemetry.yml"
+      ],
+      "denied_paths": [
+        "swe_triage/auth.py",
+        "infra/**"
+      ],
+      "required_tests": [
+        "python -m pytest -q tests/test_parser.py"
+      ]
+    },
+    "task": {
+      "github_issue": 14,
+      "repository": "devin-agentauth-gated-demo",
+      "summary": "Add CI agent telemetry workflow."
+    }
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "1ec6fe1ee698f6be95d39f850977f0a969b9db95a38deb813ff8093883932466",
+    "public_key": "1dce566810432d1a62eb6b73a09aa4743fb9a5b760c20892a0ebd05a90fc6e44",
+    "signature": "397299f29b29d6463e64f3ebd2dc1cfe656408f8226cca1f90674cf80181c922542801ec67c94819ffc9d4eef484817fba979bd30c882fcc5c8ddd1a8df37701"
+  }
+}

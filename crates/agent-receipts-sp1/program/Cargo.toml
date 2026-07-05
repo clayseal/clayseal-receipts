@@ -1,0 +1,15 @@
+[package]
+name = "fraud-head-program"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+# Built in isolation by sp1-build with the Succinct (SP1) rust toolchain.
+[workspace]
+
+[[bin]]
+name = "fraud-head-program"
+path = "src/main.rs"
+
+[dependencies]
+sp1-zkvm = "=5.2.4"

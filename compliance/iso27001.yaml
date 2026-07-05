@@ -1,0 +1,57 @@
+profile: iso27001
+title: ISO/IEC 27001 — logging and operational evidence
+version: 1
+framework_refs:
+  - "A.8.15 — logging"
+  - "A.8.16 — monitoring activities"
+required_fields:
+  - key: system_version
+    label: Asset / system identifier
+    sources:
+      - certificate.agent_id
+      - sdk_version
+    rule: any_present
+  - key: policy_reference
+    label: Information security policy binding
+    sources:
+      - policy.commitment
+      - execution_proof.policy_commitment
+    rule: any_present
+  - key: input_commitment
+    label: Event input commitment
+    sources:
+      - execution_proof.context_hash
+    rule: required
+  - key: output_commitment
+    label: Event output commitment
+    sources:
+      - execution_proof.output_hash
+    rule: required
+  - key: event_actor
+    label: Actor / authority reference
+    sources:
+      - authority.authority_id
+      - action.action_name
+    rule: any_present
+  - key: automated_reasoning
+    label: Decision record
+    sources:
+      - decision.outcome
+      - decision.violations
+    rule: any_present
+  - key: integrity_protection
+    label: Record integrity
+    sources:
+      - assurance.tier
+      - verification.valid
+      - audit_record.record_hash
+    rule: any_present
+controls:
+  a815_logging:
+    system_version: system_version
+    policy_reference: policy_reference
+    input_commitment: input_commitment
+    output_commitment: output_commitment
+    event_actor: event_actor
+    automated_reasoning: automated_reasoning
+    integrity_protection: integrity_protection

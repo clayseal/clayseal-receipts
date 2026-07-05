@@ -1,0 +1,29 @@
+[package]
+name = "agent-receipts-session"
+description = "Session-proof aggregation: batch Halo2 and Nova folding over policy_range_v3"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[features]
+default = ["halo2-batch"]
+halo2-batch = []
+nova-fold = ["dep:nova-snark", "dep:flate2", "dep:bincode", "dep:generic-array"]
+
+[dependencies]
+agent-receipts-policy-circuit = { path = "../agent-receipts-policy-circuit" }
+ff.workspace = true
+halo2_proofs.workspace = true
+pasta_curves.workspace = true
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+bincode = { workspace = true, optional = true }
+flate2 = { version = "1", optional = true }
+generic-array = { version = "0.14", optional = true }
+nova-snark = { version = "0.41", optional = true, default-features = false }
+
+[dev-dependencies]

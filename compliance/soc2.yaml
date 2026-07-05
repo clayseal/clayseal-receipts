@@ -1,0 +1,60 @@
+profile: soc2
+title: SOC 2 — Common Criteria mapping (CC6/CC7)
+version: 1
+framework_refs:
+  - "CC6.1 — logical access / authorization evidence"
+  - "CC7.2 — system monitoring and anomaly detection inputs"
+required_fields:
+  - key: system_version
+    label: System / deployment identifier
+    sources:
+      - certificate.model_provenance_hash
+      - certificate.agent_id
+      - sdk_version
+    rule: any_present
+  - key: policy_reference
+    label: Control policy reference
+    sources:
+      - policy.commitment
+      - execution_proof.policy_commitment
+    rule: any_present
+  - key: input_commitment
+    label: Request / context integrity
+    sources:
+      - execution_proof.context_hash
+    rule: required
+  - key: output_commitment
+    label: Response integrity
+    sources:
+      - execution_proof.output_hash
+    rule: required
+  - key: authorization_context
+    label: Authority / session binding
+    sources:
+      - authority.authority_id
+      - authority.session_id
+      - execution_proof.session_id
+    rule: any_present
+  - key: automated_reasoning
+    label: Control decision
+    sources:
+      - decision.outcome
+      - decision.policy_satisfied
+    rule: any_present
+  - key: integrity_protection
+    label: Cryptographic / verification evidence
+    sources:
+      - verification.valid
+      - assurance.tier_ordinal
+      - signatures
+    rule: any_present
+controls:
+  cc6_logical_access:
+    policy_reference: policy_reference
+    authorization_context: authorization_context
+    integrity_protection: integrity_protection
+  cc7_monitoring:
+    system_version: system_version
+    input_commitment: input_commitment
+    output_commitment: output_commitment
+    automated_reasoning: automated_reasoning

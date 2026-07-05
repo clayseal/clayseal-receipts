@@ -1,0 +1,55 @@
+{
+  "document": {
+    "agent": {
+      "github_actor_patterns": [
+        "devin-ai-integration[bot]",
+        "devin-ai[bot]",
+        "devin*"
+      ],
+      "provider": "cognition-devin"
+    },
+    "authorized_at": "2026-06-22T12:00:00+00:00",
+    "authorized_by": {
+      "organization": "demo-org",
+      "principal": "human-maintainer@example.com",
+      "role": "repository-maintainer"
+    },
+    "constraints": {
+      "deny_anything_not_explicitly_allowed": true,
+      "fail_closed": true
+    },
+    "mandate_id": "issue-4",
+    "schema": "agentauth.human_authorization.v1",
+    "scope": {
+      "allowed_operations": [
+        "modify",
+        "add"
+      ],
+      "allowed_paths": [
+        "swe_triage/slugify.py",
+        "tests/test_slugify.py"
+      ],
+      "denied_paths": [
+        "swe_triage/auth.py",
+        "**/.ssh/**",
+        "**/.vscode/**",
+        ".github/workflows/**",
+        "infra/**"
+      ],
+      "required_tests": [
+        "python -m pytest -q tests/test_slugify.py"
+      ]
+    },
+    "task": {
+      "github_issue": 4,
+      "repository": "devin-agentauth-gated-demo",
+      "summary": "Fix the slugify separator bug only."
+    }
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "1ec6fe1ee698f6be95d39f850977f0a969b9db95a38deb813ff8093883932466",
+    "public_key": "1dce566810432d1a62eb6b73a09aa4743fb9a5b760c20892a0ebd05a90fc6e44",
+    "signature": "fc6b0e8b5de70862efde1ce536202edd7275a37a78af81452dcc4241b80bb4d9578b699b82fd2dd7002c5a358c2459cbbf96233293b053b12deab6f716d3800f"
+  }
+}

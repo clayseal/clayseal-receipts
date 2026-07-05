@@ -1,0 +1,32 @@
+{
+  "feature_names": [
+    "action_count",
+    "unique_tool_ratio",
+    "tool_switch_rate",
+    "max_tool_streak",
+    "external_side_effect_ratio",
+    "high_risk_name_ratio",
+    "side_effect_escalation"
+  ],
+  "mean": [
+    7.421052631578948,
+    0.7605030723151343,
+    0.8282441502093456,
+    2.263157894736842,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "model_commitment": "fa13e85d092d7538151f054770b9e6d2dcd3777038722e0a9425d671f284262a",
+  "model_id": "atif-frequency-v1",
+  "std": [
+    5.539204640669011,
+    0.2732553643384026,
+    0.23940541083368272,
+    2.1395151070544856,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "training_samples": 38
+}

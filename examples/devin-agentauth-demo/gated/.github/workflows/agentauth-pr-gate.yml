@@ -1,0 +1,41 @@
+name: AgentAuth PR Gate
+
+# Hardened mandate + protected_invariants: blocks in-scope semantic auth bypass
+# (C1b → D3) even when the poison already lives on main in AGENTS.md.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  agentauth-pr-gate:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.pull_request.draft }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install gate dependencies
+        run: python -m pip install cryptography
+
+      - name: Evaluate PR against signed mandate
+        env:
+          PR_ACTOR: ${{ github.event.pull_request.user.login }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+        run: bash .github/scripts/run_agentauth_pr_gate.sh
+
+      - name: Upload gate receipt
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: agentauth-gate-receipt
+          path: .agentauth/receipts/*.json
+          if-no-files-found: warn

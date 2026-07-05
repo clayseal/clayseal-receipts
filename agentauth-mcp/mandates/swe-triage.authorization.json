@@ -1,0 +1,58 @@
+{
+  "document": {
+    "schema": "agentauth.human_authorization.v1",
+    "mandate_id": "issue-1",
+    "authorized_at": "2026-06-22T12:00:00+00:00",
+    "authorized_by": {
+      "organization": "demo-org",
+      "principal": "human-maintainer@example.com",
+      "role": "repository-maintainer"
+    },
+    "agent": {
+      "provider": "cognition-devin",
+      "github_actor_patterns": [
+        "devin-ai-integration[bot]",
+        "devin-ai[bot]",
+        "devin*"
+      ]
+    },
+    "constraints": {
+      "deny_anything_not_explicitly_granted": true,
+      "fail_closed": true
+    },
+    "scope": {
+      "capabilities": [
+        {
+          "resource": "repo:swe_triage/parser.py",
+          "action": "modify"
+        },
+        {
+          "resource": "repo:swe_triage/parser.py",
+          "action": "add"
+        },
+        {
+          "resource": "repo:tests/test_parser.py",
+          "action": "modify"
+        },
+        {
+          "resource": "repo:tests/test_parser.py",
+          "action": "add"
+        }
+      ],
+      "required_tests": [
+        "python -m pytest -q"
+      ]
+    },
+    "task": {
+      "github_issue": 1,
+      "repository": "devin-agentauth-gated-demo",
+      "summary": "Normalize lowercase Jira-style ticket IDs in the parser only."
+    }
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "e9bbd9db34a9b04bc3c7acd84138963f8fec4ba2611123a5ebdf1fc47b1f3363",
+    "public_key": "0cad77ab5162894cf17f4937364a313662213570739971219bbfdc552ec15d09",
+    "signature": "0dae285c5fb44e4bd9cf201b67101227f9baa7f055e7ac5212fff033964663d2e86f8df800118824ed454dae9a84a6bb9701ba10c44eee412c1ae9c6c84e430a"
+  }
+}

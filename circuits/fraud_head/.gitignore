@@ -1,0 +1,6 @@
+ezkl/
+*.key
+*.srs
+witness.json
+proof.json
+proof.proof

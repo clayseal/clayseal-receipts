@@ -1,0 +1,7 @@
+# Host cargo 1.95+ enables trim-paths by default, which passes --remap-path-scope
+# to rustc. SP1 5.2.4's succinct rustc (1.91.x) only accepts -Z remap-path-scope.
+[profile.release]
+trim-paths = "none"
+
+[profile.dev]
+trim-paths = "none"

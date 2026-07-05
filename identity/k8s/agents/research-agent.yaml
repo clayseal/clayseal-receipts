@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: research-agent
+  namespace: customer-acme
+  labels:
+    app: research-agent
+    agentauth.io/customer: acme
+    agentauth.io/agent-type: research
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: research-agent
+  template:
+    metadata:
+      labels:
+        app: research-agent
+        agentauth.io/customer: acme
+        agentauth.io/agent-type: research
+    spec:
+      serviceAccountName: research-agent
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: agent
+          image: ghcr.io/spiffe/spire-agent:1.11.2
+          command: ["/opt/spire/bin/spire-agent"]
+          args:
+            - api
+            - watch
+            - -socketPath
+            - /run/spire/sockets/agent.sock
+          volumeMounts:
+            - name: spire-agent-socket
+              mountPath: /run/spire/sockets
+              readOnly: true
+      volumes:
+        - name: spire-agent-socket
+          hostPath:
+            path: /run/spire/sockets
+            type: DirectoryOrCreate

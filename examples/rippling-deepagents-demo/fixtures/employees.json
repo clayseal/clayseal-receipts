@@ -1,0 +1,12 @@
+[
+  {"id": "emp_001", "name": "Dana Whitfield", "title": "VP Engineering", "level": "L7", "dept": "Engineering", "manager_id": null, "location": "US-CA"},
+  {"id": "emp_002", "name": "Priya Natarajan", "title": "Engineering Manager", "level": "L6", "dept": "Engineering", "manager_id": "emp_001", "location": "US-CA"},
+  {"id": "emp_003", "name": "Marcus Ilic", "title": "Senior Software Engineer", "level": "L5", "dept": "Engineering", "manager_id": "emp_002", "location": "US-NY"},
+  {"id": "emp_004", "name": "Sana Okafor", "title": "Software Engineer", "level": "L4", "dept": "Engineering", "manager_id": "emp_002", "location": "US-NY"},
+  {"id": "emp_005", "name": "Jules Beaumont", "title": "HR Business Partner", "level": "L5", "dept": "HR", "manager_id": "emp_006", "location": "US-CA"},
+  {"id": "emp_006", "name": "Renata Costa", "title": "HR Director", "level": "L7", "dept": "HR", "manager_id": null, "location": "US-CA"},
+  {"id": "emp_007", "name": "Tobias Lindqvist", "title": "IT Support Specialist", "level": "L3", "dept": "IT", "manager_id": "emp_008", "location": "US-TX"},
+  {"id": "emp_008", "name": "Amara Osei", "title": "IT Manager", "level": "L6", "dept": "IT", "manager_id": null, "location": "US-TX"},
+  {"id": "emp_009", "name": "Lena Fischer", "title": "Recruiter", "level": "L4", "dept": "HR", "manager_id": "emp_006", "location": "US-CA"},
+  {"id": "emp_042", "name": "Owen Castellano", "title": "Software Engineer", "level": "L4", "dept": "Engineering", "manager_id": "emp_002", "location": "US-NY"}
+]

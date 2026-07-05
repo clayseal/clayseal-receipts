@@ -1,0 +1,27 @@
+# Policy for the AgentAuth PR gate. Modeled on agent-receipts/policies/fraud_decision.yaml
+# (the shape the Halo2 structural-policy prover accepts).
+#
+# The gate's authorization decision is enforced by the Biscuit capability token
+# (allow/deny), then encoded into a bounded "decision_risk" score so the Halo2
+# circuit can prove it in-range and bind the policy + output commitments:
+#   allow  -> decision_risk = 0.0  (proved to lie in [0.0, 1.0])
+# The proof attests the bounded, committed decision; the capability token is what
+# actually decides allow/deny.
+#
+version: 1
+name: agentauth_pr_gate
+tier: structural
+capability: fully_proven
+
+numeric_ranges:
+  - field: decision_risk
+    min: 0.0
+    max: 1.0
+
+output_schema:
+  fields:
+    - decision
+    - decision_risk
+  required:
+    - decision
+    - decision_risk

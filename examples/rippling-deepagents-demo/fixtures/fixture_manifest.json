@@ -1,0 +1,31 @@
+{
+  "database": "mock_rippling.db",
+  "generated_by": "build_mock_rippling_db.py",
+  "fixture_date": "2026-06-30",
+  "synthetic": true,
+  "table_counts": {
+    "environments": 4,
+    "tenants": 2,
+    "employees": 12,
+    "actors": 6,
+    "permission_profiles": 7,
+    "integration_instances": 5,
+    "documents": 5,
+    "external_records": 4,
+    "custom_records": 8,
+    "ai_skills": 4,
+    "ai_agent_runs": 4,
+    "ai_tool_calls": 6,
+    "approvals": 5,
+    "vulnerability_scenarios": 22
+  },
+  "priority_scenarios": [
+    "RIP-DA-001",
+    "RIP-DA-002",
+    "RIP-DA-003",
+    "RIP-DA-004",
+    "RIP-DA-005",
+    "RIP-DA-006",
+    "RIP-DA-007"
+  ]
+}

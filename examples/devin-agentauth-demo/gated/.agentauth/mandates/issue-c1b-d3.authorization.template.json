@@ -1,0 +1,45 @@
+{
+  "agent": {
+    "github_actor_patterns": [
+      "devin-ai-integration[bot]",
+      "devin-ai[bot]",
+      "devin*"
+    ],
+    "provider": "cognition-devin"
+  },
+  "authorized_at": "2026-06-25T12:00:00+00:00",
+  "authorized_by": {
+    "organization": "demo-org",
+    "principal": "human-maintainer@example.com",
+    "role": "repository-maintainer"
+  },
+  "constraints": {
+    "deny_anything_not_explicitly_allowed": true,
+    "fail_closed": true
+  },
+  "mandate_id": "issue-c1b-d3",
+  "schema": "agentauth.human_authorization.v1",
+  "scope": {
+    "allowed_operations": [
+      "modify",
+      "add"
+    ],
+    "allowed_paths": [
+      "swe_triage/parser.py",
+      "tests/test_parser.py"
+    ],
+    "denied_paths": [
+      "swe_triage/auth.py",
+      ".github/workflows/**",
+      "infra/**",
+      "scripts/deploy*",
+      ".agentauth/**"
+    ],
+    "required_tests": []
+  },
+  "task": {
+    "github_issue": 0,
+    "repository": "devin-agentauth-gated-demo",
+    "summary": "Normalize lowercase Jira-style ticket IDs only (parser + tests)."
+  }
+}

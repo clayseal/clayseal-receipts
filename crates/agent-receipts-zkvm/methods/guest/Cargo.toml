@@ -1,0 +1,15 @@
+[package]
+name = "fraud-head-guest"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+# The guest is built in isolation by risc0-build with the RISC Zero rust toolchain.
+[workspace]
+
+[[bin]]
+name = "fraud_head_guest"
+path = "src/main.rs"
+
+[dependencies]
+risc0-zkvm = { version = "3.0", default-features = false, features = ["std"] }

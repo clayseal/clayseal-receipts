@@ -1,0 +1,22 @@
+# Copy to config/partner.yaml and adjust for your pilot.
+# Resolve paths relative to this file unless absolute.
+
+policy_path: ../policies/fraud_decision.yaml
+audit_db: ../.audit/partner.sqlite
+
+# shadow | recommend | bounded_auto | prove
+mode: shadow
+
+# Optional: load existing cert (read-only)
+# certificate_path: ../certs/agent.json
+
+# Recommended for pilots: stable agent_id across restarts
+persist_certificate: ../certs/partner-agent.json
+
+model_provenance_hash: sha256:pilot-dev-v1
+organization: your-org
+principal_id: your-agent-principal
+
+# Override prove-mode defaults (optional)
+# prove_policy: true
+# prove_composed: true

@@ -1,0 +1,20 @@
+[package]
+name = "agent-receipts-core"
+description = "Core types, audit chain, and proof envelopes for Agent Receipts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+chrono.workspace = true
+uuid.workspace = true
+rusqlite = { version = "0.32", features = ["bundled"] }
+serde_yaml = "0.9"
+
+[dev-dependencies]
+tempfile = "3"

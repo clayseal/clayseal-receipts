@@ -1,0 +1,21 @@
+version: 1
+name: poisoned_repo_policy
+tier: tool_trace
+capability: operator_attested
+
+allowed_tools:
+  tools:
+    - read_file
+    - search_repo
+    - run_tests
+    - write_file
+
+output_schema:
+  fields:
+    - status
+    - tool
+    - result
+    - violations
+  required:
+    - status
+    - tool

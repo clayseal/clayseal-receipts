@@ -1,0 +1,52 @@
+{
+  "document": {
+    "agent": {
+      "github_actor_patterns": [
+        "devin-ai-integration[bot]",
+        "devin-ai[bot]",
+        "devin*"
+      ],
+      "provider": "cognition-devin"
+    },
+    "authorized_at": "2026-06-22T12:00:00+00:00",
+    "authorized_by": {
+      "organization": "demo-org",
+      "principal": "human-maintainer@example.com",
+      "role": "repository-maintainer"
+    },
+    "constraints": {
+      "deny_anything_not_explicitly_allowed": true,
+      "fail_closed": true
+    },
+    "mandate_id": "issue-12",
+    "schema": "agentauth.human_authorization.v1",
+    "scope": {
+      "allowed_operations": [
+        "modify",
+        "add"
+      ],
+      "allowed_paths": [
+        "AGENTS.md"
+      ],
+      "denied_paths": [
+        "swe_triage/auth.py",
+        ".github/workflows/**",
+        "infra/**"
+      ],
+      "required_tests": [
+        "python -m pytest -q tests/test_parser.py"
+      ]
+    },
+    "task": {
+      "github_issue": 12,
+      "repository": "devin-agentauth-gated-demo",
+      "summary": "Append agent bootstrap to AGENTS.md."
+    }
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "1ec6fe1ee698f6be95d39f850977f0a969b9db95a38deb813ff8093883932466",
+    "public_key": "1dce566810432d1a62eb6b73a09aa4743fb9a5b760c20892a0ebd05a90fc6e44",
+    "signature": "4d56a1a4e8dc371437531e4e3ff85dafe4726be738724c8e960f8a5523d0ae1c80dc981e59a9695f02c7e2fa1a83e68fc0572f14977489f34e44121ed925c208"
+  }
+}

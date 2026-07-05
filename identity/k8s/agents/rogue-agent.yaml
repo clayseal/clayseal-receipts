@@ -1,0 +1,45 @@
+# Uses the finance service account but the wrong agent-type pod label. SPIRE
+# registration requires all selectors to match, so this workload receives no SVID.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rogue-agent
+  namespace: customer-acme
+  labels:
+    app: rogue-agent
+    agentauth.io/customer: acme
+    agentauth.io/agent-type: finance
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rogue-agent
+  template:
+    metadata:
+      labels:
+        app: rogue-agent
+        agentauth.io/customer: acme
+        agentauth.io/agent-type: impostor
+    spec:
+      serviceAccountName: finance-agent
+      hostPID: true
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      containers:
+        - name: agent
+          image: ghcr.io/spiffe/spire-agent:1.11.2
+          command: ["/opt/spire/bin/spire-agent"]
+          args:
+            - api
+            - watch
+            - -socketPath
+            - /run/spire/sockets/agent.sock
+          volumeMounts:
+            - name: spire-agent-socket
+              mountPath: /run/spire/sockets
+              readOnly: true
+      volumes:
+        - name: spire-agent-socket
+          hostPath:
+            path: /run/spire/sockets
+            type: DirectoryOrCreate

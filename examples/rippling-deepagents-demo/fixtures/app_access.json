@@ -1,0 +1,12 @@
+{
+  "emp_001": {"apps": ["github", "slack", "aws-prod"], "supergroup": "eng-leadership"},
+  "emp_002": {"apps": ["github", "slack"], "supergroup": "eng-managers"},
+  "emp_003": {"apps": ["github", "slack"], "supergroup": "eng-ic"},
+  "emp_004": {"apps": ["github", "slack"], "supergroup": "eng-ic"},
+  "emp_005": {"apps": ["slack", "workday"], "supergroup": "hr-staff"},
+  "emp_006": {"apps": ["slack", "workday", "adp-admin"], "supergroup": "hr-leadership"},
+  "emp_007": {"apps": ["slack", "zendesk"], "supergroup": "it-staff"},
+  "emp_008": {"apps": ["slack", "zendesk", "okta-admin"], "supergroup": "it-leadership"},
+  "emp_009": {"apps": ["slack", "workday", "greenhouse"], "supergroup": "hr-staff"},
+  "emp_042": {"apps": ["github", "slack"], "supergroup": "eng-ic"}
+}

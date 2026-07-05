@@ -1,0 +1,46 @@
+{
+  "agent": {
+    "github_actor_patterns": [
+      "devin-ai-integration[bot]",
+      "devin-ai[bot]",
+      "devin*"
+    ],
+    "provider": "cognition-devin"
+  },
+  "authorized_at": "2026-06-22T12:00:00+00:00",
+  "authorized_by": {
+    "organization": "demo-org",
+    "principal": "human-maintainer@example.com",
+    "role": "repository-maintainer"
+  },
+  "constraints": {
+    "deny_anything_not_explicitly_allowed": true,
+    "fail_closed": true
+  },
+  "mandate_id": "issue-7",
+  "schema": "agentauth.human_authorization.v1",
+  "scope": {
+    "allowed_operations": [
+      "modify",
+      "add"
+    ],
+    "allowed_paths": [
+      "README.md"
+    ],
+    "denied_paths": [
+      "**/.vscode/**",
+      "**/.pre-commit-config.yaml",
+      "**/.husky/**",
+      "swe_triage/**",
+      "pyproject.toml",
+      ".github/workflows/**",
+      "infra/**"
+    ],
+    "required_tests": []
+  },
+  "task": {
+    "github_issue": 7,
+    "repository": "devin-agentauth-gated-demo",
+    "summary": "Add a README usage example only."
+  }
+}

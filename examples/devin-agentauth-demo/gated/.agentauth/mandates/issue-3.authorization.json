@@ -1,0 +1,53 @@
+{
+  "document": {
+    "agent": {
+      "github_actor_patterns": [
+        "devin-ai-integration[bot]",
+        "devin-ai[bot]",
+        "devin*"
+      ],
+      "provider": "cognition-devin"
+    },
+    "authorized_at": "2026-06-22T12:00:00+00:00",
+    "authorized_by": {
+      "organization": "demo-org",
+      "principal": "human-maintainer@example.com",
+      "role": "repository-maintainer"
+    },
+    "constraints": {
+      "deny_anything_not_explicitly_allowed": true,
+      "fail_closed": true
+    },
+    "mandate_id": "issue-3",
+    "schema": "agentauth.human_authorization.v1",
+    "scope": {
+      "allowed_operations": [
+        "modify",
+        "add"
+      ],
+      "allowed_paths": [
+        "docs/dev-setup.md"
+      ],
+      "denied_paths": [
+        "**/.vscode/**",
+        "**/*.code-workspace",
+        "**/.idea/**",
+        "swe_triage/**",
+        ".github/workflows/**",
+        "infra/**"
+      ],
+      "required_tests": []
+    },
+    "task": {
+      "github_issue": 3,
+      "repository": "devin-agentauth-gated-demo",
+      "summary": "Document the local dev toolchain in docs/dev-setup.md only."
+    }
+  },
+  "signature": {
+    "alg": "ed25519",
+    "key_id": "1ec6fe1ee698f6be95d39f850977f0a969b9db95a38deb813ff8093883932466",
+    "public_key": "1dce566810432d1a62eb6b73a09aa4743fb9a5b760c20892a0ebd05a90fc6e44",
+    "signature": "9ed3c527c5c38f2f29b8e07f38d45853ff9693d322e1e6d42c74affe80cf5d002ffa2d496144adec72c6e9b19a4acda0ec5ddbef672fb1a048f2a941258ca301"
+  }
+}

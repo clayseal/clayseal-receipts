@@ -1,0 +1,41 @@
+{
+  "agent": {
+    "github_actor": "devin-ai-integration[bot]",
+    "provider": "cognition-devin"
+  },
+  "authorized_at": "2026-06-22T12:00:00+00:00",
+  "authorized_by": {
+    "organization": "acme-payments",
+    "principal": "eng-manager@acme.example",
+    "role": "engineering-manager"
+  },
+  "constraints": {
+    "deny_anything_not_explicitly_allowed": true,
+    "fail_closed": true
+  },
+  "mandate_id": "gh-1337",
+  "schema": "agentauth.human_authorization.v1",
+  "scope": {
+    "allowed_operations": [
+      "modify",
+      "add"
+    ],
+    "allowed_paths": [
+      "acme_payments/cart.py",
+      "tests/test_cart.py"
+    ],
+    "denied_paths": [
+      "acme_payments/auth.py",
+      ".github/workflows/**",
+      "infra/**"
+    ],
+    "required_tests": [
+      "python3 -m unittest discover -s tests -q"
+    ]
+  },
+  "task": {
+    "github_issue": 1337,
+    "repository": "acme-payments",
+    "summary": "Fix checkout coupon tax rounding only."
+  }
+}

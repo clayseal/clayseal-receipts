@@ -1,0 +1,19 @@
+# Production-shaped design partner config (copy to config/partner.yaml).
+# Run: arctl preflight config/partner.yaml --strict
+
+policy_path: ../policies/fraud_decision.yaml
+audit_db: ../.audit/partner.sqlite
+
+mode: bounded_auto
+
+# Stable agent_id across restarts (created on first run if missing)
+persist_certificate: ../certs/partner-agent.json
+
+model_provenance_hash: sha256:REPLACE_WITH_MODEL_ARTIFACT_HASH
+organization: REPLACE_WITH_YOUR_ORG
+principal_id: REPLACE_WITH_AGENT_PRINCIPAL
+
+strict: true
+
+# prove_policy: true
+# prove_composed: true

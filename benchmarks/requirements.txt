@@ -1,0 +1,2 @@
+# Optional: SWE parquet adapter
+pyarrow>=15.0

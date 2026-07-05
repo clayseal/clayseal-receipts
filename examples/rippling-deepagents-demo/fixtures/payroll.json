@@ -1,0 +1,12 @@
+{
+  "emp_001": {"base_salary": 260000, "currency": "USD", "last_bonus": 30000, "bonus_cap": 40000},
+  "emp_002": {"base_salary": 195000, "currency": "USD", "last_bonus": 18000, "bonus_cap": 25000},
+  "emp_003": {"base_salary": 165000, "currency": "USD", "last_bonus": 12000, "bonus_cap": 18000},
+  "emp_004": {"base_salary": 140000, "currency": "USD", "last_bonus": 8000, "bonus_cap": 14000},
+  "emp_005": {"base_salary": 130000, "currency": "USD", "last_bonus": 6000, "bonus_cap": 12000},
+  "emp_006": {"base_salary": 210000, "currency": "USD", "last_bonus": 22000, "bonus_cap": 30000},
+  "emp_007": {"base_salary": 78000, "currency": "USD", "last_bonus": 3000, "bonus_cap": 6000},
+  "emp_008": {"base_salary": 150000, "currency": "USD", "last_bonus": 10000, "bonus_cap": 15000},
+  "emp_009": {"base_salary": 110000, "currency": "USD", "last_bonus": 5000, "bonus_cap": 10000},
+  "emp_042": {"base_salary": 138000, "currency": "USD", "last_bonus": 7500, "bonus_cap": 13000}
+}

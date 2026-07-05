@@ -1,0 +1,9 @@
+[project]
+name = "devin-env-token-exfil-demo"
+version = "0.1.0"
+description = "Fixture: env token exfil via artifacts"
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+addopts = "-q"

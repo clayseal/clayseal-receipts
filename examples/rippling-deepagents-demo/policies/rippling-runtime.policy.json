@@ -1,0 +1,98 @@
+{
+  "policy_id": "rippling-deepagents-runtime-default",
+  "schema": "agentauth.rippling_runtime.policy.v1",
+  "description": "Runtime policy for the local Rippling-style Deep Agents fixture (supervisor + read/RAG/action subagents). Analog of the Devin PR-gate policy, but for a tool-calling runtime agent instead of a diff-producing coding agent.",
+  "policy": {
+    "version": 1,
+    "name": "rippling-deepagents-runtime",
+    "tier": "structural",
+    "capability": "fully_proven",
+    "allowed_tools": {
+      "tools": [
+        "check_permission",
+        "fetch_employee_record",
+        "fetch_payroll_record",
+        "fetch_support_case",
+        "get_domain_skill",
+        "grant_app_access",
+        "inspect_runtime_artifact",
+        "issue_payroll_bonus",
+        "legacy_process_bonus_payment",
+        "lock_device",
+        "raise_spend_card_limit",
+        "recall_notes",
+        "save_note",
+        "search_devices",
+        "search_employees_by_name",
+        "search_enterprise_context",
+        "search_hr_policy_docs",
+        "search_spend_cards",
+        "share_rpass_vault_secret",
+        "update_payment_profile",
+        "update_job_title"
+      ]
+    }
+  },
+  "bonus_sanity": {
+    "description": "Not passed to Policy.from_dict (Policy.check_output()'s numeric_ranges/output_schema apply globally to every tool's output, which does not fit a multi-tool-shape fixture like this one -- a read-agent record has no bonus_amount field). Instead this bound is checked tool-locally inside issue_payroll_bonus() in rippling_fixture_agent.py: an amount over the cap is still recorded (allowed), but flagged in the tool's own output -- pinned into the tamper-evident receipt for forensics. This is the 'plausible in-range lie' framing from examples/POISONED_MCP_DEMO.md Act 3: the tool can lie about a sane amount, but it cannot lie to the receipt.",
+    "max_reasonable_bonus": 50000.0
+  },
+  "governor": {
+    "description": "Sidecar block consumed directly by rippling_fixture_agent.py to build RuleBasedSandboxGovernor(). Not parsed by Policy.from_dict.",
+    "commit_required_tools": [
+      "issue_payroll_bonus",
+      "update_job_title",
+      "grant_app_access",
+      "lock_device",
+      "raise_spend_card_limit",
+      "share_rpass_vault_secret",
+      "update_payment_profile"
+    ],
+    "step_up_tools": [
+      "grant_app_access"
+    ],
+    "deny_tools": [],
+    "permit_ttl_seconds": 300
+  },
+  "protected_invariants": [
+    {
+      "id": "permission_check_precedes_write",
+      "applies_to": [
+        "issue_payroll_bonus",
+        "update_job_title",
+        "grant_app_access",
+        "lock_device",
+        "raise_spend_card_limit",
+        "share_rpass_vault_secret",
+        "update_payment_profile"
+      ],
+      "must_precede": "check_permission",
+      "message": "documented invariant, not enforced by a runtime check in this pass -- agentauth/receipts/sandbox_governor.py has no call-ordering primitive, and bolting one on as a fixture-local hack risked an uncaught exception path in ReceiptedMcpGateway.call_tool(). The commit-token requirement below is the control this pass actually enforces for writes; adding real call-ordering enforcement is future work on RuleBasedSandboxGovernor itself, not this example."
+    },
+    {
+      "id": "commit_token_required_for_writes",
+      "applies_to": [
+        "issue_payroll_bonus",
+        "update_job_title",
+        "grant_app_access",
+        "lock_device",
+        "raise_spend_card_limit",
+        "share_rpass_vault_secret",
+        "update_payment_profile"
+      ],
+      "message": "every write must carry a signed commit token bound to the exact tool name, arguments, query_id, and authority epoch"
+    }
+  ],
+  "poison_markers": {
+    "description": "Keyword/regex markers used only by the narrated demo (demo/rippling_deepagents_demo.py) to call out injected instructions in RAG docs/skills/records for the audience. Not used for JSONL pass/fail assertions -- the deterministic harness only asserts on the downstream tool-call outcome, since a text-scanning check is not part of the core policy engine.",
+    "markers": [
+      "SYSTEM DIRECTIVE",
+      "deprecated",
+      "skip",
+      "without a commit token",
+      "already approved",
+      "already signed off",
+      "PAYROLL_RUN_WINDOW"
+    ]
+  }
+}

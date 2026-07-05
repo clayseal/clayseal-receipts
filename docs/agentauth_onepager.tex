@@ -1,0 +1,46 @@
+\documentclass[10pt]{article}
+
+% Pasteable into Overleaf: self-contained, compiles as-is (pdfLaTeX).
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=0.62in]{geometry}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{xcolor}
+\usepackage{enumitem}
+
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\pagestyle{empty}
+
+\newcommand{\code}[1]{\texttt{\small #1}}
+
+\begin{document}
+
+{\LARGE\bfseries How AgentAuth works}\\[2pt]
+{\color{gray}\small Verifiable enforcement for agent tool calls}
+\rule{\linewidth}{0.4pt}
+
+AgentAuth enforces authorization on an agent's tool calls and produces a cryptographic record of each one. It sits at the boundary in front of the tools, so every side-effecting call is evaluated before it runs, returns allow, human step-up, or deny, and is written to a tamper-evident log. Its defining property is that every authority signal is derived outside the agent's own reasoning, so adversarial prompting cannot manufacture permission from within. A governed action passes through the layers below.
+
+\begin{enumerate}[leftmargin=1.4em, itemsep=3pt, topsep=3pt, parsep=0pt]
+
+\item \textbf{Attested identity (L1/L2).} The agent's workload proves itself with a signed attestation document; selectors are derived from that evidence and the matching registration entry under default-deny, and the platform, not the caller, fixes the agent's type, tenant, and scopes. The result is a short-lived SPIFFE credential, a JWT-SVID signed with EdDSA (Ed25519) under per-customer keys, optionally carrying a Biscuit capability token that verifies offline and can be attenuated without contacting the issuer, sender-constrained by proof-of-possession. The adapter \code{authority\_binding.py} normalizes this into the authority context used by every later check.
+
+\item \textbf{Session capability lease.} From the user's original request, captured before any retrieved document or tool output can bias it, AgentAuth derives the tools and target entities the task legitimately needs and confines the session to them. Names are resolved against the tenant directory, and groups expand along membership edges under a bounded closure. A write to a tool or entity outside the lease is refused even with otherwise valid credentials, which closes connector substitution and misdirected injection.
+
+\item \textbf{Commit-token binding and policy governor.} Before a governed write, the control plane issues a single-use, Ed25519-signed token bound to the tool, the SHA-256 hash of the canonical-JSON arguments, the tenant, the authority, and the query id. The gateway re-derives that hash at the execution boundary and rejects any mismatch, so an approval is exact to its payload and cannot be replayed. Alongside it, a policy governor sets each tool's obligation: commit token sufficient, human step-up also required, or denied outright.
+
+\item \textbf{Cumulative value budget and supersession.} A session-scoped budget sums the real quantity each action moves, such as dollars, against a ceiling inherited from the requesting principal rather than the agent. It is keyed to the quantity, not the tool, so one ceiling holds across the governed tool and any legacy connector and cannot be evaded by fragmenting an amount, the structuring pattern familiar from AML. Supersession applies idempotency-key semantics: a same-key correction replaces the earlier amount instead of adding to it, and because a replacement is monotone-decreasing it is safe to honor even from an untrusted agent.
+
+\item \textbf{Behavior monitoring.} A per-session monitor extracts action features, such as a side-effecting call after a read-only stretch or off-scope references, scores each call for how unusual it is in context, and attaches the score to the receipt as evidence.
+
+\item \textbf{Verifiable receipt.} Each decision is appended to an RFC~6962 Merkle log. The receipt is a COSE\_Sign1 SCITT signed statement plus a COSE receipt that carries an RFC~9162 Merkle inclusion proof against the log, in C2SP checkpoint format, with a witness cosigning quorum over the log's consistency. A third party can verify what the agent did and that it was authorized, offline, without trusting AgentAuth.
+
+\end{enumerate}
+
+\textbf{Implementation.} The evidence plane is Ed25519 throughout, keys identified by the hash of their public half. Beyond the signed log, a receipt can carry a proof that the policy was actually applied to the action, along one of three attestation paths: a hash-only baseline, a hardware path backed by an AWS Nitro Enclave attestation document, or a zero-knowledge path in which the structural (numeric-range) policy is proven by a Halo2 circuit and model inference by a zkVM (SP1 or RISC~Zero), with Nova folding aggregating a whole session's per-action proofs into one succinct proof. The scoping engine that produces the least-authority lease is retrieval-based: for code-editing agents it ranks a repository's dependency graph with BM25, an HNSW approximate-nearest-neighbor index, reciprocal rank fusion, MMR, and PageRank; for tool and entity scoping it resolves names against the tenant directory and takes a bounded closure over membership edges. Identity follows SPIFFE; the receipt format follows the IETF SCITT architecture. Unlike attestation-only tooling, these receipts certify a decision that was enforced, not an event that was merely observed.
+
+\textbf{Roadmap.} Today the controls are evaluated at several points along the call path. The next step is one policy decision point that runs them in a defined order and returns a single typed decision, with an interface modeled on AuthZEN, the emerging standard for separating the component that decides from the one that enforces, in the same way the receipts already follow SCITT. That collapses enforcement into a single auditable contract, which is exactly what gets receipted. It also enables defense in depth, since a downstream service can re-check the same decision so a compromised runtime cannot authorize itself, and the behavior score can then trigger a step-up on its own rather than only being logged. The aim is to reduce per-action human approval to what is genuinely novel or over threshold, while every action still carries a verifiable receipt.
+
+\end{document}

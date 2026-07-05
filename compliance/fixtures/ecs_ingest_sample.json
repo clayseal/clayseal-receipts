@@ -1,0 +1,36 @@
+{
+  "@timestamp": "2026-06-29T17:55:24.488179+00:00",
+  "event.kind": "event",
+  "event.category": [
+    "process"
+  ],
+  "event.type": [
+    "info"
+  ],
+  "event.action": "agent.run",
+  "event.outcome": "allow",
+  "agent.id": "f71d3542-3725-4294-83ed-3408e6481d0e",
+  "agent.version": "0.2.1",
+  "rule.name": "fraud_decision",
+  "rule.uuid": "a8ddf4abd5e83553c32ac7a0d4055498b9c3a028c2de115856730c60a2d5b6a2",
+  "session.id": "sess-1",
+  "user.id": "f71d3542-3725-4294-83ed-3408e6481d0e",
+  "hash.sha256": "f42976989535e98aa920e3f9c28e9cbe50ce1f3aae8ea3c49c689940c8190919",
+  "agent_receipts": {
+    "proof_id": "4c276657-ff51-4f1c-a58e-34ced50d50ba",
+    "schema": "agent-receipts.receipt-bundle.v2",
+    "context_hash": "003f2e9ebc63913840369fd6700669dd159bce01a55198c729cd883f637da43c",
+    "output_hash": "f42976989535e98aa920e3f9c28e9cbe50ce1f3aae8ea3c49c689940c8190919",
+    "policy_commitment": "a8ddf4abd5e83553c32ac7a0d4055498b9c3a028c2de115856730c60a2d5b6a2",
+    "model_provenance_hash": "sha256:model-dev-v1",
+    "assurance_level": "shadow",
+    "assurance_tier": "declared",
+    "assurance_tier_ordinal": 0,
+    "verification_valid": false,
+    "verification_issue_count": 1,
+    "stored_verification_valid": false,
+    "signature_count": 0,
+    "approval_state": "not_required",
+    "recommended_action": null
+  }
+}

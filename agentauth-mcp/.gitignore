@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+keys/
+.receipts/
+.audit/
+.ngrok.log

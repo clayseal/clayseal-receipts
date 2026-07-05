@@ -1,0 +1,57 @@
+profile: eu-ai-act
+title: EU AI Act — record-keeping and logging duties
+version: 1
+framework_refs:
+  - "EU AI Act Art. 12 — automatic recording of events (logs)"
+  - "EU AI Act Art. 19 — foundation model documentation (provenance reference)"
+required_fields:
+  - key: system_version
+    label: AI system / model version reference
+    sources:
+      - certificate.model_provenance_hash
+      - sdk_version
+    rule: any_present
+  - key: policy_reference
+    label: Governance policy binding
+    sources:
+      - policy.commitment
+      - execution_proof.policy_commitment
+    rule: any_present
+  - key: input_commitment
+    label: Input / context commitment
+    sources:
+      - execution_proof.context_hash
+    rule: required
+  - key: output_commitment
+    label: Output commitment
+    sources:
+      - execution_proof.output_hash
+    rule: required
+  - key: automated_reasoning
+    label: Machine decision outcome
+    sources:
+      - decision.outcome
+      - decision.recommended_action
+    rule: any_present
+  - key: human_oversight
+    label: Human oversight state
+    sources:
+      - decision.approval_state
+      - approval.state
+    rule: any_present
+  - key: integrity_protection
+    label: Tamper-evidence / verification
+    sources:
+      - verification.valid
+      - assurance.tier
+      - signatures
+    rule: any_present
+controls:
+  art_12_event_log:
+    system_version: system_version
+    policy_reference: policy_reference
+    input_commitment: input_commitment
+    output_commitment: output_commitment
+    automated_reasoning: automated_reasoning
+    human_oversight: human_oversight
+    integrity_protection: integrity_protection

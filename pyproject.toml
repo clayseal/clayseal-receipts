@@ -1,0 +1,153 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentauth-receipts"
+version = "0.3.0"
+description = "AgentAuth — attested identity and verifiable execution receipts for autonomous AI agents"
+readme = "README.md"
+license = "MIT"
+# biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.
+requires-python = ">=3.10,<3.14"
+dependencies = [
+  "agentauth-identity @ git+https://github.com/pberlizov/agentauth-identity.git@v0.3.0",
+  "agentauth-capabilities @ git+https://github.com/pberlizov/agentauth-capabilities.git@v0.3.0",
+  "pyyaml>=6.0",
+  "cryptography>=42.0",
+  "cbor2>=5.4",
+  "httpx>=0.27",
+  "biscuit-python>=0.4,<0.5",
+  "PyJWT>=2.8,<3.0",
+]
+
+[project.optional-dependencies]
+# Hosted FastAPI service (identity issuance/validation + receipt verifier).
+server = [
+    "fastapi>=0.110,<1.0",
+    "uvicorn[standard]>=0.27,<1.0",
+    "SQLAlchemy>=2.0,<3.0",
+    "pydantic>=2.6,<3.0",
+]
+mcp = [
+    "mcp>=1.0",
+    "httpx>=0.27",
+    "uvicorn>=0.30",
+    "groq>=0.11"
+]
+onnx = [
+    "onnx>=1.16",
+    "numpy>=1.26",
+]
+ezkl = [
+    "agentauth-receipts[onnx]",
+]
+verifier = [
+    "uvicorn>=0.30",
+    "starlette>=0.37",
+]
+otel = [
+    "opentelemetry-exporter-otlp-proto-http>=1.24",
+]
+# Rippling-style Deep Agents red-team fixture (examples/rippling-deepagents-demo/,
+# demo/rippling_deepagents_demo.py). Opt-in only -- deepagents/langgraph pull a
+# heavy dependency tree the rest of the test suite doesn't need.
+deepagents = [
+    "deepagents>=0.6.12",
+    "langchain-openai>=1.3.3",
+    "langgraph>=1.2.7",
+]
+# Optional KMS providers for signing/Biscuit key encryption at rest. The
+# providers lazy-import these, so they are only needed when
+# AGENTAUTH_SECRET_ENCRYPTION_PROVIDER is aws_kms / gcp_kms.
+kms = [
+    "boto3>=1.34",
+    "google-cloud-kms>=2.20",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "pytest-cov>=5.0",
+    "coverage[toml]>=7.5",
+    "diff-cover>=9.0",
+    "ruff>=0.4",
+    "agentauth-receipts[server,mcp,verifier]",
+]
+partner = [
+    "agentauth-receipts[server,mcp,verifier,dev]",
+]
+
+[project.scripts]
+arctl = "agentauth.receipts.cli:main"
+agent-receipts-mcp-server = "agentauth.receipts.mcp_server:main"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["agentauth", "agent_receipts"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "agentauth",
+    "agent_receipts",
+    "compliance",
+    "config",
+    "policies",
+    "examples",
+    "docs",
+    "scripts",
+    "CHANGELOG.md",
+    "VERSION",
+    "RELEASE.md",
+]
+
+[tool.pytest.ini_options]
+# One unified suite spanning identity (backend + SDK) and receipts (runtime).
+testpaths = ["python/tests", "backend/tests", "sdk/python/tests", "benchmarks/tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+# Measure the installed package, with branch coverage so we catch untaken
+# conditionals — a missed `else:` is a blind spot even at 100% line coverage.
+branch = true
+source = ["agentauth"]
+# The three suites run as separate pytest invocations that share process-global
+# state, so CI appends each run's data into one file before reporting.
+omit = [
+    "*/tests/*",
+    "*/__main__.py",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+precision = 1
+# Don't penalize code that is intentionally unreachable to the test suite.
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "@(abc\\.)?abstractmethod",
+    "\\.\\.\\.",
+]
+
+[tool.coverage.html]
+directory = "htmlcov"
+
+[tool.coverage.xml]
+output = "coverage.xml"
+
+[tool.coverage.json]
+output = "coverage.json"
+show_contexts = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]

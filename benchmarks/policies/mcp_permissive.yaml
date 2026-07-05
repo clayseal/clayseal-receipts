@@ -1,0 +1,10 @@
+version: 1
+name: mcp_permissive
+tier: tool_trace
+capability: operator_attested
+
+output_schema:
+  fields:
+    - status
+    - tool
+  required: []
