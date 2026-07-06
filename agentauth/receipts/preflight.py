@@ -91,6 +91,20 @@ def run_preflight(
             )
         )
 
+    if cfg.require_identity_binding:
+        # The attested identity is injected at runtime by AgentSession.wrap(...), not by
+        # this config, so preflight can only confirm the guard is armed. Receipts produced
+        # by a directly-constructed (unbound) AgentWrapper will now fail at run time.
+        checks.append(
+            _check(
+                "identity_binding_required",
+                True,
+                "require_identity_binding=true: receipts MUST be produced via "
+                "AgentSession.wrap(...) (attested identity); unbound wrappers fail at run time",
+                blocking=False,
+            )
+        )
+
     require_prover = cfg.mode == "prove"
     diag = run_diagnostics(require_prover=require_prover)
     checks.append(

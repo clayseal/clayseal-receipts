@@ -29,6 +29,14 @@ from agentauth.receipts.action_monitor import MonitoringSignal, SessionActionMon
 from agentauth.receipts.approval import infer_approval_state
 from agentauth.receipts.audit import AuditChain
 from agentauth.receipts.certificate import AgentCertificate, dev_certificate, load_certificate
+from agentauth.receipts.environment import (
+    enforce_durable_audit_store,
+    enforce_production_soundness,
+    is_production,
+    load_managed_signing_key,
+    require_prover_active,
+    resolve_audit_db,
+)
 from agentauth.receipts.policy import Policy
 from agentauth.receipts.policy_engine import (
     PolicyEngine,
@@ -149,18 +157,33 @@ class AgentWrapper:
         session_monitor: SessionActionMonitor | None = None,
         task_mandate: Mandate | dict[str, Any] | None = None,
         capability_authorizer: CapabilityAuthorizer | None = None,
+        require_identity_binding: bool = False,
     ) -> None:
+        # Fail closed before any state is created if a production process has a
+        # soundness escape hatch set (defaults are safe; this just forbids them).
+        enforce_production_soundness()
         self.model = model
         self.policy = policy
         # Identity bound into every receipt unless a per-run binding overrides it.
         # Set by AgentSession.wrap() from a live attested AgentAuth credential;
         # None means the wrapper runs unbound (the standalone receipts path).
         self.default_authority_binding = default_authority_binding
+        # When True, refuse to produce a receipt without an attested authority
+        # binding (production profiles that must not emit authority-unbound receipts).
+        self.require_identity_binding = require_identity_binding
         self.capability_authorizer = capability_authorizer
         self.policy_engine = policy_engine or YamlPolicyEngine(policy)
         self.reservation_callback = reservation_callback or noop_reservation_callback
         self.mode = mode
-        self.audit = AuditChain(audit_db)
+        # Resolve/validate the audit store: honor AGENT_RECEIPTS_AUDIT_DB, reject
+        # remote SQL URLs, and (in production) refuse an ephemeral per-container store
+        # that would fork the hash chain across replicas.
+        resolved_audit_db = resolve_audit_db(audit_db)
+        enforce_durable_audit_store(resolved_audit_db)
+        # Managed, stable signing key (shared key_id across replicas) when configured;
+        # None keeps dev behavior (unsigned audit records unless the caller signs).
+        self.signing_key = load_managed_signing_key()
+        self.audit = AuditChain(resolved_audit_db, signing_key=self.signing_key)
         self.prove_policy = prove_policy if prove_policy is not None else mode == "prove"
         self.prove_inference = prove_inference if prove_inference is not None else False
         self.prove_composed = prove_composed if prove_composed is not None else mode == "prove"
@@ -309,6 +332,13 @@ class AgentWrapper:
 
         if authority_binding is None:
             authority_binding = self.default_authority_binding
+
+        if self.require_identity_binding and authority_binding is None:
+            raise ValueError(
+                "require_identity_binding is set but this run has no authority binding; "
+                "produce receipts through AgentSession.wrap(...) (attested identity) or pass "
+                "authority_binding=. Unbound receipts are not permitted in this profile."
+            )
 
         execution_context = self._normalize_execution_context(
             action=action,
@@ -479,6 +509,13 @@ class AgentWrapper:
                 )
 
         if proof.attestation_path == AttestationPath.FULL_ZK and _proof_bundle_uses_stub(proof):
+            if is_production():
+                # Never silently downgrade a FULL_ZK receipt to SHADOW in production:
+                # a missing/real prover must fail loudly, not weaken the attestation.
+                raise RuntimeError(
+                    "FULL_ZK attestation produced a stub proof, but AGENT_RECEIPTS_ENV=production "
+                    "forbids the silent downgrade to SHADOW; install/enable the prover."
+                )
             if not _env_truthy("AGENT_RECEIPTS_ALLOW_STUB"):
                 proof.attestation_path = AttestationPath.SHADOW
 
@@ -659,7 +696,7 @@ class AgentWrapper:
         return signal
 
     def _strict_prover_required(self) -> bool:
-        if _env_truthy(REQUIRE_PROVER_ENV):
+        if require_prover_active():
             return True
         return self.mode in {"prove", "bounded_auto"} and (
             self.prove_policy or self.prove_inference or self.prove_composed

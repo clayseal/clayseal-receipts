@@ -124,6 +124,11 @@ def _rate_limit_identity(request: Request) -> str:
     return f"ip:{client}"
 
 
+# Stateful/expensive POST surfaces that must be throttled (the transparency
+# service /entries write path was previously unthrottled).
+RATE_LIMITED_PATHS = frozenset({"/v1/verify", "/entries"})
+
+
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """In-memory rate limit keyed by API key or IP (pilot only; use gateway in production)."""
 
@@ -133,7 +138,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._hits: dict[str, list[float]] = defaultdict(list)
 
     async def dispatch(self, request: Request, call_next: Any) -> Response:
-        if self.limit <= 0 or request.url.path != "/v1/verify":
+        if self.limit <= 0 or request.url.path not in RATE_LIMITED_PATHS:
             return await call_next(request)
 
         identity = _rate_limit_identity(request)
@@ -166,8 +171,17 @@ def max_body_bytes() -> int:
 
 
 def require_prover_for_ready() -> bool:
-    return os.environ.get("AGENT_RECEIPTS_REQUIRE_PROVER", "").strip() in (
+    from agentauth.receipts.environment import require_prover_active
+
+    # Explicit AGENT_RECEIPTS_REQUIRE_PROVER, or implied by AGENT_RECEIPTS_ENV=production.
+    return require_prover_active()
+
+
+def require_identity_binding_from_env() -> bool:
+    """Verifier-side toggle: reject authority-unbound bundles on /v1/verify."""
+    return os.environ.get("AGENT_RECEIPTS_REQUIRE_IDENTITY_BINDING", "").strip().lower() in (
         "1",
         "true",
         "yes",
+        "on",
     )

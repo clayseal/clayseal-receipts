@@ -21,6 +21,7 @@ from agentauth.receipts.export import (
 )
 from agentauth.core.runtime import ActionDescriptor, SideEffectLevel
 from agentauth.core.signing import generate_keypair, sign_bundle
+from agentauth.receipts.verification import VerifyErrorCode
 
 ROOT = Path(__file__).resolve().parents[2]
 
@@ -832,3 +833,131 @@ def test_verify_receipt_bundle_validates_signed_delegation():
     tampered = verify_receipt_bundle(bundle)
     codes = {item["code"] for item in tampered["issues"]}
     assert VerifyErrorCode.DELEGATION_INVALID.value in codes
+
+
+# --------------------------------------------------------------------------- #
+# Fix #4: authority-unbound enforcement (require_identity_binding / assurance tier)
+# --------------------------------------------------------------------------- #
+
+
+def _unbound_bundle():
+    policy = Policy.from_yaml(ROOT / "policies" / "fraud_decision.yaml")
+    cert = dev_certificate(policy.commitment())
+    agent = AgentWrapper(
+        model=lambda inp: {"decision": "approve", "fraud_score": 0.1},
+        policy=policy,
+        certificate=cert,
+        mode="shadow",
+        audit_db=":memory:",
+    )
+    result = agent.run({"transaction_id": "t1", "amount": 100.0})
+    return build_receipt_bundle(result, certificate=cert, policy=policy)
+
+
+def _attach_valid_identity(bundle: dict) -> dict:
+    """Attach a self-signed, self-consistent identity section (binds cleanly)."""
+    import json as _json
+
+    import jwt
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from cryptography.hazmat.primitives.serialization import (
+        Encoding,
+        NoEncryption,
+        PrivateFormat,
+    )
+
+    from agentauth.receipts.identity_evidence import build_identity_section
+
+    spiffe = "spiffe://agentauth.io/customer/acme/agent/worker"
+    cnf_jkt = "3UcNDmQrPwJxHfuLnKVAqVZHsdehssx7VccJKGBfz_U"
+    key = Ed25519PrivateKey.generate()
+    private_pem = key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption()).decode()
+    jwk = _json.loads(jwt.algorithms.OKPAlgorithm.to_jwk(key.public_key()))
+    jwk.update({"kid": "k1", "use": "sig", "alg": "EdDSA"})
+    exp_epoch = 1893456000  # 2030-01-01T00:00:00Z
+    token = jwt.encode(
+        {"iss": "agentauth.io", "sub": spiffe, "cnf": {"jkt": cnf_jkt}, "exp": exp_epoch},
+        private_pem,
+        algorithm="EdDSA",
+        headers={"kid": "k1"},
+    )
+    bundle["identity"] = build_identity_section(
+        {
+            "token": token,
+            "spiffe_id": spiffe,
+            "bound_keyhash": cnf_jkt,
+            "expires_at": "2030-01-01T00:00:00Z",
+        },
+        {"keys": [jwk]},
+    )
+    return bundle
+
+
+def test_unbound_receipt_valid_without_binding_request():
+    """No tier and no require flag -> AUTHORITY_UNBOUND is not raised."""
+    bundle = _unbound_bundle()
+    check = verify_receipt_bundle(bundle)
+    codes = {item["code"] for item in check["issues"]}
+    assert VerifyErrorCode.AUTHORITY_UNBOUND.value not in codes
+
+
+def test_require_identity_binding_rejects_unbound_receipt():
+    bundle = _unbound_bundle()
+    check = verify_receipt_bundle(bundle, require_identity_binding=True)
+    codes = {item["code"] for item in check["issues"]}
+    assert VerifyErrorCode.AUTHORITY_UNBOUND.value in codes
+    assert check["valid"] is False
+
+
+def test_requesting_assurance_tier_requires_identity_binding():
+    bundle = _unbound_bundle()
+    check = verify_receipt_bundle(bundle, min_assurance_tier="declared")
+    codes = {item["code"] for item in check["issues"]}
+    assert VerifyErrorCode.AUTHORITY_UNBOUND.value in codes
+
+
+def test_identity_bound_receipt_passes_binding_requirement():
+    bundle = _attach_valid_identity(_unbound_bundle())
+    check = verify_receipt_bundle(bundle, require_identity_binding=True)
+    codes = {item["code"] for item in check["issues"]}
+    assert VerifyErrorCode.AUTHORITY_UNBOUND.value not in codes
+
+
+def test_tampered_identity_is_not_a_valid_binding():
+    bundle = _attach_valid_identity(_unbound_bundle())
+    token = bundle["identity"]["jwt_svid"]
+    bundle["identity"]["jwt_svid"] = token[:-6] + "AAAAAA"  # break the signature
+    check = verify_receipt_bundle(bundle, require_identity_binding=True)
+    codes = {item["code"] for item in check["issues"]}
+    # Both the signature failure and the unbound verdict are surfaced.
+    assert VerifyErrorCode.AUTHORITY_UNBOUND.value in codes
+    assert VerifyErrorCode.SIGNATURE_INVALID.value in codes
+
+
+def test_agent_wrapper_require_identity_binding_guard():
+    policy = Policy.from_yaml(ROOT / "policies" / "fraud_decision.yaml")
+    cert = dev_certificate(policy.commitment())
+    agent = AgentWrapper(
+        model=lambda inp: {"decision": "approve", "fraud_score": 0.1},
+        policy=policy,
+        certificate=cert,
+        mode="shadow",
+        audit_db=":memory:",
+        require_identity_binding=True,
+    )
+    with pytest.raises(ValueError, match="require_identity_binding"):
+        agent.run({"transaction_id": "t1", "amount": 100.0})
+
+    # A per-run authority binding satisfies the guard.
+    binding = AuthorityBinding.from_agentauth_credential(
+        {
+            "agent_id": "agent-123",
+            "spiffe_id": "spiffe://agentauth.io/customer/acme/agent/worker",
+            "agent_type": "worker",
+            "owner": "alice@acme.ai",
+            "scopes": ["db:read"],
+            "expires_at": "2030-01-01T00:00:00Z",
+        }
+    )
+    result = agent.run({"transaction_id": "t2", "amount": 100.0}, authority_binding=binding)
+    assert result.proof is not None

@@ -6,6 +6,33 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+### Added — production hardening (multi-instance deployment)
+
+- **Production guardrail** (`agentauth/receipts/environment.py`): `AGENT_RECEIPTS_ENV=production`
+  refuses to start when any soundness escape hatch is set (`AGENT_RECEIPTS_ALLOW_STUB`,
+  `ALLOW_UNSIGNED_CERTIFICATE`, `ALLOW_UNSIGNED_CHECKPOINT`, `REQUIRE_BUNDLE_SIGNATURES=0`),
+  implies `REQUIRE_PROVER`, forces strict partner-config validation, and hard-fails the
+  silent `FULL_ZK→SHADOW` downgrade. Enforced across the producing SDK, `arctl`, and verifier.
+- **Managed/stable signing key**: `AGENT_RECEIPTS_SIGNING_KEY_PATH` loads one durable Ed25519
+  key (shared `key_id` across replicas); `AGENT_RECEIPTS_REQUIRE_STABLE_SIGNER=1` (implied in
+  production) refuses to start without it. Honors `AGENT_RECEIPTS_REQUIRE_KEY_ENCRYPTION`.
+- **Configurable audit store**: `AGENT_RECEIPTS_AUDIT_DB` resolution accepts `sqlite://` URLs
+  and fails closed on remote SQL URLs; production refuses an ephemeral/relative store unless
+  `AGENT_RECEIPTS_AUDIT_STORE_ACK=1`. Documents the single-writer, shared-store model.
+- **Identity binding enforcement**: `require_identity_binding` partner-config key +
+  `AGENT_RECEIPTS_REQUIRE_IDENTITY_BINDING`; `verify_receipt_bundle(..., require_identity_binding=)`
+  and any `min_assurance_tier` request now reject authority-unbound bundles
+  (`authority_unbound`). Producing `AgentWrapper(require_identity_binding=True)` fails closed
+  on unbound runs. `arctl verify-bundle --require-identity-binding`.
+- **Verifier `/entries` hardening**: rate limiting extended to the SCITT transparency write
+  path; in production the write path requires `AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER=1`.
+
+### Changed
+
+- `Dockerfile` pins base images by digest, runs as a non-root user, and no longer bakes
+  `config/partner.yaml` (producers must mount/inject a real config).
+- `VERSION` corrected to `0.5.0` (aligned with `pyproject.toml`/`_version.py`).
+
 ## [0.4.0] - 2026-07-05
 
 ### Added

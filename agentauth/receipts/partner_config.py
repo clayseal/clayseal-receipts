@@ -9,6 +9,7 @@ from typing import Any
 
 import yaml
 
+from agentauth.receipts.environment import is_production
 from agentauth.receipts.wrapper import OperatingMode
 
 DEFAULT_POLICY = "policies/fraud_decision.yaml"
@@ -39,6 +40,7 @@ class PartnerConfig:
     organization: str
     principal_id: str
     strict: bool
+    require_identity_binding: bool
     config_dir: Path
     config_path: Path
 
@@ -78,7 +80,10 @@ class PartnerConfig:
             inference_backend=str(raw.get("inference_backend", "ezkl")),
             organization=str(raw.get("organization", "partner-org")),
             principal_id=str(raw.get("principal_id", "partner-agent")),
-            strict=bool(raw.get("strict", False)),
+            # Production forces strict validation so a producing profile cannot ship
+            # with placeholder config (fix #2/#5).
+            strict=bool(raw.get("strict", False)) or is_production(),
+            require_identity_binding=bool(raw.get("require_identity_binding", False)),
             config_dir=base,
             config_path=config_path,
         )
@@ -113,6 +118,8 @@ class PartnerConfig:
             "audit_db": self.audit_db,
             "model_provenance_hash": self.model_provenance_hash,
         }
+        if self.require_identity_binding:
+            kwargs["require_identity_binding"] = True
         cert_path = self.effective_certificate_path()
         if cert_path is not None:
             kwargs["certificate_path"] = cert_path
@@ -149,6 +156,9 @@ def _apply_env_overrides(raw: dict[str, Any]) -> dict[str, Any]:
             out[field] = val
     if os.environ.get("AGENT_RECEIPTS_STRICT", "").lower() in ("1", "true", "yes"):
         out["strict"] = True
+    require_binding = _env_bool("AGENT_RECEIPTS_REQUIRE_IDENTITY_BINDING")
+    if require_binding is not None:
+        out["require_identity_binding"] = require_binding
     prove_recursive = _env_bool("AGENT_RECEIPTS_PROVE_RECURSIVE")
     if prove_recursive is not None:
         out["prove_recursive"] = prove_recursive

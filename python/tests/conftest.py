@@ -5,6 +5,18 @@ from __future__ import annotations
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _allow_unsigned_step_up(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Opt the in-process receipts test suite into the unsigned step-up path.
+
+    The capabilities layer now enforces *signed* ``StepUpApproval`` objects by
+    default (a security hardening). These receipts tests exercise the step-up
+    *mechanism* with plain approvals in a trusted-local context, so they use the
+    documented escape hatch. Production callers must pass a ``SignedStepUpApproval``.
+    """
+    monkeypatch.setenv("AGENTAUTH_STEP_UP_ALLOW_UNSIGNED", "1")
+
+
 @pytest.fixture
 def allow_stub_proofs(monkeypatch: pytest.MonkeyPatch) -> None:
     """Enable stub inference/composed proofs for prove-mode integration tests."""

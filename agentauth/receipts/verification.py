@@ -31,6 +31,7 @@ class VerifyErrorCode(str, Enum):
     HPKE_RECIPIENT_MISMATCH = "hpke_recipient_mismatch"
     SIGNER_REVOKED = "signer_revoked"
     WITNESS_DIVERGENCE = "witness_divergence"
+    AUTHORITY_UNBOUND = "authority_unbound"
 
 
 @dataclass

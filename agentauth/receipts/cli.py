@@ -7,6 +7,7 @@ import json
 import runpy
 import sys
 from pathlib import Path
+from typing import Any
 
 from agentauth.receipts.audit import (
     AuditChain,
@@ -49,10 +50,10 @@ def cmd_doctor(args: argparse.Namespace) -> int:
 
 def cmd_verify_bundle(args: argparse.Namespace) -> int:
     bundle = load_receipt_bundle(args.bundle)
-    result = verify_receipt_bundle(
-        bundle,
-        min_assurance_tier=args.min_assurance_tier,
-    )
+    kwargs: dict[str, Any] = {"min_assurance_tier": args.min_assurance_tier}
+    if getattr(args, "require_identity_binding", False):
+        kwargs["require_identity_binding"] = True
+    result = verify_receipt_bundle(bundle, **kwargs)
     print(json.dumps(result, indent=2))
     return 0 if result["valid"] else 1
 
@@ -373,6 +374,11 @@ def main(argv: list[str] | None = None) -> None:
         default=None,
         help="Require at least this trust tier (e.g. signed, zk_policy_proved)",
     )
+    verify.add_argument(
+        "--require-identity-binding",
+        action="store_true",
+        help="Reject receipts lacking a validated attested-identity binding",
+    )
     verify.set_defaults(func=cmd_verify_bundle)
 
     explain = sub.add_parser("explain", help="Human-readable explanation of a receipt bundle")
@@ -589,6 +595,11 @@ def main(argv: list[str] | None = None) -> None:
     if not hasattr(args, "func"):
         parser.print_help()
         sys.exit(2)
+    # Fail closed before running any command if a production process sets a
+    # soundness-downgrading escape hatch (no-op outside AGENT_RECEIPTS_ENV=production).
+    from agentauth.receipts.environment import enforce_production_soundness
+
+    enforce_production_soundness()
     sys.exit(args.func(args))
 
 

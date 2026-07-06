@@ -1004,12 +1004,19 @@ def verify_receipt_bundle(
     bundle: dict[str, Any],
     *,
     min_assurance_tier: str | None = None,
+    require_identity_binding: bool = False,
 ) -> dict[str, Any]:
     """
     Re-verify a exported receipt bundle (ZK proofs + policy_satisfied flag).
 
     Does not re-run software policy checks on `output`; partners should treat
     stored violations as the operator attestation at export time.
+
+    Authority binding: `identity_issues` authenticates an embedded identity when one
+    is present. When ``require_identity_binding`` is set OR a ``min_assurance_tier`` is
+    requested (a relying party asking for an assurance floor), a bundle with no
+    *validated* identity binding is rejected with ``AUTHORITY_UNBOUND`` — authority-unbound
+    receipts stay valid only when neither is asked for.
     """
     issues: list[VerificationIssue] = []
 
@@ -1039,7 +1046,13 @@ def verify_receipt_bundle(
     issues.extend(_anomaly_proof_issues(bundle))
     issues.extend(_output_context_binding_issues(bundle, proof))
     issues.extend(_audit_inclusion_issues(bundle))
-    issues.extend(identity_issues(bundle))
+    identity_evidence_issues = identity_issues(bundle)
+    issues.extend(identity_evidence_issues)
+    # A bundle is identity-bound only when it carries an identity section that
+    # authenticates cleanly (signature verifies + claims bind to the authority block).
+    identity_bound = (
+        isinstance(bundle.get("identity"), dict) and not identity_evidence_issues
+    )
     issues.extend(_scitt_section_issues(bundle))
     issues.extend(_tool_witness_issues(bundle))
     issues.extend(_witness_divergence_issues(bundle))
@@ -1259,6 +1272,18 @@ def verify_receipt_bundle(
                     "stored assurance tier does not match recomputed assurance",
                 )
             )
+
+    if (require_identity_binding or min_assurance_tier is not None) and not identity_bound:
+        reason = (
+            "receipt has no validated identity binding "
+            "(missing or unauthenticated identity evidence); "
+        )
+        reason += (
+            "require_identity_binding is set"
+            if require_identity_binding
+            else "an assurance tier was requested"
+        )
+        issues.append(VerificationIssue(VerifyErrorCode.AUTHORITY_UNBOUND, reason))
 
     if min_assurance_tier is not None:
         try:

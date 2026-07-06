@@ -918,6 +918,46 @@ class ReceiptedMcpGateway:
             violations = [*violations, f"unregistered tool handler: {name}"]
             blocked = True
 
+        # Atomically reserve budget at the gate. Defeats the parallel
+        # check/commit TOCTOU where concurrent calls all pass the (non-mutating)
+        # would_allow pre-check and then all commit, over-spending. Finalized
+        # just before execution (pre-execution consume, as before); released if
+        # we end up blocking.
+        side_effect = (
+            self._tool_specs[name].side_effect_level
+            if name in self._tool_specs
+            else execution_context.action.side_effect_level
+        )
+        tool_reservation = None
+        value_reservation = None
+        if not blocked:
+            from agentauth.capabilities.scoping.tools import (
+                release_tool_call_budget,
+                reserve_tool_call_budget,
+            )
+
+            tool_reservation = reserve_tool_call_budget(
+                self._tool_call_budget,
+                tool_name=name,
+                arguments=args,
+                side_effect=side_effect,
+            )
+            if self._value_budget is not None:
+                value_reservation = self._value_budget.reserve(name, args)
+            budget_denied: list[str] = []
+            if tool_reservation is not None and not tool_reservation.allowed:
+                budget_denied.append(f"tool call budget {tool_reservation.reason}")
+            if value_reservation is not None and not value_reservation.allowed:
+                budget_denied.append(f"value budget {value_reservation.reason}: tool={name!r}")
+            if budget_denied:
+                release_tool_call_budget(tool_reservation)
+                if value_reservation is not None:
+                    value_reservation.release()
+                tool_reservation = None
+                value_reservation = None
+                violations = [*violations, *budget_denied]
+                blocked = True
+
         if blocked:
             from agentauth.receipts.sandbox_governor import SandboxEnforcement
 
@@ -966,20 +1006,12 @@ class ReceiptedMcpGateway:
                 monitoring=run.execution_context.monitoring,
             )
 
-        from agentauth.capabilities.scoping.tools import commit_tool_call_budget
-
-        commit_tool_call_budget(
-            self._tool_call_budget,
-            tool_name=name,
-            arguments=args,
-            side_effect=(
-                self._tool_specs[name].side_effect_level
-                if name in self._tool_specs
-                else execution_context.action.side_effect_level
-            ),
-        )
-        if self._value_budget is not None:
-            self._value_budget.commit(name, args)
+        # Finalize the atomic reservations taken at the gate (consume
+        # pre-execution, matching the prior check-then-commit semantics).
+        if tool_reservation is not None:
+            tool_reservation.commit()
+        if value_reservation is not None:
+            value_reservation.commit()
 
         raw = self._handlers[name](args)
         output = self._tool_output(name, status="ok", result=raw)
@@ -1045,6 +1077,42 @@ class ReceiptedMcpGateway:
             violations = [*violations, f"unregistered tool handler: {name}"]
             blocked = True
 
+        # Atomically reserve budget at the gate (see call_tool for rationale).
+        side_effect = (
+            self._tool_specs[name].side_effect_level
+            if name in self._tool_specs
+            else execution_context.action.side_effect_level
+        )
+        tool_reservation = None
+        value_reservation = None
+        if not blocked:
+            from agentauth.capabilities.scoping.tools import (
+                release_tool_call_budget,
+                reserve_tool_call_budget,
+            )
+
+            tool_reservation = reserve_tool_call_budget(
+                self._tool_call_budget,
+                tool_name=name,
+                arguments=args,
+                side_effect=side_effect,
+            )
+            if self._value_budget is not None:
+                value_reservation = self._value_budget.reserve(name, args)
+            budget_denied: list[str] = []
+            if tool_reservation is not None and not tool_reservation.allowed:
+                budget_denied.append(f"tool call budget {tool_reservation.reason}")
+            if value_reservation is not None and not value_reservation.allowed:
+                budget_denied.append(f"value budget {value_reservation.reason}: tool={name!r}")
+            if budget_denied:
+                release_tool_call_budget(tool_reservation)
+                if value_reservation is not None:
+                    value_reservation.release()
+                tool_reservation = None
+                value_reservation = None
+                violations = [*violations, *budget_denied]
+                blocked = True
+
         if blocked:
             from agentauth.receipts.sandbox_governor import SandboxEnforcement
 
@@ -1079,20 +1147,12 @@ class ReceiptedMcpGateway:
             )
             return ToolCallResult.from_run(name, args, run, blocked=True)
 
-        from agentauth.capabilities.scoping.tools import commit_tool_call_budget
-
-        commit_tool_call_budget(
-            self._tool_call_budget,
-            tool_name=name,
-            arguments=args,
-            side_effect=(
-                self._tool_specs[name].side_effect_level
-                if name in self._tool_specs
-                else execution_context.action.side_effect_level
-            ),
-        )
-        if self._value_budget is not None:
-            self._value_budget.commit(name, args)
+        # Finalize the atomic reservations taken at the gate (consume
+        # pre-execution, matching the prior check-then-commit semantics).
+        if tool_reservation is not None:
+            tool_reservation.commit()
+        if value_reservation is not None:
+            value_reservation.commit()
 
         if name in self._async_handlers:
             raw = await self._async_handlers[name](args)

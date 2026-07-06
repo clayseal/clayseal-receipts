@@ -10,11 +10,13 @@ The transparency log is in-process (one Merkle tree per server process); pin
 from __future__ import annotations
 
 import json
+import os
 from typing import Any
 
 from agentauth.receipts import scitt, scrapi
 from agentauth.receipts._version import __version__
 from agentauth.receipts.diagnostics import run_diagnostics
+from agentauth.receipts.environment import enforce_production_soundness, is_production
 from agentauth.receipts.export import verify_receipt_bundle
 from agentauth.receipts.receipt_schema import SUPPORTED_RECEIPT_BUNDLE_SCHEMAS
 from agentauth.receipts.verification import VerifyErrorCode
@@ -23,8 +25,11 @@ from agentauth.receipts.verifier_auth import (
     RateLimitMiddleware,
     max_body_bytes,
     rate_limit_per_minute,
+    require_identity_binding_from_env,
     require_prover_for_ready,
 )
+
+TRANSPARENCY_SINGLE_WRITER_ENV = "AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER"
 
 try:
     from starlette.applications import Starlette
@@ -49,10 +54,17 @@ def verify_bundle_payload(
     bundle: dict[str, Any],
     *,
     min_assurance_tier: str | None = None,
+    require_identity_binding: bool | None = None,
 ) -> dict[str, Any]:
     """Run verification and return API-shaped response."""
+    if require_identity_binding is None:
+        require_identity_binding = require_identity_binding_from_env()
     try:
-        result = verify_receipt_bundle(bundle, min_assurance_tier=min_assurance_tier)
+        result = verify_receipt_bundle(
+            bundle,
+            min_assurance_tier=min_assurance_tier,
+            require_identity_binding=require_identity_binding,
+        )
     except (KeyError, TypeError, ValueError) as exc:
         message = f"malformed receipt bundle: {exc}"
         return {
@@ -191,7 +203,30 @@ def _problem_response(status: int, title: str, detail: str) -> Response:
     )
 
 
+def _transparency_writer_allowed() -> bool:
+    """The SCITT log is an in-process Merkle tree (one per process), so its writes
+    cannot be load-balanced across replicas without forking the tree. In production
+    the write path is refused unless exactly one instance is flagged as the single
+    writer via ``AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER=1``."""
+    if not is_production():
+        return True
+    return os.environ.get(TRANSPARENCY_SINGLE_WRITER_ENV, "").strip().lower() in (
+        "1",
+        "true",
+        "yes",
+        "on",
+    )
+
+
 async def scrapi_register(request: Request) -> Response:
+    if not _transparency_writer_allowed():
+        return _problem_response(
+            409,
+            "Transparency Registration Disabled",
+            "the SCITT transparency log is an in-process single-writer tree; set "
+            f"{TRANSPARENCY_SINGLE_WRITER_ENV}=1 on exactly one instance, or back it with a "
+            "shared durable log. Stateless /v1/verify remains available on every replica.",
+        )
     body = await request.body()
     if len(body) > max_body_bytes():
         return _problem_response(413, "Payload Too Large", "Signed Statement exceeds size limit")
@@ -247,6 +282,14 @@ async def scitt_keys(_: Request) -> Response:
 
 def create_app() -> Starlette:
     require_verifier_deps()
+    # Fail closed if a production verifier has a soundness escape hatch set.
+    enforce_production_soundness()
+    # POST /v1/verify is stateless: its verdict is a pure function of the request
+    # body plus process env (trust anchors, tier/identity requirements). It holds no
+    # cross-request state, so it scales horizontally behind a load balancer with no
+    # shared store. The only stateful surface is the in-process SCITT /entries log
+    # (guarded above for single-writer). Rate limiting here is per-instance and
+    # advisory; the API gateway/WAF is authoritative behind more than one instance.
     app = Starlette(
         routes=[
             Route("/health", health, methods=["GET"]),

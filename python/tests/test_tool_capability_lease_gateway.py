@@ -97,3 +97,67 @@ def test_no_lease_means_no_enforcement():
     _agent, gw = _gateway()
     result = gw.call_tool("issue_bonus", {"employee_id": "emp_1", "amount": 100})
     assert result.blocked is False
+
+
+def _lease_gateway_with_handler_recorder():
+    _agent, gw = _gateway()
+    ran: list[dict] = []
+
+    def handler(args: dict) -> dict:
+        ran.append(args)
+        return {"recorded": True}
+
+    gw.register_tool("issue_bonus", handler)
+    gw.mint_tool_capability_lease(
+        {"query_id": "q-1", "summary": "Issue Camille a bonus"},
+        entities=[
+            EntityRecord(entity_id="emp_1", entity_kind="employee", display_name="Camille Moreau")
+        ],
+        budget_config=ToolCallBudgetConfig(high_risk_tools=frozenset({"issue_bonus"})),
+    )
+    return gw, ran
+
+
+def test_gate_blocks_when_reservation_denied_after_precheck(monkeypatch):
+    """The atomic reservation at the gate must block a call that loses the
+    budget race even though the non-mutating pre-check passed -- this is the
+    check/commit TOCTOU the reserve() gate defeats. We simulate the race by
+    forcing reserve() to deny after would_allow() has already passed, and
+    assert the handler never runs and no budget is consumed."""
+    from agentauth.capabilities.scoping.tools import ToolCallReservation
+
+    gw, ran = _lease_gateway_with_handler_recorder()
+    budget = gw.active_tool_call_budget()
+    monkeypatch.setattr(
+        budget,
+        "reserve",
+        lambda *a, **k: ToolCallReservation(False, "target_call_budget_exhausted"),
+    )
+
+    result = gw.call_tool("issue_bonus", {"employee_id": "emp_1", "amount": 100})
+    assert result.blocked is True
+    assert any("target_call_budget_exhausted" in v for v in result.policy_violations)
+    assert ran == []  # denied at the gate: the handler must not execute
+    assert budget.calls == {}  # nothing consumed
+
+
+def test_async_gate_blocks_when_reservation_denied_after_precheck(monkeypatch):
+    """Async variant of the reserve-deny gate (call_tool_async is wired the
+    same way as the sync path)."""
+    import asyncio
+
+    from agentauth.capabilities.scoping.tools import ToolCallReservation
+
+    gw, ran = _lease_gateway_with_handler_recorder()
+    budget = gw.active_tool_call_budget()
+    monkeypatch.setattr(
+        budget,
+        "reserve",
+        lambda *a, **k: ToolCallReservation(False, "target_call_budget_exhausted"),
+    )
+
+    result = asyncio.run(gw.call_tool_async("issue_bonus", {"employee_id": "emp_1", "amount": 100}))
+    assert result.blocked is True
+    assert any("target_call_budget_exhausted" in v for v in result.policy_violations)
+    assert ran == []
+    assert budget.calls == {}

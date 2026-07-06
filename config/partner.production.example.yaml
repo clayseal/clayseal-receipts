@@ -15,5 +15,10 @@ principal_id: REPLACE_WITH_AGENT_PRINCIPAL
 
 strict: true
 
+# Production receipts must be bound to an attested authority identity: an unbound
+# AgentWrapper (no AgentSession.wrap / authority_binding) fails closed at run time,
+# and the verifier rejects unbound bundles (AUTHORITY_UNBOUND).
+require_identity_binding: true
+
 # prove_policy: true
 # prove_composed: true
