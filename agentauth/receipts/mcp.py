@@ -7,7 +7,7 @@ import time
 from typing import Any
 
 from agentauth.core.decision import DecisionResult, Obligation
-from agentauth.capabilities.delegation import DelegationToken, verify_delegation_chain
+from agentauth.core.delegation import DelegationToken, verify_delegation_chain
 from agentauth.core.hash_util import hash_canonical_json
 from agentauth.receipts.proof import DecisionOutcome
 from agentauth.core.runtime import (
@@ -533,7 +533,7 @@ class ReceiptedMcpGateway:
         if self.agent.capability_authorizer is not None:
             violations.extend(self.agent.authorize_action(action))
         else:
-            from agentauth.receipts.authority_binding import AuthorityBinding
+            from agentauth.core.authority_binding import AuthorityBinding
 
             binding = self.agent.default_authority_binding
             if isinstance(binding, AuthorityBinding) and (

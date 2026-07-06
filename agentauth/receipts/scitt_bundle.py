@@ -80,7 +80,7 @@ def build_scitt_section(
 
     if confidential_recipient_public_key is not None:
         if mandate_section is not None:
-            from agentauth.capabilities.mandate import mandated_hpke_recipient_bytes
+            from agentauth.core.mandate import mandated_hpke_recipient_bytes
 
             fake_bundle = {"mandate": mandate_section}
             mandated = mandated_hpke_recipient_bytes(fake_bundle)
@@ -224,6 +224,6 @@ def scitt_section_issues(bundle: dict[str, Any]) -> list[str]:
 
 
 def mandated_hpke_recipient_bytes(bundle: dict[str, Any]) -> bytes | None:
-    from agentauth.capabilities.mandate import mandated_hpke_recipient_bytes as _from_mandate
+    from agentauth.core.mandate import mandated_hpke_recipient_bytes as _from_mandate
 
     return _from_mandate(bundle)

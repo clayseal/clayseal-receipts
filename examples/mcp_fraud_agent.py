@@ -23,6 +23,7 @@ from agentauth.receipts.fraud_tools import (  # noqa: E402
     score_fraud_model,
     score_transaction,
 )
+from agentauth.receipts.integration import wrap_agentauth_session
 
 
 def toy_fraud_agent(inp: dict) -> dict:
@@ -40,7 +41,8 @@ def main() -> None:
             mcp_tool_capability("fetch_customer_profile"),
         ],
     )
-    agent = identity.wrap(
+    agent = wrap_agentauth_session(
+        identity,
         model=toy_fraud_agent,
         policy=policy,
         mode="shadow",
@@ -68,7 +70,8 @@ def main() -> None:
         delegate_agent_id=uuid4(),
         capabilities=[mcp_tool_capability("score_transaction")],
     )
-    worker_agent = identity.wrap(
+    worker_agent = wrap_agentauth_session(
+        identity,
         model=toy_fraud_agent,
         policy=policy,
         mode="bounded_auto",

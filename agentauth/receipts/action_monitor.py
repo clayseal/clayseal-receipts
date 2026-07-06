@@ -13,7 +13,7 @@ from typing import Any
 from agentauth.core.runtime import ActionDescriptor, ExecutionContext, SideEffectLevel
 from agentauth.receipts.action_features import feature_vector_from_actions
 from agentauth.receipts.anomaly_baseline import AnomalyBaselineModel, load_anomaly_model
-from agentauth.capabilities.task_scope import TaskScope
+from agentauth.core.task_scope import TaskScope
 
 _HIGH_RISK_TOOL_MARKERS = (
     "curl",

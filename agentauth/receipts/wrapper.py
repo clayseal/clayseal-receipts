@@ -7,16 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from agentauth.receipts.approval import infer_approval_state
-from agentauth.receipts.audit import AuditChain
-from agentauth.receipts.action_monitor import MonitoringSignal, SessionActionMonitor
-from agentauth.receipts.authority_binding import AuthorityBinding
-from agentauth.capabilities.operations import (
-    CapabilityAuthorizer,
-    capability_allows,
-    operation_for_action,
-)
-from agentauth.receipts.certificate import AgentCertificate, dev_certificate, load_certificate
+from agentauth.core.authority_binding import AuthorityBinding
 from agentauth.core.decision import (
     ApprovalMetadata,
     ApprovalState,
@@ -25,8 +16,20 @@ from agentauth.core.decision import (
     Obligation,
 )
 from agentauth.core.hash_util import hash_canonical_json
+from agentauth.core.mandate import Mandate
+from agentauth.core.operations import (
+    CapabilityAuthorizer,
+    capability_allows,
+    operation_for_action,
+)
+from agentauth.core.runtime import ActionDescriptor, AuthorityContext, ExecutionContext
+from agentauth.core.task_scope import TaskScope, resolve_task_mandate
+
+from agentauth.receipts.action_monitor import MonitoringSignal, SessionActionMonitor
+from agentauth.receipts.approval import infer_approval_state
+from agentauth.receipts.audit import AuditChain
+from agentauth.receipts.certificate import AgentCertificate, dev_certificate, load_certificate
 from agentauth.receipts.policy import Policy
-from agentauth.capabilities.mandate import Mandate
 from agentauth.receipts.policy_engine import (
     PolicyEngine,
     ReservationCallback,
@@ -37,8 +40,6 @@ from agentauth.receipts.policy_engine import (
 )
 from agentauth.receipts.proof import AttestationPath, DecisionOutcome, ExecutionProof
 from agentauth.receipts.prover import prove_structural_policy
-from agentauth.core.runtime import ActionDescriptor, AuthorityContext, ExecutionContext
-from agentauth.capabilities.task_scope import TaskScope, resolve_task_mandate
 
 OperatingMode = Literal["shadow", "recommend", "bounded_auto", "prove"]
 REQUIRE_PROVER_ENV = "AGENT_RECEIPTS_REQUIRE_PROVER"

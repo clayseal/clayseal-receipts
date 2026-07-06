@@ -23,13 +23,13 @@ from agentauth.receipts.audit import (
     checkpoint_trust_issues,
     trusted_audit_log_policy_from_env,
 )
-from agentauth.capabilities.budget import CapabilityBudget
+from agentauth.core.budget import CapabilityBudget
 from agentauth.receipts.certificate import AgentCertificate, certificate_ref_hash
 from agentauth.receipts.evidence_refs import EvidenceRefs
 from agentauth.receipts.handoff import SessionHandoffArtifact
 from agentauth.core.hash_util import hash_canonical_json
 from agentauth.receipts.identity_evidence import identity_issues
-from agentauth.capabilities.lineage import AuthorityLineage
+from agentauth.core.lineage import AuthorityLineage
 from agentauth.receipts.policy import Policy
 from agentauth.receipts.proof import ExecutionProof
 from agentauth.receipts.receipt_schema import (
@@ -176,7 +176,7 @@ def build_receipt_bundle(
     if handoff is not None:
         common["handoff"] = handoff.to_dict()
     if signed_mandate is not None:
-        from agentauth.capabilities.mandate import mandate_bundle_section
+        from agentauth.core.mandate import mandate_bundle_section
 
         common["mandate"] = mandate_bundle_section(signed_mandate)
 
@@ -768,7 +768,7 @@ def _delegation_issues(bundle: dict[str, Any]) -> list[VerificationIssue]:
             )
         ]
 
-    from agentauth.capabilities.delegation import (
+    from agentauth.core.delegation import (
         delegation_from_envelope,
         verify_delegation_envelope,
     )
@@ -806,7 +806,7 @@ def _delegation_issues(bundle: dict[str, Any]) -> list[VerificationIssue]:
         )
     tool_name = authorization.get("tool_name")
     if isinstance(tool_name, str) and tool_name:
-        from agentauth.capabilities.operations import capability_allows, operation_for_mcp_tool
+        from agentauth.core.operations import capability_allows, operation_for_mcp_tool
 
         operation = operation_for_mcp_tool(tool_name)
         if not capability_allows(token.capabilities, operation.resource, operation.action):
@@ -1534,7 +1534,7 @@ def verify_receipt_bundle(
             )
         )
 
-    from agentauth.capabilities.mandate import verify_bundle_mandate
+    from agentauth.core.mandate import verify_bundle_mandate
 
     for reason in verify_bundle_mandate(bundle):
         issues.append(VerificationIssue(VerifyErrorCode.MANDATE_VIOLATION, reason))

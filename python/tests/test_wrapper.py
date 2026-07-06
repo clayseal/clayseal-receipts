@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 from agentauth.receipts import AgentWrapper, Policy
-from agentauth.receipts.authority_binding import AuthorityBinding
+from agentauth.core.authority_binding import AuthorityBinding
 from agentauth.core.hash_util import hash_canonical_json
 from agentauth.receipts.policy import NumericRange, PolicyCapability, PolicyTier
 from agentauth.core.runtime import ActionDescriptor, SideEffectLevel

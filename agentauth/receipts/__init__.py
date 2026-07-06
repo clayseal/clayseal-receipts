@@ -1,9 +1,70 @@
 """Agent Receipts — cryptographic receipts for autonomous AI agents."""
 
+from agentauth.core.authority_binding import AuthorityBinding
+from agentauth.core.budget import BudgetType, CapabilityBudget
+from agentauth.core.decision import (
+    STANDARD_OBLIGATION_TYPES,
+    ApprovalMetadata,
+    ApprovalState,
+    BudgetEffect,
+    DecisionResult,
+    Obligation,
+    is_standard_obligation_type,
+)
+from agentauth.core.delegation import (
+    DelegationToken,
+    issue_delegation,
+    sign_delegation,
+    verify_delegation_chain,
+    verify_delegation_envelope,
+)
+from agentauth.core.lineage import AuthorityLineage, AuthorityTransitionType
+from agentauth.core.mandate import (
+    Mandate,
+    check_receipt_against_mandate,
+    issue_mandate,
+    mandate_bundle_section,
+    verify_bundle_mandate,
+    verify_mandate_envelope,
+    verify_mandate_signature,
+)
+from agentauth.core.operations import (
+    CapabilityOperation,
+    capability_allows,
+    mcp_tool_capability,
+    operation_for_action,
+    operation_for_mcp_tool,
+)
+from agentauth.core.runtime import (
+    ActionDescriptor,
+    ActorKind,
+    ActorRef,
+    AuthorityContext,
+    ExecutionContext,
+    SideEffectLevel,
+)
+from agentauth.core.signing import (
+    SigningKey,
+    generate_keypair,
+    load_or_create_key,
+    sign_bundle,
+    verify_bundle_signatures,
+)
+from agentauth.core.task_scope import (
+    TaskScope,
+    compile_human_authorization,
+    compile_mandate_scope,
+    compile_task_scope,
+    compile_task_scope_envelope,
+    resolve_task_mandate,
+)
+
+from agentauth.receipts.action_features import FEATURE_NAMES, feature_vector_from_actions
 from agentauth.receipts.action_monitor import (
     MonitoringSignal,
     SessionActionMonitor,
 )
+from agentauth.receipts.anomaly_baseline import AnomalyBaselineModel, load_anomaly_model
 from agentauth.receipts.approval import infer_approval_state
 from agentauth.receipts.assurance import (
     AssuranceLevel,
@@ -21,15 +82,6 @@ from agentauth.receipts.assurance import (
 )
 from agentauth.receipts.audit import AuditChain
 from agentauth.receipts.auditor import auditor_evidence_summary
-from agentauth.receipts.authority_binding import AuthorityBinding
-from agentauth.capabilities.budget import BudgetType, CapabilityBudget
-from agentauth.capabilities.operations import (
-    CapabilityOperation,
-    capability_allows,
-    mcp_tool_capability,
-    operation_for_action,
-    operation_for_mcp_tool,
-)
 from agentauth.receipts.certificate import AgentCertificate, PrincipalRef, load_certificate
 from agentauth.receipts.compliance import (
     export_compliance_mapped,
@@ -38,22 +90,6 @@ from agentauth.receipts.compliance import (
     validate_profile_completeness,
 )
 from agentauth.receipts.compose import prove_composed, verify_composed
-from agentauth.core.decision import (
-    STANDARD_OBLIGATION_TYPES,
-    ApprovalMetadata,
-    ApprovalState,
-    BudgetEffect,
-    DecisionResult,
-    Obligation,
-    is_standard_obligation_type,
-)
-from agentauth.capabilities.delegation import (
-    DelegationToken,
-    issue_delegation,
-    sign_delegation,
-    verify_delegation_chain,
-    verify_delegation_envelope,
-)
 from agentauth.receipts.diagnostics import run_diagnostics
 from agentauth.receipts.evidence import (
     AuthorityContextRef,
@@ -79,16 +115,7 @@ from agentauth.receipts.export import (
 from agentauth.receipts.fraud_tools import FRAUD_TOOL_NAMES
 from agentauth.receipts.handoff import SessionHandoffArtifact
 from agentauth.receipts.inference import amount_to_score, prove_inference, verify_inference
-from agentauth.capabilities.lineage import AuthorityLineage, AuthorityTransitionType
-from agentauth.capabilities.mandate import (
-    Mandate,
-    check_receipt_against_mandate,
-    issue_mandate,
-    mandate_bundle_section,
-    verify_bundle_mandate,
-    verify_mandate_envelope,
-    verify_mandate_signature,
-)
+from agentauth.receipts.invariant_policy_engine import InvariantPolicyEngine
 from agentauth.receipts.mcp import ReceiptedMcpGateway, ToolCallResult
 from agentauth.receipts.mcp_client import (
     McpConnectionSpec,
@@ -116,10 +143,6 @@ from agentauth.receipts.policy_engine import (
     noop_reservation_callback,
     pre_execution_violations,
 )
-from agentauth.receipts.invariant_policy_engine import InvariantPolicyEngine
-from agentauth.receipts.structural_invariants import PrGateEvidence, evaluate_pr_gate
-from agentauth.receipts.anomaly_baseline import AnomalyBaselineModel, load_anomaly_model
-from agentauth.receipts.action_features import FEATURE_NAMES, feature_vector_from_actions
 from agentauth.receipts.proof import AttestationPath, DecisionOutcome, ExecutionProof
 from agentauth.receipts.prover import locate_cli, prove_structural_policy, verify_structural_policy
 from agentauth.receipts.receipt_schema import (
@@ -135,38 +158,33 @@ from agentauth.receipts.replay import (
     re_evaluate_policy_decision,
     rebuild_context_from_bundle,
 )
-from agentauth.core.runtime import (
-    ActionDescriptor,
-    ActorKind,
-    ActorRef,
-    AuthorityContext,
-    ExecutionContext,
-    SideEffectLevel,
-)
 from agentauth.receipts.session import parse_session, prove_session, verify_session
-from agentauth.core.signing import (
-    SigningKey,
-    generate_keypair,
-    load_or_create_key,
-    sign_bundle,
-    verify_bundle_signatures,
-)
+from agentauth.receipts.structural_invariants import PrGateEvidence, evaluate_pr_gate
 from agentauth.receipts.tee import TeeQuote, TeeQuoteFormat, verify_tee_quote
-from agentauth.capabilities.task_scope import (
-    TaskScope,
-    compile_human_authorization,
-    compile_mandate_scope,
-    compile_task_scope,
-    compile_task_scope_envelope,
-    resolve_task_mandate,
-)
-from agentauth.capabilities.scoping import (
-    CapabilityLease,
-    GoalSpec,
-    build_capability_lease,
-    build_repo_chunk_index,
-)
 from agentauth.receipts.wrapper import AgentWrapper, RunResult
+
+# Dynamic-sandbox scoping (capability leases, repo chunk indexes) needs the
+# capabilities layer — an optional extra, resolved lazily via PEP 562 so plain
+# receipt flows never import it.
+_SCOPING_EXPORTS = {
+    "CapabilityLease",
+    "GoalSpec",
+    "build_capability_lease",
+    "build_repo_chunk_index",
+}
+
+
+def __getattr__(name: str):
+    if name in _SCOPING_EXPORTS:
+        try:
+            from agentauth.capabilities import scoping as _scoping
+        except ImportError as exc:
+            raise ImportError(
+                f"agentauth.receipts.{name} needs the capabilities layer. "
+                "Install with: pip install 'agentauth-receipts[scoping]'"
+            ) from exc
+        return getattr(_scoping, name)
+    raise AttributeError(f"module 'agentauth.receipts' has no attribute {name!r}")
 
 __all__ = [
     "__version__",

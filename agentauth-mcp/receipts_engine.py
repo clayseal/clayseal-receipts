@@ -22,6 +22,7 @@ from agentauth.receipts.export import build_receipt_bundle
 from agentauth.receipts.policy import Policy
 from agentauth.receipts.proof import DecisionOutcome
 from agentauth.receipts.prover import verify_structural_policy
+from agentauth.receipts.integration import wrap_agentauth_session
 from agentauth.core.runtime import ActionDescriptor, SideEffectLevel
 from agentauth.core.signing import SigningKey
 
@@ -47,7 +48,7 @@ def make_wrapper(agent_session: Any, *, policy: Policy, audit_db: str) -> Any:
         organization=config.TENANT_ORG,
         principal_id=config.SERVER_NAME,
     )
-    return agent_session.wrap(
+    return wrap_agentauth_session(agent_session,
         _NOOP_MODEL,
         policy=policy,
         mode="prove",

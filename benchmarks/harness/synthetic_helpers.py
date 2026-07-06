@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from agentauth.receipts import AgentWrapper
-from agentauth.receipts.authority_binding import AuthorityBinding
+from agentauth.core.authority_binding import AuthorityBinding
 from agentauth.receipts.export import build_receipt_bundle, verify_receipt_bundle
 
 from harness.agent_setup import apply_agent_policy

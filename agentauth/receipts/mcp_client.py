@@ -11,7 +11,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
-from agentauth.capabilities.delegation import DelegationToken
+from agentauth.core.delegation import DelegationToken
 from agentauth.receipts.mcp import MCP_TOOL_CALL_ACTION, ReceiptedMcpGateway, ToolCallResult
 from agentauth.core.runtime import ActionDescriptor, SideEffectLevel
 from agentauth.receipts.wrapper import AgentWrapper

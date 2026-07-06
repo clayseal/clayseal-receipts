@@ -18,7 +18,7 @@ import jwt
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
 from agentauth.core.hash_util import hash_canonical_json
-from agentauth.capabilities.mandate import Mandate, verify_mandate_envelope
+from agentauth.core.mandate import Mandate, verify_mandate_envelope
 from agentauth.core.signing import SigningKey
 
 WIT_TYP = "application/wimse-workload-identity-token"

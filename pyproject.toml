@@ -4,15 +4,17 @@ build-backend = "hatchling.build"
 
 [project]
 name = "agentauth-receipts"
-version = "0.4.0"
-description = "AgentAuth — attested identity and verifiable execution receipts for autonomous AI agents"
+version = "0.5.0"
+description = "AgentAuth — verifiable execution receipts and policy runtime for autonomous AI agents"
 readme = "README.md"
 license = "MIT"
 # biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.
 requires-python = ">=3.10,<3.14"
+# Hard dependency: ONLY the contract layer. Identity and capabilities are
+# optional extras — receipts runs (and verifies bundles, incl. mandates) with
+# core alone; leases/scoping/sandbox need [scoping], identity-bound demos [identity].
 dependencies = [
-  "agentauth-identity @ git+https://github.com/pberlizov/agentauth-identity.git@v0.4.0",
-  "agentauth-capabilities @ git+https://github.com/pberlizov/agentauth-capabilities.git@v0.4.0",
+  "agentauth-core>=0.5,<0.6",
   "pyyaml>=6.0",
   "cryptography>=42.0",
   "cbor2>=5.4",
@@ -29,6 +31,10 @@ Issues = "https://github.com/pberlizov/agentauth-receipts/issues"
 Changelog = "https://github.com/pberlizov/agentauth-receipts/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
+# Dynamic sandbox / capability leases / task scoping enforcement (L2 features).
+scoping = ["agentauth-capabilities>=0.5,<0.6"]
+# Identity-bound flows (attested sessions feeding receipts) for demos/e2e tests.
+identity = ["agentauth-identity>=0.5,<0.6"]
 # Hosted FastAPI service (identity issuance/validation + receipt verifier).
 server = [
     "fastapi>=0.110,<1.0",
@@ -78,7 +84,7 @@ dev = [
     "coverage[toml]>=7.5",
     "diff-cover>=9.0",
     "ruff>=0.4",
-    "agentauth-receipts[server,mcp,verifier]",
+    "agentauth-receipts[server,mcp,verifier,scoping,identity]",
 ]
 partner = [
     "agentauth-receipts[server,mcp,verifier,dev]",
@@ -87,9 +93,6 @@ partner = [
 [project.scripts]
 arctl = "agentauth.receipts.cli:main"
 agent-receipts-mcp-server = "agentauth.receipts.mcp_server:main"
-
-[tool.hatch.metadata]
-allow-direct-references = true
 
 # Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
 # under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the

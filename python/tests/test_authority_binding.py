@@ -1,4 +1,4 @@
-from agentauth.receipts.authority_binding import AuthorityBinding
+from agentauth.core.authority_binding import AuthorityBinding
 
 
 def test_authority_binding_roundtrip_and_runtime_mapping():

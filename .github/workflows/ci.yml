@@ -12,6 +12,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
         with:
+          repository: pberlizov/agentauth-core
+          path: deps/agentauth-core
+          ref: main
+      # identity + capabilities are OPTIONAL extras ([identity], [scoping]);
+      # checked out here so the dev suite can exercise the full stack.
+      - uses: actions/checkout@v4
+        with:
           repository: pberlizov/agentauth-identity
           path: deps/agentauth-identity
           ref: main
@@ -23,15 +30,61 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-      - name: Install three-layer stack
+      - name: Install stack (contracts first, optional layers, then receipts)
         run: |
-          pip install "./deps/agentauth-identity[dev]"
-          pip install "./deps/agentauth-capabilities[dev]"
-          pip install -e ".[dev]"
+          pip install "./deps/agentauth-core[dev]"
+          pip install "./deps/agentauth-identity"
+          pip install "./deps/agentauth-capabilities"
+          pip install -e ".[server,mcp,verifier]" pytest pytest-asyncio ruff
+      - name: Layering contract (receipts never imports identity; capabilities lazy-only)
+        run: |
+          python -m agentauth.core.layering agentauth/receipts \
+            --forbid agentauth.identity --forbid agentauth.backend \
+            --forbid-toplevel agentauth.capabilities \
+            --allow-toplevel-in sandbox_builder.py --allow-toplevel-in sandboxed_server.py
       - name: Run Python tests
         run: |
           pytest python/tests -q --ignore=python/tests/test_interop_conformance.py
           pytest sdk/python/tests -q
+
+  # Receipts must remain usable with the contract layer ALONE — no identity,
+  # no capabilities. This job is the modularity guarantee.
+  core-only:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: pberlizov/agentauth-core
+          path: deps/agentauth-core
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install receipts with core only
+        run: |
+          pip install "./deps/agentauth-core"
+          pip install -e ".[verifier]"
+      - name: Import + basic receipt flow without identity/capabilities
+        run: |
+          python - <<'PY'
+          import agentauth.receipts as r
+          assert r.__version__
+          # capability-layer exports must fail with an actionable message, not crash
+          try:
+              r.GoalSpec
+          except ImportError as exc:
+              assert "agentauth-receipts[scoping]" in str(exc)
+          w = r.AgentWrapper(lambda i: {"decision": "approve", "fraud_score": 0.1},
+                             r.Policy.from_dict({"version": 1, "name": "ci", "tier": "structural",
+                                                 "capability": "operator_attested"}),
+                             mode="shadow", audit_db=":memory:")
+          result = w.run({"transaction_id": "t1", "amount": 1.0})
+          bundle = r.build_receipt_bundle(result, certificate=w.certificate)
+          report = r.verify_receipt_bundle(bundle)
+          assert isinstance(report, dict)
+          print("core-only receipts flow OK")
+          PY
 
   rust:
     runs-on: ubuntu-latest

@@ -12,7 +12,7 @@ from typing import Any
 from agentauth.receipts.action_features import FEATURE_NAMES, feature_vector_from_actions
 from agentauth.core.hash_util import hash_canonical_json
 from agentauth.core.runtime import ExecutionContext, SideEffectLevel
-from agentauth.capabilities.task_scope import TaskScope, action_path_candidates, task_scope_allows_path
+from agentauth.core.task_scope import TaskScope, action_path_candidates, task_scope_allows_path
 
 if False:  # TYPE_CHECKING without import cycle
     from agentauth.receipts.action_monitor import MonitoredAction

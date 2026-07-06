@@ -1,14 +1,17 @@
 """The unified seam: an attested AgentAuth identity flows into every receipt.
 
 These exercise the merged system end-to-end over the real in-process backend:
-``identify()`` (L1/L2) -> ``session.wrap()`` -> ``run()`` (L3/L4), asserting the
-receipt's authority is the *attested* identity, not a declared value.
+``identify()`` (L1/L2) -> ``wrap_agentauth_session()`` -> ``run()`` (L3/L4),
+asserting the receipt's authority is the *attested* identity, not a declared
+value. The wiring is receipts-side (duck-typed session) — the identity layer
+never imports upward.
 """
 from __future__ import annotations
 
 from pathlib import Path
 
 from agentauth.receipts import AgentWrapper, Policy, ReceiptedMcpGateway, build_receipt_bundle
+from agentauth.receipts.integration import wrap_agentauth_session
 
 ROOT = Path(__file__).resolve().parents[3]
 POLICY = ROOT / "policies" / "fraud_decision.yaml"
@@ -22,7 +25,8 @@ def test_identify_then_wrap_binds_identity_into_receipt(auth, tmp_path):
     agent = auth.identify(
         agent_type="researcher", owner="alice@acme.ai", scopes=["db:read"]
     )
-    receipted = agent.wrap(
+    receipted = wrap_agentauth_session(
+        agent,
         _model,
         policy=Policy.from_yaml(POLICY),
         mode="shadow",
@@ -59,7 +63,8 @@ def test_mcp_gateway_uses_biscuit_capability_token(auth, tmp_path):
         owner="risk@acme.ai",
         capabilities=[{"resource": "mcp_tool", "action": "score_transaction"}],
     )
-    receipted = agent.wrap(
+    receipted = wrap_agentauth_session(
+        agent,
         _model,
         policy=Policy.from_yaml(POLICY),
         mode="shadow",

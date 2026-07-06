@@ -70,6 +70,7 @@ from agentauth.receipts.mcp_client import (  # noqa: E402
     parse_call_tool_result,
 )
 from agentauth.receipts.prover import verify_structural_policy  # noqa: E402
+from agentauth.receipts.integration import wrap_agentauth_session
 
 POLICY_PATH = ROOT / "policies" / "fraud_decision.yaml"
 SERVER = ROOT / "examples" / "poisoned_mcp_server.py"
@@ -165,7 +166,8 @@ def build_agent(identity, policy, *, mode: str, audit_db: Path, model_hash: str 
         # provisioned in this demo environment (needs the ONNX/EZKL toolchain).
         wrap_kwargs["prove_policy"] = True
         wrap_kwargs["prove_composed"] = False
-    return identity.wrap(
+    return wrap_agentauth_session(
+        identity,
         model=lambda inp: {"decision": "abstain", "fraud_score": 0.0},  # unused on the MCP path
         policy=policy,
         **wrap_kwargs,

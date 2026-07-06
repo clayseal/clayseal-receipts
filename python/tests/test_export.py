@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from agentauth.receipts import AgentWrapper, Policy
-from agentauth.receipts.authority_binding import AuthorityBinding
+from agentauth.core.authority_binding import AuthorityBinding
 from agentauth.receipts.certificate import dev_certificate, sign_certificate
 from agentauth.receipts.export import (
     build_receipt_bundle,

@@ -44,6 +44,7 @@ import uvicorn  # noqa: E402
 from agentauth.identity import AgentAuth  # noqa: E402
 from agentauth.backend.main import app  # noqa: E402
 from agentauth.receipts import Policy, build_receipt_bundle, verify_receipt_bundle  # noqa: E402
+from agentauth.receipts.integration import wrap_agentauth_session
 from agentauth.capabilities.mandate import (  # noqa: E402
     check_receipt_against_mandate,
     issue_mandate,
@@ -153,7 +154,7 @@ def main() -> int:
             violations = [f"{r['code']}: {r['message']}" for r in reasons]
 
             # L3/L4 bound to the attested identity via the session seam.
-            receipted = agent.wrap(
+            receipted = wrap_agentauth_session(agent,
                 lambda inp: inp, policy=policy, mode="shadow", audit_db=str(audit_db)
             )
             receipted.audit.signing_key = log_key

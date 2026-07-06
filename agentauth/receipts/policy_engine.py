@@ -9,22 +9,23 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Protocol, runtime_checkable
 
-from agentauth.receipts.action_monitor import MonitoringSignal
 from agentauth.core.decision import BudgetEffect, DecisionResult, Obligation
-from agentauth.receipts.policy import Policy
-from agentauth.receipts.proof import DecisionOutcome
 from agentauth.core.resource_refs import parse_resource_ref
-from agentauth.capabilities.task_scope import (
-    TaskScope,
-    action_path_candidates,
-    path_matches_any,
-)
 from agentauth.core.runtime import (
     ActionDescriptor,
     AuthorityContext,
     ExecutionContext,
     SideEffectLevel,
 )
+from agentauth.core.task_scope import (
+    TaskScope,
+    action_path_candidates,
+    path_matches_any,
+)
+
+from agentauth.receipts.action_monitor import MonitoringSignal
+from agentauth.receipts.policy import Policy
+from agentauth.receipts.proof import DecisionOutcome
 
 
 @runtime_checkable
@@ -272,7 +273,6 @@ def _monitoring_violations(
     raw = authorization.get("monitoring")
     if not isinstance(raw, dict):
         return []
-    from agentauth.receipts.action_monitor import MonitoringSignal
     from agentauth.core.runtime import SideEffectLevel
 
     signal = MonitoringSignal.from_dict(raw)

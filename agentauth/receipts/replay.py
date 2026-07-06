@@ -6,7 +6,7 @@ from typing import Any
 
 from agentauth.core.decision import DecisionResult
 from agentauth.receipts.evidence_refs import EvidenceRefs
-from agentauth.capabilities.lineage import AuthorityLineage
+from agentauth.core.lineage import AuthorityLineage
 from agentauth.receipts.policy import Policy
 from agentauth.receipts.policy_engine import PolicyEngine, YamlPolicyEngine
 from agentauth.receipts.proof import ExecutionProof

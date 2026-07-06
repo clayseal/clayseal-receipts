@@ -42,7 +42,7 @@ def _boot_embedded_backend() -> str:
 def identify_dev_agent(*, agent_type: str = "benchmark-runner") -> dict[str, Any]:
     ensure_import_paths()
     from agentauth.identity import AgentAuth
-    from agentauth.receipts.authority_binding import AuthorityBinding
+    from agentauth.core.authority_binding import AuthorityBinding
 
     base_url = os.getenv("AGENTAUTH_BASE_URL") or _boot_embedded_backend()
     tenant = AgentAuth.create_tenant("Benchmark Harness", base_url=base_url)

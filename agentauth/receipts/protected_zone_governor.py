@@ -13,21 +13,21 @@ Principle: "explicit intent" must come from the trusted control plane
 from __future__ import annotations
 
 import fnmatch
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
+from agentauth.core.runtime import ExecutionContext, SideEffectLevel
 
 from .behavior_monitor import BehaviorMonitorResult
 from .instruction_surfaces import (
     INSTRUCTION_SURFACE_REPO_PATTERNS,
     is_agent_memory_path,
 )
-from .runtime import ExecutionContext, SideEffectLevel
 from .sandbox_governor import (
     NullSandboxGovernor,
     SandboxEnforcement,
     SandboxGovernor,
     SandboxGovernorResult,
 )
-
 
 _DEFAULT_PROTECTED_PATTERNS: tuple[str, ...] = (
     "repo://keys/*",

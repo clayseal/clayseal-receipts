@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, Iterator
 
 from agentauth.receipts import AgentWrapper
-from agentauth.receipts.authority_binding import AuthorityBinding
+from agentauth.core.authority_binding import AuthorityBinding
 from agentauth.receipts.export import build_receipt_bundle, verify_receipt_bundle
 
 from harness.agent_setup import apply_agent_policy
@@ -143,7 +143,7 @@ def _revoke_receipt_bundle_persisted(spec: dict) -> BenchmarkCase:
         from pathlib import Path
 
         from agentauth.receipts import AgentWrapper
-        from agentauth.receipts.authority_binding import AuthorityBinding
+        from agentauth.core.authority_binding import AuthorityBinding
         from agentauth.receipts.export import build_receipt_bundle
         from agentauth.receipts.proof import AttestationPath
         from agentauth.receipts.tee import TeeQuote, TeeQuoteFormat
