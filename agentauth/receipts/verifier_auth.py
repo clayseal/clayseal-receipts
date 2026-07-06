@@ -61,7 +61,18 @@ def _extract_api_key(request: Request) -> str | None:
 class ApiKeyMiddleware(BaseHTTPMiddleware):
     """Require API key on protected routes when configured or explicitly required."""
 
-    PUBLIC_PATHS = frozenset({"/health", "/ready", "/v1/version"})
+    # Well-known documents are public by design: RFC 9728 protected-resource
+    # metadata is how clients discover the authorization server BEFORE they
+    # have credentials, and SCITT keys are public key material.
+    PUBLIC_PATHS = frozenset(
+        {
+            "/health",
+            "/ready",
+            "/v1/version",
+            "/.well-known/oauth-protected-resource",
+            "/.well-known/scitt-keys",
+        }
+    )
 
     def __init__(
         self,

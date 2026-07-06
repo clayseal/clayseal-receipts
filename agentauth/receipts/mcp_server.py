@@ -23,6 +23,45 @@ DEFAULT_PORT = 8000
 MCP_API_KEY_ENV = "AGENT_RECEIPTS_MCP_API_KEY"
 McpHttpTransport = Literal["sse", "streamable-http"]
 
+# OAuth Protected Resource Metadata (RFC 9728) — the MCP-spec discovery
+# document (DCR is deprecated; clients use PRM + CIMD). Served unauthenticated:
+# it is how clients find the authorization server before they have credentials.
+PRM_PATH = "/.well-known/oauth-protected-resource"
+MCP_RESOURCE_URL_ENV = "AGENTAUTH_MCP_RESOURCE_URL"
+MCP_AUTHORIZATION_SERVERS_ENV = "AGENTAUTH_MCP_AUTHORIZATION_SERVERS"
+MCP_SCOPES_ENV = "AGENTAUTH_MCP_SCOPES"
+
+
+def protected_resource_metadata(base_url: str) -> dict:
+    """RFC 9728 metadata for this MCP server as an OAuth protected resource.
+
+    ``AGENTAUTH_MCP_RESOURCE_URL`` pins the canonical resource identifier (the
+    value clients must send as RFC 8707 ``resource``); it defaults to the
+    request's base URL. ``AGENTAUTH_MCP_AUTHORIZATION_SERVERS`` is a
+    comma-separated list of AS issuer URLs — point it at an AgentAuth identity
+    tenant (``https://HOST/t/TENANT``) or any other OAuth AS.
+    """
+    resource = os.environ.get(MCP_RESOURCE_URL_ENV, "").strip() or base_url.rstrip("/")
+    servers = [
+        item.strip()
+        for item in os.environ.get(MCP_AUTHORIZATION_SERVERS_ENV, "").split(",")
+        if item.strip()
+    ]
+    scopes = [
+        item.strip()
+        for item in os.environ.get(MCP_SCOPES_ENV, "").split(",")
+        if item.strip()
+    ]
+    metadata: dict = {
+        "resource": resource,
+        "authorization_servers": servers,
+        "bearer_methods_supported": ["header"],
+        "resource_name": "AgentAuth receipted MCP server",
+    }
+    if scopes:
+        metadata["scopes_supported"] = scopes
+    return metadata
+
 
 def mcp_api_key() -> str | None:
     key = os.environ.get(MCP_API_KEY_ENV, "").strip()
@@ -48,7 +87,16 @@ def validate_http_bind(host: str) -> None:
 
 
 def wrap_http_app(starlette_app: Starlette) -> Starlette:
-    """Attach API-key middleware when ``AGENT_RECEIPTS_MCP_API_KEY`` is configured."""
+    """Mount the RFC 9728 metadata route and attach API-key middleware when
+    ``AGENT_RECEIPTS_MCP_API_KEY`` is configured (the metadata stays public)."""
+    from starlette.requests import Request
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route
+
+    async def _prm(request: Request) -> JSONResponse:
+        return JSONResponse(protected_resource_metadata(str(request.base_url)))
+
+    starlette_app.router.routes.insert(0, Route(PRM_PATH, _prm, methods=["GET"]))
     if mcp_api_key():
         starlette_app.add_middleware(ApiKeyMiddleware, env_var=MCP_API_KEY_ENV)
     return starlette_app

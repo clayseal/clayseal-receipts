@@ -57,16 +57,24 @@ def test_http_app_requires_api_key_when_configured(monkeypatch):
 
 
 def test_http_starlette_app_selects_transport_without_api_key(monkeypatch):
+    from starlette.applications import Starlette
+
+    from agentauth.receipts.mcp_server import PRM_PATH
+
     monkeypatch.delenv(MCP_API_KEY_ENV, raising=False)
+    sse_app, http_app = Starlette(), Starlette()
     fake_app = SimpleNamespace(
-        sse_app=MagicMock(return_value="sse-app"),
-        streamable_http_app=MagicMock(return_value="http-app"),
+        sse_app=MagicMock(return_value=sse_app),
+        streamable_http_app=MagicMock(return_value=http_app),
     )
 
-    assert http_starlette_app(fake_app, "sse") == "sse-app"
-    assert http_starlette_app(fake_app, "streamable-http") == "http-app"
+    assert http_starlette_app(fake_app, "sse") is sse_app
+    assert http_starlette_app(fake_app, "streamable-http") is http_app
     fake_app.sse_app.assert_called_once()
     fake_app.streamable_http_app.assert_called_once()
+    # Both transports carry the RFC 9728 protected-resource metadata route.
+    for app in (sse_app, http_app):
+        assert any(getattr(r, "path", None) == PRM_PATH for r in app.router.routes)
 
 
 def test_run_fraud_mcp_dispatches_stdio():
