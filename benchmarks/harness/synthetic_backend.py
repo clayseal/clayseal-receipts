@@ -27,7 +27,7 @@ def reset_shared_backend_for_tests() -> None:
 
 def create_tenant_client(tenant_name: str) -> Any:
     ensure_import_paths()
-    from agentauth import AgentAuth
+    from agentauth.identity import AgentAuth
 
     base_url = shared_backend_url()
     tenant = AgentAuth.create_tenant(tenant_name, base_url=base_url)

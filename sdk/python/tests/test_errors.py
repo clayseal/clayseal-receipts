@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import pytest
 
-from agentauth import (
+from agentauth.identity import (
     AgentAuth,
     AgentAuthError,
     AgentNotFoundError,

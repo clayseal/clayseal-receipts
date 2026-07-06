@@ -41,7 +41,7 @@ def _boot_embedded_backend() -> str:
 
 def identify_dev_agent(*, agent_type: str = "benchmark-runner") -> dict[str, Any]:
     ensure_import_paths()
-    from agentauth import AgentAuth
+    from agentauth.identity import AgentAuth
     from agentauth.receipts.authority_binding import AuthorityBinding
 
     base_url = os.getenv("AGENTAUTH_BASE_URL") or _boot_embedded_backend()

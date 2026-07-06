@@ -41,7 +41,7 @@ os.environ.setdefault("AGENTAUTH_DATABASE_URL", f"sqlite:///{_TMP}/agents.db")
 
 import uvicorn  # noqa: E402
 
-from agentauth import AgentAuth  # noqa: E402
+from agentauth.identity import AgentAuth  # noqa: E402
 from agentauth.backend.main import app  # noqa: E402
 from agentauth.receipts import Policy, build_receipt_bundle, verify_receipt_bundle  # noqa: E402
 from agentauth.capabilities.mandate import (  # noqa: E402

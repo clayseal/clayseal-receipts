@@ -67,7 +67,7 @@ def boot_embedded_backend(org: str) -> EmbeddedBackend:
 
     base_url = f"http://127.0.0.1:{port}"
 
-    from agentauth import AgentAuth
+    from agentauth.identity import AgentAuth
 
     tenant = AgentAuth.create_tenant(org, base_url=base_url)
     # dev_attestation is allowed because the backend is on localhost.

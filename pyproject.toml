@@ -10,14 +10,6 @@ readme = "README.md"
 license = "MIT"
 # biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.
 requires-python = ">=3.10,<3.14"
-
-[project.urls]
-Homepage = "https://github.com/pberlizov/agentauth-receipts"
-Documentation = "https://github.com/pberlizov/agentauth-receipts/blob/main/docs/DEV_GUIDE.md"
-Repository = "https://github.com/pberlizov/agentauth-receipts"
-Issues = "https://github.com/pberlizov/agentauth-receipts/issues"
-Changelog = "https://github.com/pberlizov/agentauth-receipts/blob/main/CHANGELOG.md"
-
 dependencies = [
   "agentauth-identity @ git+https://github.com/pberlizov/agentauth-identity.git@v0.4.0",
   "agentauth-capabilities @ git+https://github.com/pberlizov/agentauth-capabilities.git@v0.4.0",
@@ -28,6 +20,13 @@ dependencies = [
   "biscuit-python>=0.4,<0.5",
   "PyJWT>=2.8,<3.0",
 ]
+
+[project.urls]
+Homepage = "https://github.com/pberlizov/agentauth-receipts"
+Documentation = "https://github.com/pberlizov/agentauth-receipts/blob/main/docs/DEV_GUIDE.md"
+Repository = "https://github.com/pberlizov/agentauth-receipts"
+Issues = "https://github.com/pberlizov/agentauth-receipts/issues"
+Changelog = "https://github.com/pberlizov/agentauth-receipts/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 # Hosted FastAPI service (identity issuance/validation + receipt verifier).
@@ -92,8 +91,12 @@ agent-receipts-mcp-server = "agentauth.receipts.mcp_server:main"
 [tool.hatch.metadata]
 allow-direct-references = true
 
+# Ship ONLY what this dist owns, at their natural paths (so `agentauth.receipts` stays
+# under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the
+# agentauth-identity wheel; shipping copies here overlaps its RECORD on a clean install.
+# `only-include` (not `packages`) is used so the paths are kept, not relocated to the root.
 [tool.hatch.build.targets.wheel]
-packages = ["agentauth", "agent_receipts"]
+only-include = ["agentauth/receipts", "agent_receipts"]
 
 [tool.hatch.build.targets.sdist]
 include = [

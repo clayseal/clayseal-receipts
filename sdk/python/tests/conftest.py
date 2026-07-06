@@ -30,7 +30,7 @@ os.environ.setdefault("AGENTAUTH_DATABASE_URL", f"sqlite:///{_TMPDIR}/agents.db"
 import pytest  # noqa: E402
 import uvicorn  # noqa: E402
 
-from agentauth import AgentAuth  # noqa: E402
+from agentauth.identity import AgentAuth  # noqa: E402
 from agentauth.backend.main import app  # noqa: E402
 
 

@@ -158,7 +158,7 @@ def bootstrap(org_name: str = "Acme AI"):
     """Return (AgentAuth client bound to a fresh tenant, api_key, base_url)."""
     import logging
 
-    from agentauth import AgentAuth
+    from agentauth.identity import AgentAuth
 
     base_url = ensure_backend()
     if _server_started:
