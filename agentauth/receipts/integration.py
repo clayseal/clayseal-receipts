@@ -26,6 +26,10 @@ def wrap_with_identity_session(
 
     if task_mandate is not None:
         kwargs["task_mandate"] = task_mandate
+    if capability_layer is not None:
+        metadata = dict(getattr(session, "metadata", {}) or {})
+        metadata["capability_layer"] = getattr(capability_layer, "name", "custom")
+        session.metadata = metadata
     return AgentWrapper(
         model,
         policy,
@@ -65,3 +69,25 @@ def wrap_agentauth_session(
         capability_authorizer=capability_authorizer,
         **kwargs,
     )
+
+
+def wrap_with_provider_claims(
+    model: Any,
+    policy: Any,
+    provider: str,
+    claims: dict[str, Any],
+    *,
+    evidence_verified: bool = True,
+    **kwargs: Any,
+) -> Any:
+    """Wrap a model from provider claims without requiring AgentAuth L1.
+
+    Requires only the capabilities package for provider normalization. L3 still
+    runs without L1 if the caller supplies OIDC/SPIFFE/Auth0/AWS-STS claims.
+    """
+    from agentauth.capabilities.identity_adapters import get_identity_provider
+
+    session = get_identity_provider(provider).build_session(
+        claims, evidence_verified=evidence_verified
+    )
+    return wrap_with_identity_session(model, policy, session, **kwargs)

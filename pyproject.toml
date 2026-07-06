@@ -70,6 +70,42 @@ deepagents = [
     "langchain-openai>=1.3.3",
     "langgraph>=1.2.7",
 ]
+langchain = [
+    "langchain>=1.0",
+    "langchain-core>=1.0",
+]
+pydantic-ai = [
+    "pydantic-ai>=1.0",
+]
+llamaindex = [
+    "llama-index-core>=0.14",
+]
+crewai = [
+    "crewai>=1.0",
+]
+openai-agents = [
+    "openai-agents>=0.6",
+]
+semantic-kernel = [
+    "semantic-kernel>=1.0",
+]
+autogen = [
+    "autogen-core>=0.4",
+]
+haystack = [
+    "haystack-ai>=2.0",
+]
+frameworks = [
+    "langchain>=1.0",
+    "langchain-core>=1.0",
+    "pydantic-ai>=1.0",
+    "llama-index-core>=0.14",
+    "crewai>=1.0",
+    "openai-agents>=0.6",
+    "semantic-kernel>=1.0",
+    "autogen-core>=0.4",
+    "haystack-ai>=2.0",
+]
 # Optional KMS providers for signing/Biscuit key encryption at rest. The
 # providers lazy-import these, so they are only needed when
 # AGENTAUTH_SECRET_ENCRYPTION_PROVIDER is aws_kms / gcp_kms.
@@ -123,6 +159,7 @@ include = [
     "config",
     "policies",
     "examples",
+    "sdk",
     "docs",
     "scripts",
     "CHANGELOG.md",

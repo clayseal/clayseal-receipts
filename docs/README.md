@@ -40,6 +40,7 @@ This index catalogs everything under `docs/`. New to the project? Start with
 
 ## Integration & interop
 
+- [framework_integrations.md](framework_integrations.md) — optional adapters for LangChain and plain-function agent tool frameworks.
 - [mcp_integration.md](mcp_integration.md) — receipting MCP tool calls (`ReceiptedMcpGateway`).
 - [mcp_live_server.md](mcp_live_server.md) — the live MCP server pilot (`ReceiptedMcpClient`, transports).
 - [otel_genai_mapping.md](otel_genai_mapping.md) — mapping receipts onto the OpenTelemetry GenAI semantic conventions.
