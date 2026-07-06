@@ -100,7 +100,7 @@ dev = [
     "coverage[toml]>=7.5",
     "diff-cover>=9.0",
     "ruff>=0.4",
-    "agentauth-receipts[server,mcp,verifier,scoping,identity]",
+    "agentauth-receipts[server,mcp,verifier,scoping,identity,cedar,casbin]",
 ]
 partner = [
     "agentauth-receipts[server,mcp,verifier,dev]",
