@@ -59,6 +59,11 @@ def _select_jwk(token: str, jwks: dict[str, Any]) -> dict[str, Any] | None:
     return keys[0]
 
 
+# Identity issues RS256 as of v0.5 (the federation-compatible algorithm);
+# EdDSA remains accepted so historical receipt bundles keep verifying.
+_SVID_ALGORITHMS = ("RS256", "ES256", "EdDSA")
+
+
 def _decode_svid(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     jwk = _select_jwk(token, jwks)
     if jwk is None:
@@ -69,7 +74,7 @@ def _decode_svid(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
     return jwt.decode(
         token,
         key=key,
-        algorithms=["EdDSA"],
+        algorithms=list(_SVID_ALGORITHMS),
         options={"verify_aud": False, "verify_exp": False},
     )
 
