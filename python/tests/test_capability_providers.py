@@ -11,7 +11,7 @@ from agentauth.receipts.integration import authorizer_from_provider, resolve_cap
 
 def test_builtin_providers_registered_in_plugin_group():
     names = cp.list_capability_providers()
-    assert {"opa", "cedar", "openfga"}.issubset(set(names))
+    assert {"opa", "cedar", "openfga", "casbin"}.issubset(set(names))
     # And they live in the shared plugin registry under the capability_providers group.
     assert set(cp.list_capability_providers()) == set(plugins.list_plugins("capability_providers"))
 
@@ -112,6 +112,31 @@ def test_user_override_wins_for_capability_backend(_restore_biscuit_backend):
     from agentauth.capabilities.integration import default_biscuit_backend
 
     assert default_biscuit_backend() is marker
+
+
+def test_conformance_kit_passes_conforming_provider():
+    provider = cp.from_callable(lambda a, r, c: a == "read", name="ro2")
+    problems = cp.check_capability_provider(
+        provider,
+        samples=[
+            {"action": "read", "resource": "db", "expected": True},
+            {"action": "write", "resource": "db", "expected": False},
+        ],
+    )
+    assert problems == []
+
+
+def test_conformance_kit_flags_wrong_decision_and_bad_provider():
+    wrong = cp.from_callable(lambda a, r, c: True, name="always")  # allows everything
+    problems = cp.check_capability_provider(
+        wrong, samples=[{"action": "write", "resource": "db", "expected": False}]
+    )
+    assert problems and "expected allowed=False" in problems[0]
+
+    class NotAProvider:
+        name = "broken"
+
+    assert any("authorize" in p for p in cp.check_capability_provider(NotAProvider(), []))
 
 
 def test_decision_is_truthy():

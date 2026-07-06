@@ -46,11 +46,12 @@ def _ensure_loaded() -> None:
         return
     _BUILTINS_LOADED = True
     # External engines register unconditionally; their SDKs load lazily on first use.
+    from agentauth.receipts.capability_providers import casbin as _casbin
     from agentauth.receipts.capability_providers import cedar as _cedar
     from agentauth.receipts.capability_providers import openfga as _openfga
     from agentauth.receipts.capability_providers import opa as _opa
 
-    for mod in (_opa, _cedar, _openfga):
+    for mod in (_opa, _cedar, _openfga, _casbin):
         register_capability_provider(mod.provider)
 
     # Native Biscuit provider only when the capabilities layer is importable, so receipts

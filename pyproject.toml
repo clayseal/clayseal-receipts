@@ -75,6 +75,9 @@ cedar = [
 openfga = [
     "openfga-sdk>=0.6",
 ]
+casbin = [
+    "casbin>=1.36",
+]
 # Rippling-style Deep Agents red-team fixture (examples/rippling-deepagents-demo/,
 # demo/rippling_deepagents_demo.py). Opt-in only -- deepagents/langgraph pull a
 # heavy dependency tree the rest of the test suite doesn't need.

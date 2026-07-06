@@ -11,6 +11,7 @@ entry point.
 from __future__ import annotations
 
 from agentauth.core.identity_protocol import CapabilityDecision, CapabilityProvider
+from agentauth.receipts.capability_providers.conformance import check_capability_provider
 from agentauth.receipts.capability_providers.registry import (
     get_capability_provider,
     list_capability_providers,
@@ -25,4 +26,5 @@ __all__ = [
     "list_capability_providers",
     "register_capability_provider",
     "from_callable",
+    "check_capability_provider",
 ]
