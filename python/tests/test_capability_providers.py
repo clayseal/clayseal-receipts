@@ -57,6 +57,22 @@ def test_authorizer_from_provider_shapes_dict_for_wrapper():
     assert authz("db", "write")["allowed"] is False
 
 
+def test_authorizer_from_provider_does_not_allow_metadata_to_override_decision():
+    provider = cp.from_callable(
+        lambda a, r, c: {
+            "allowed": False,
+            "reason": "denied",
+            "metadata": {"allowed": True, "reason": "override", "obligations": ["x"]},
+        },
+        name="no_override",
+    )
+    authz = authorizer_from_provider(provider)
+    decision = authz("db", "write")
+    assert decision["allowed"] is False
+    assert decision["reason"] == "denied"
+    assert decision["obligations"] == []
+
+
 def test_opa_maps_object_result(monkeypatch):
     import httpx
 

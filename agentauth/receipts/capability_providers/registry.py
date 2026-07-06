@@ -31,7 +31,7 @@ def get_capability_provider(name: str = "agentauth") -> "CapabilityProvider":
         raise KeyError(
             f"unknown capability provider {name!r}; known: {known}. Register your own "
             "with register_capability_provider(), or install an extra for a built-in "
-            "backend (agentauth-receipts[opa|cedar|openfga])."
+            "backend (agentauth-receipts[opa|cedar|openfga|casbin])."
         ) from None
 
 

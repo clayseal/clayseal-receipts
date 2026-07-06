@@ -43,11 +43,16 @@ def authorizer_from_provider(
 
     def _authorize(resource: str, action: str) -> dict[str, Any]:
         decision = provider.authorize(action=action, resource=resource, context=context)
+        metadata = {
+            k: v
+            for k, v in decision.metadata.items()
+            if k not in {"allowed", "reason", "obligations"}
+        }
         return {
             "allowed": decision.allowed,
             "reason": decision.reason,
             "obligations": decision.obligations,
-            **decision.metadata,
+            **metadata,
         }
 
     return _authorize
