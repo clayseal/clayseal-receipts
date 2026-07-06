@@ -9,7 +9,6 @@ present, otherwise boot the backend in-process on a throwaway database.
 | File | Shows |
 |------|-------|
 | [`01_quickstart.py`](01_quickstart.py) | Identity lifecycle: `identify()`, `validate()`, `agents()`, `revoke()` |
-| [`02_capabilities.py`](02_capabilities.py) | Biscuit capabilities: offline auth, attenuation, delegation, PoP rejection |
 
 ## Runtime & MCP demos
 
@@ -57,7 +56,6 @@ pip install -e ".[dev,mcp]"
 
 ```bash
 python examples/01_quickstart.py
-python examples/02_capabilities.py
 python demo/poisoned_mcp_demo.py
 ```
 

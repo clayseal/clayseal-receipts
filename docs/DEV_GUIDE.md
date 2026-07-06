@@ -282,10 +282,12 @@ Legacy `scripts/partner_smoke.sh` assumes a monolithic checkout with a built Rus
 Full developer install:
 
 ```bash
-pytest python/tests -q
-pytest backend/tests -q
-pytest sdk/python/tests -q
+pytest python/tests -q       # receipts runtime
+pytest sdk/python/tests -q    # identity->receipt seam e2e
 ```
+
+Identity backend/SDK and capability unit tests live in the `agentauth-identity`
+and `agentauth-capabilities` repos.
 
 CI also runs `cargo test --all`. Locally, Rust builds are optional unless you work on ZK proving.
 

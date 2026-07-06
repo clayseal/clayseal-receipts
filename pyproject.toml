@@ -91,17 +91,17 @@ agent-receipts-mcp-server = "agentauth.receipts.mcp_server:main"
 [tool.hatch.metadata]
 allow-direct-references = true
 
-# Ship ONLY what this dist owns, at their natural paths (so `agentauth.receipts` stays
+# Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
 # under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the
-# agentauth-identity wheel; shipping copies here overlaps its RECORD on a clean install.
-# `only-include` (not `packages`) is used so the paths are kept, not relocated to the root.
+# agentauth-identity wheel and capabilities/core from the agentauth-capabilities wheel;
+# shipping copies here would overlap their RECORD on a clean install.
+# `only-include` (not `packages`) is used so the path is kept, not relocated to the root.
 [tool.hatch.build.targets.wheel]
-only-include = ["agentauth/receipts", "agent_receipts"]
+only-include = ["agentauth/receipts"]
 
 [tool.hatch.build.targets.sdist]
 include = [
     "agentauth",
-    "agent_receipts",
     "compliance",
     "config",
     "policies",
@@ -114,8 +114,9 @@ include = [
 ]
 
 [tool.pytest.ini_options]
-# One unified suite spanning identity (backend + SDK) and receipts (runtime).
-testpaths = ["python/tests", "backend/tests", "sdk/python/tests", "benchmarks/tests"]
+# Receipts runtime suite plus the identity->receipt seam test (sdk/python/tests).
+# Identity backend/SDK and capability units are tested in their own repos.
+testpaths = ["python/tests", "sdk/python/tests", "benchmarks/tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
 

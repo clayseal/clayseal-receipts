@@ -70,6 +70,14 @@ def test_ready(client: TestClient):
     assert "ready" in r.json()
 
 
+def test_version_lists_supported_schemas(client: TestClient):
+    r = client.get("/v1/version")
+    assert r.status_code == 200
+    body = r.json()
+    assert body["verifier_version"]
+    assert isinstance(body["supported_schemas"], list) and body["supported_schemas"]
+
+
 def test_verify_shadow_bundle_invalid_crypto(client: TestClient):
     policy = Policy.from_yaml(ROOT / "policies" / "fraud_decision.yaml")
     cert = dev_certificate(policy.commitment())

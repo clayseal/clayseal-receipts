@@ -31,7 +31,6 @@ jobs:
       - name: Run Python tests
         run: |
           pytest python/tests -q --ignore=python/tests/test_interop_conformance.py
-          pytest backend/tests -q
           pytest sdk/python/tests -q
 
   rust:

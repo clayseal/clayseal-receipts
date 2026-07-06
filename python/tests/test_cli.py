@@ -130,13 +130,3 @@ def test_cmd_demo_rejects_unknown_example(capsys):
 
     assert code == 2
     assert "unknown example" in capsys.readouterr().err
-
-
-def test_agent_receipts_cli_compat_shim(capsys):
-    from agent_receipts.cli import main as legacy_main
-
-    with pytest.raises(SystemExit) as exc:
-        legacy_main([])
-
-    assert exc.value.code == 2
-    assert "Agent Receipts" in capsys.readouterr().out
