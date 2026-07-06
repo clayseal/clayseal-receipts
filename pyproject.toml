@@ -62,6 +62,19 @@ verifier = [
 otel = [
     "opentelemetry-exporter-otlp-proto-http>=1.24",
 ]
+# --- swappable L3 authorization backends (agentauth.receipts.capability_providers) ---
+# The native Biscuit provider needs the capabilities layer ([scoping]); these extras add
+# the external policy engines receipts can authorize through instead. `opa` talks to an
+# OPA server over HTTP, so it only needs httpx (already a core dep).
+opa = [
+    "httpx>=0.27",
+]
+cedar = [
+    "cedarpy>=3.0",
+]
+openfga = [
+    "openfga-sdk>=0.6",
+]
 # Rippling-style Deep Agents red-team fixture (examples/rippling-deepagents-demo/,
 # demo/rippling_deepagents_demo.py). Opt-in only -- deepagents/langgraph pull a
 # heavy dependency tree the rest of the test suite doesn't need.
