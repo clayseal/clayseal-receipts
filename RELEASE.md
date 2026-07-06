@@ -1,61 +1,72 @@
-# Release process (design partner pilots)
+# Release process — three-layer stack
 
-Pin design partners to **git tags**, not floating `main`.
+Design partners and production integrators should pin **git tags**, not floating `main`.
+
+AgentAuth is split into three repositories. Install and tag them **in order**:
+
+1. [agentauth-identity](https://github.com/pberlizov/agentauth-identity) (layer 1)
+2. [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities) (layer 2)
+3. [agentauth-receipts](https://github.com/pberlizov/agentauth-receipts) (layer 3 — this repo)
 
 ## Current release
 
 | Field | Value |
 |-------|--------|
-| Version | **0.2.1** |
-| Tag | `v0.2.1` |
-| Docker tag | `agent-receipts:0.2.1` |
+| Version | **0.4.0** |
+| Tag | `v0.4.0` |
+| Identity pin | `agentauth-identity @ v0.4.0` |
+| Capabilities pin | `agentauth-capabilities @ v0.4.0` |
 
 See [CHANGELOG.md](CHANGELOG.md) for changes.
 
+## Partner install (pinned tags)
+
+```bash
+pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.4.0"
+pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.4.0"
+pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.4.0[partner]"
+```
+
+Or clone this repo at the tag and install editable:
+
+```bash
+git clone https://github.com/pberlizov/agentauth-receipts.git
+cd agentauth-receipts
+git checkout v0.4.0
+pip install -e ".[partner]"
+```
+
 ## Cut a release (maintainers)
 
+Tag **identity → capabilities → receipts** so downstream `pyproject.toml` git pins resolve.
+
 ```bash
-# 1. Ensure VERSION, pyproject.toml, agentauth/receipts/_version.py match
-cat VERSION   # e.g. 0.2.1
+# 1. Align versions in each repo
+#    identity:     pyproject.toml
+#    capabilities: pyproject.toml + identity pin
+#    receipts:     VERSION, pyproject.toml, agentauth/receipts/_version.py + both pins
 
-# 2. Run smoke
-bash scripts/partner_smoke.sh
+# 2. Smoke from receipts repo (after all three tags exist on GitHub)
+bash scripts/layer_install_smoke.sh
 
-# 3. Commit and tag
-git add VERSION CHANGELOG.md pyproject.toml agentauth/receipts/_version.py
-git commit -m "Release v0.2.1"
-git tag -a v0.2.1 -m "Design partner pilot 0.2.1"
-
-# 4. Push (when ready)
+# 3. Per repo: commit, tag, push
+git tag -a v0.4.0 -m "Release v0.4.0"
 git push origin main
-git push origin v0.2.1
+git push origin v0.4.0
 ```
 
-## Partner checkout (pinned)
+## Version alignment checklist (receipts repo)
 
-```bash
-git clone https://github.com/pberlizov/agent-receipts.git
-cd agent-receipts
-git checkout v0.2.1
-bash scripts/bootstrap.sh
-```
-
-## Docker (pinned image)
-
-```bash
-git checkout v0.2.1
-docker compose build
-docker compose up verifier
-curl -s http://localhost:8787/health | jq .
-```
-
-With MCP server profile:
-
-```bash
-docker compose --profile mcp up
-```
+- [ ] `VERSION`
+- [ ] `pyproject.toml` `[project].version`
+- [ ] `agentauth/receipts/_version.py`
+- [ ] `CHANGELOG.md` section for the release
+- [ ] Identity and capabilities git pins in `pyproject.toml`
+- [ ] `Cargo.toml` `[workspace.package].version` (Rust crates, if releasing Rust artifacts)
 
 ## Verify a receipt via HTTP
+
+With the verifier profile running (`docker compose up verifier` or `uvicorn`):
 
 ```bash
 curl -s -X POST http://localhost:8787/v1/verify \
@@ -63,10 +74,18 @@ curl -s -X POST http://localhost:8787/v1/verify \
   -d @receipts/<proof-id>.json | jq .
 ```
 
-## Version alignment checklist
+## Full-stack smoke (legacy monorepo script)
 
-- [ ] `VERSION`
-- [ ] `pyproject.toml` `[project].version`
-- [ ] `agentauth/receipts/_version.py`
-- [ ] `CHANGELOG.md` section for the release
-- [ ] `Cargo.toml` `[workspace.package].version` (Rust crates)
+`scripts/partner_smoke.sh` assumes a monolithic checkout with a built Rust CLI. For the split layout, prefer:
+
+```bash
+bash scripts/layer_install_smoke.sh
+arctl doctor
+python demo/poisoned_mcp_demo.py
+```
+
+## Documentation
+
+- [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md) — comprehensive guide for layer 3
+- [agentauth-identity docs](https://github.com/pberlizov/agentauth-identity/blob/main/docs/DEV_GUIDE.md)
+- [agentauth-capabilities docs](https://github.com/pberlizov/agentauth-capabilities/blob/main/docs/DEV_GUIDE.md)

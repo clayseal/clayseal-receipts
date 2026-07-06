@@ -32,3 +32,5 @@ pip install -e ".[dev]"
 python demo/poisoned_mcp_demo.py
 arctl doctor
 ```
+
+Developer guide: [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md)

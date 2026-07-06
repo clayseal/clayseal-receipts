@@ -10,8 +10,16 @@ readme = "README.md"
 license = "MIT"
 # biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.
 requires-python = ">=3.10,<3.14"
+
+[project.urls]
+Homepage = "https://github.com/pberlizov/agentauth-receipts"
+Documentation = "https://github.com/pberlizov/agentauth-receipts/blob/main/docs/DEV_GUIDE.md"
+Repository = "https://github.com/pberlizov/agentauth-receipts"
+Issues = "https://github.com/pberlizov/agentauth-receipts/issues"
+Changelog = "https://github.com/pberlizov/agentauth-receipts/blob/main/CHANGELOG.md"
+
 dependencies = [
-  "agentauth-identity @ git+https://github.com/pberlizov/agentauth-identity.git@v0.3.1",
+  "agentauth-identity @ git+https://github.com/pberlizov/agentauth-identity.git@v0.4.0",
   "agentauth-capabilities @ git+https://github.com/pberlizov/agentauth-capabilities.git@v0.4.0",
   "pyyaml>=6.0",
   "cryptography>=42.0",

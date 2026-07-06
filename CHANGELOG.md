@@ -6,6 +6,31 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-05
+
+### Added
+
+- **Three-repo architecture** — this package is layer 3 (receipts + verification). Depends on:
+  - [agentauth-identity](https://github.com/pberlizov/agentauth-identity) v0.4.0
+  - [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities) v0.4.0
+- Cross-provider receipt wrapping via `agentauth.receipts.integration.wrap_with_identity_session()`.
+- `docs/DEV_GUIDE.md` — comprehensive developer guide for the full stack.
+- GitHub Actions CI for Python and Rust test suites.
+- `scripts/layer_install_smoke.sh` — verifies pip install from pinned git tags.
+
+### Changed
+
+- Top-level `from agentauth import AgentAuth, AgentWrapper` exports live in this repo only.
+- `AuthorityBinding` re-exported from `agentauth.core.authority_binding` (shared with L2).
+- `VERSION`, `_version.py`, and `pyproject.toml` aligned at **0.4.0**.
+- `RELEASE.md` updated for three-layer release process.
+
+### Removed
+
+- 163 committed `__pycache__` artifacts (v0.3.1 cleanup).
+
+## [Unreleased — evidence plane (pre-split)]
+
 ### Added — evidence plane (ZK binding + signing)
 
 - Halo2 policy proof now **binds the committed output and policy** into its public inputs
