@@ -18,12 +18,27 @@ def _statement(issuer="issuer.example", subject="agent-42", payload=b"hello"):
 # --- Signed Statements ----------------------------------------------------- #
 
 
-def test_sign_statement_is_cose_sign1_eddsa():
+def test_sign_statement_is_tagged_cose_sign1_eddsa():
     key, stmt = _statement(payload=b"claim")
-    arr = cbor2.loads(stmt)
-    assert isinstance(arr, list) and len(arr) == 4
+    tagged = cbor2.loads(stmt)
+    # RFC 9942: statements/receipts are tagged COSE_Sign1 (#6.18).
+    assert isinstance(tagged, cbor2.CBORTag) and tagged.tag == 18
+    arr = tagged.value
+    assert isinstance(arr, (list, tuple)) and len(arr) == 4
     protected = cbor2.loads(arr[0])
     assert protected[1] == -8  # alg: EdDSA
+    # RFC 9943: kid (4) + CWT Claims (15) with iss/sub in the protected header.
+    assert protected[4] == key.key_id.encode("ascii")
+    assert protected[15] == {1: "issuer.example", 2: "agent-42"}
+
+
+def test_statement_claims_reads_protected_header():
+    key, stmt = _statement(payload=b"claim")
+    claims = scitt.statement_claims(stmt)
+    assert claims["issuer"] == "issuer.example"
+    assert claims["subject"] == "agent-42"
+    assert claims["kid"] == key.key_id
+    assert claims["alg"] == -8
 
 
 def test_statement_roundtrip_and_tamper():
@@ -32,9 +47,16 @@ def test_statement_roundtrip_and_tamper():
     # wrong key
     assert scitt.verify_statement(stmt, generate_keypair().public_key) is None
     # tampered payload (re-pack a different payload, same signature) fails
-    p, u, _payload, sig = cbor2.loads(stmt)
-    forged = cbor2.dumps([p, u, b"evil", sig])
+    p, u, _payload, sig = cbor2.loads(stmt).value
+    forged = cbor2.dumps(cbor2.CBORTag(18, [p, u, b"evil", sig]))
     assert scitt.verify_statement(forged, key.public_key) is None
+
+
+def test_untagged_legacy_envelopes_still_verify():
+    key, stmt = _statement(payload=b"claim")
+    p, u, payload, sig = cbor2.loads(stmt).value
+    legacy = cbor2.dumps([p, u, payload, sig])  # pre-0.5 untagged framing
+    assert scitt.verify_statement(legacy, key.public_key) == b"claim"
 
 
 def test_sign_receipt_bundle_payload_is_cbor():
@@ -82,24 +104,47 @@ def test_tampered_inclusion_proof_rejected():
     _, stmt2 = _statement(payload=b"s1")
     receipt = ts.register(stmt2)
     # Corrupt the inclusion-proof leaf index in the receipt's unprotected header.
-    p, u, payload, sig = cbor2.loads(receipt)
+    p, u, payload, sig = cbor2.loads(receipt).value
     u = dict(u)
     proofs = u[396][-1]
     ts_size, leaf_index, path = cbor2.loads(proofs[0])
     u[396] = {-1: [cbor2.dumps([ts_size, leaf_index + 5, path])]}
-    bad = cbor2.dumps([p, u, payload, sig])
+    bad = cbor2.dumps(cbor2.CBORTag(18, [p, u, payload, sig]))
     assert not scitt.verify_receipt(stmt2, bad, ts.public_key)
 
 
-def test_transparent_statement_embeds_receipt():
+def test_transparent_statement_embeds_receipts_array():
     ts = scitt.TransparencyService(generate_keypair(), service_id="ts.example/log")
     _, stmt = _statement(payload=b"s0")
     receipt = ts.register(stmt)
     transparent = scitt.transparent_statement(stmt, receipt)
-    # Receipt is recoverable from the statement's unprotected header (label 394).
-    _p, unprotected, _payload, _sig = cbor2.loads(transparent)
-    assert unprotected[394] == receipt
-    assert scitt.verify_receipt(stmt, unprotected[394], ts.public_key)
+    # RFC 9942: receipts (394) is an ARRAY of bstr-wrapped receipts.
+    _p, unprotected, _payload, _sig = cbor2.loads(transparent).value
+    assert list(unprotected[394]) == [receipt]
+    assert scitt.receipts_from_transparent_statement(transparent) == [receipt]
+    assert scitt.verify_receipt(stmt, receipt, ts.public_key)
+    assert scitt.verify_transparent_statement(transparent, ts.public_key)
+    # A second receipt appends rather than replaces.
+    receipt2 = ts.receipt_for(0)
+    transparent2 = scitt.transparent_statement(transparent, receipt2)
+    assert scitt.receipts_from_transparent_statement(transparent2) == [receipt, receipt2]
+    assert scitt.verify_transparent_statement(transparent2, ts.public_key)
+    # The wrong service key proves nothing.
+    assert not scitt.verify_transparent_statement(transparent, generate_keypair().public_key)
+
+
+def test_receipt_for_reissues_fresh_receipts():
+    ts = scitt.TransparencyService(generate_keypair(), service_id="ts.example/log")
+    _, stmt = _statement(payload=b"s0")
+    ts.register(stmt)
+    for i in range(1, 4):
+        ts.register(_statement(payload=f"s{i}".encode())[1])
+    fresh = ts.receipt_for(0)  # re-issued under the size-4 root
+    assert scitt.verify_receipt(stmt, fresh, ts.public_key)
+    import pytest as _pytest
+
+    with _pytest.raises(IndexError):
+        ts.receipt_for(99)
 
 
 # --- consistency receipts -------------------------------------------------- #

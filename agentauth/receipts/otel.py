@@ -18,6 +18,13 @@ from typing import Any
 # GenAI system identifier for our receipts.
 GEN_AI_SYSTEM = "agent_receipts"
 
+# The gen_ai.* semantic conventions are still "Development" status upstream, so
+# every emission pins the semconv release it was mapped against; consumers can
+# translate across versions instead of guessing. Bump deliberately, with the
+# mapping reviewed against the release notes.
+GEN_AI_SEMCONV_VERSION = "1.40.0"
+OTEL_SCHEMA_URL = f"https://opentelemetry.io/schemas/{GEN_AI_SEMCONV_VERSION}"
+
 
 def _put(attrs: dict[str, Any], key: str, value: Any) -> None:
     if value is not None and value != "":
@@ -201,9 +208,14 @@ def bundle_to_otlp_resource_logs(
                         },
                     ]
                 },
+                "schemaUrl": OTEL_SCHEMA_URL,
                 "scopeLogs": [
                     {
-                        "scope": {"name": "agentauth.receipts.otel"},
+                        "scope": {
+                            "name": "agentauth.receipts.otel",
+                            "version": GEN_AI_SEMCONV_VERSION,
+                        },
+                        "schemaUrl": OTEL_SCHEMA_URL,
                         "logRecords": [
                             {
                                 "timeUnixNano": _nanos_timestamp(base),

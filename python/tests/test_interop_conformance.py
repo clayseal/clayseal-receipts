@@ -95,8 +95,13 @@ def _independent_note_verify(note: str, public_key: Ed25519PublicKey) -> bool:
 
 def _independent_cose_sign1_verify(stmt: bytes, public_key: Ed25519PublicKey) -> bool:
     """COSE_Sign1 (RFC 9052): verify Ed25519 over Sig_structure =
-    ["Signature1", protected, external_aad, payload]."""
-    protected, _unprotected, payload, signature = cbor2.loads(stmt)
+    ["Signature1", protected, external_aad, payload]. Accepts the tagged
+    (#6.18) form RFC 9942 mandates as well as bare arrays."""
+    decoded = cbor2.loads(stmt)
+    if isinstance(decoded, cbor2.CBORTag):
+        assert decoded.tag == 18
+        decoded = decoded.value
+    protected, _unprotected, payload, signature = decoded
     sig_structure = cbor2.dumps(["Signature1", protected, b"", payload])
     try:
         public_key.verify(signature, sig_structure)
@@ -150,6 +155,6 @@ def test_scitt_signed_statement_accepted_by_independent_cose_verifier():
     stmt = scitt.sign_statement(b"benchmark-claim", key, issuer="issuer.example", subject="agent-9")
     assert _independent_cose_sign1_verify(stmt, key.public_key) is True
     # Re-pack a different payload under the same signature -> independent verify fails.
-    protected, unprotected, _payload, signature = cbor2.loads(stmt)
-    forged = cbor2.dumps([protected, unprotected, b"evil", signature])
+    protected, unprotected, _payload, signature = cbor2.loads(stmt).value
+    forged = cbor2.dumps(cbor2.CBORTag(18, [protected, unprotected, b"evil", signature]))
     assert _independent_cose_sign1_verify(forged, key.public_key) is False

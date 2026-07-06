@@ -1,10 +1,18 @@
-"""Minimal HTTP verifier for receipt bundles (design partner / compliance)."""
+"""Minimal HTTP verifier for receipt bundles (design partner / compliance).
+
+Also serves the SCRAPI face of a SCITT Transparency Service (``POST /entries``,
+``GET /entries/{entry_id}``, ``GET /.well-known/scitt-keys``) so SCITT-aware
+clients can register Signed Statements here and obtain RFC 9942 COSE Receipts.
+The transparency log is in-process (one Merkle tree per server process); pin
+``AGENTAUTH_SCITT_SIGNING_KEY_HEX`` so receipts stay verifiable across restarts.
+"""
 
 from __future__ import annotations
 
 import json
 from typing import Any
 
+from agentauth.receipts import scitt, scrapi
 from agentauth.receipts._version import __version__
 from agentauth.receipts.diagnostics import run_diagnostics
 from agentauth.receipts.export import verify_receipt_bundle
@@ -21,7 +29,7 @@ from agentauth.receipts.verifier_auth import (
 try:
     from starlette.applications import Starlette
     from starlette.requests import Request
-    from starlette.responses import JSONResponse
+    from starlette.responses import JSONResponse, Response
     from starlette.routing import Route
 except ImportError as exc:  # pragma: no cover
     Starlette = None  # type: ignore[misc, assignment]
@@ -152,6 +160,91 @@ async def verify_v1(request: Request) -> JSONResponse:
     return JSONResponse(payload)
 
 
+# --------------------------------------------------------------------------- #
+# SCRAPI: this server as a SCITT Transparency Service
+# --------------------------------------------------------------------------- #
+_transparency_service: scitt.TransparencyService | None = None
+_entry_index: dict[str, int] = {}
+
+
+def get_transparency_service() -> scitt.TransparencyService:
+    global _transparency_service
+    if _transparency_service is None:
+        _transparency_service = scitt.TransparencyService(
+            scrapi.load_service_signing_key(), service_id=scrapi.service_id_from_env()
+        )
+    return _transparency_service
+
+
+def _reset_transparency_service() -> None:
+    """Test hook: drop the in-process log so each test starts from an empty tree."""
+    global _transparency_service
+    _transparency_service = None
+    _entry_index.clear()
+
+
+def _problem_response(status: int, title: str, detail: str) -> Response:
+    return Response(
+        scrapi.problem_details(title, detail),
+        status_code=status,
+        media_type=scrapi.MEDIA_PROBLEM,
+    )
+
+
+async def scrapi_register(request: Request) -> Response:
+    body = await request.body()
+    if len(body) > max_body_bytes():
+        return _problem_response(413, "Payload Too Large", "Signed Statement exceeds size limit")
+    content_type = request.headers.get("content-type", "").split(";")[0].strip()
+    if content_type != scrapi.MEDIA_COSE:
+        return _problem_response(
+            400, "Unsupported Content Type", f"expected {scrapi.MEDIA_COSE}"
+        )
+    try:
+        scrapi.check_registration_policy(body)
+    except scrapi.RegistrationRejected as exc:
+        return _problem_response(400, exc.title, exc.detail)
+
+    service = get_transparency_service()
+    entry_id = scrapi.entry_id_for_statement(body)
+    index = _entry_index.get(entry_id)
+    if index is None:
+        # Registration is synchronous (the tree is in-process), so the 201
+        # flow always applies; 202 never occurs here.
+        index = service.tree_size
+        receipt = service.register(body)
+        _entry_index[entry_id] = index
+    else:
+        receipt = service.receipt_for(index)  # idempotent re-registration
+    return Response(
+        receipt,
+        status_code=201,
+        media_type=scrapi.MEDIA_COSE,
+        headers={"Location": f"/entries/{entry_id}"},
+    )
+
+
+async def scrapi_resolve(request: Request) -> Response:
+    entry_id = request.path_params["entry_id"]
+    index = _entry_index.get(entry_id)
+    if index is None:
+        return _problem_response(404, "Not Found", f"no receipt for entry {entry_id}")
+    receipt = get_transparency_service().receipt_for(index)
+    return Response(
+        receipt,
+        media_type=scrapi.MEDIA_COSE,
+        headers={"Location": f"/entries/{entry_id}"},
+    )
+
+
+async def scitt_keys(_: Request) -> Response:
+    service = get_transparency_service()
+    return Response(
+        scrapi.cose_key_set([service.signing_key]),
+        media_type=scrapi.MEDIA_CBOR,
+    )
+
+
 def create_app() -> Starlette:
     require_verifier_deps()
     app = Starlette(
@@ -160,6 +253,9 @@ def create_app() -> Starlette:
             Route("/ready", ready, methods=["GET"]),
             Route("/v1/version", version, methods=["GET"]),
             Route("/v1/verify", verify_v1, methods=["POST"]),
+            Route("/entries", scrapi_register, methods=["POST"]),
+            Route("/entries/{entry_id}", scrapi_resolve, methods=["GET"]),
+            Route(scrapi.SCITT_KEYS_PATH, scitt_keys, methods=["GET"]),
         ],
     )
     app.add_middleware(RateLimitMiddleware, limit_per_minute=rate_limit_per_minute())

@@ -94,6 +94,20 @@ partner = [
 arctl = "agentauth.receipts.cli:main"
 agent-receipts-mcp-server = "agentauth.receipts.mcp_server:main"
 
+# The BYO-audit seams: discovered via agentauth.core.plugins (importlib entry
+# points), so third-party packages can register replacements under the same
+# groups without touching this source.
+[project.entry-points."agentauth.receipt_exporters"]
+otel_genai = "agentauth.receipts.exporters.otel_genai:OtelGenAiExporter"
+ocsf_ai_operation = "agentauth.receipts.exporters.ocsf:OcsfExporter"
+scitt = "agentauth.receipts.exporters.scitt_scrapi:ScittExporter"
+vanta = "agentauth.receipts.exporters.vanta:VantaExporter"
+drata = "agentauth.receipts.exporters.drata:DrataExporter"
+
+[project.entry-points."agentauth.attestation_verifiers"]
+nitro = "agentauth.receipts.attestation:NitroAttestationVerifier"
+eat_jwt = "agentauth.receipts.attestation:EatJwtAttestationVerifier"
+
 # Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
 # under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the
 # agentauth-identity wheel and capabilities/core from the agentauth-capabilities wheel;
