@@ -11,7 +11,7 @@ Pick one wedge, then one proof line:
 | Wedge | One-liner | Proof |
 |-------|-----------|-------|
 | **HR / payroll / IT agents** | Human approval isn’t enough when the approved payload isn’t what executes. | Synthetic Rippling Deep Agents benchmark: 79 live scenarios, 6 confirmed binding gaps (Unicode smuggling, plan chunking, connector equivalence, chat-as-authorization). Head of Security wants a research collaboration. |
-| **Coding agents** | Enterprises won’t grant write access until execution is provably in-scope. | Live Devin red-team: poisoned issues tricked the agent; AgentAuth PR gate denied before merge. ~284k tamper trials, ~0% false-accept vs 67–100% for logging-only baselines. |
+| **Coding agents** | Enterprises won’t grant write access until execution is provably in-scope. | Live Devin red-team: poisoned issues tricked the agent; Clay Seal PR gate denied before merge. ~284k tamper trials, ~0% false-accept vs 67–100% for logging-only baselines. |
 | **Platform security** | OAuth/MCP answer who may act; nothing answers what actually happened, cryptographically. | Pre-action capability tokens + hash-chained SCITT/C2SP receipts; open standard for identity/delegation, commercial evidence plane. |
 
 **Ask (pick one per email):** 20-min call · design-partner pilot · joint benchmark on their public architecture · intro to their agent/platform security lead.
@@ -25,7 +25,7 @@ Pick one wedge, then one proof line:
 ### ☐ Rippling follow-up (send within 24h of call)
 
 **To:** [your contact + anyone they offered to loop in]  
-**Subject:** Rippling × AgentAuth — research collaboration next steps
+**Subject:** Rippling × Clay Seal — research collaboration next steps
 
 ```
 Hi [Name],
@@ -107,7 +107,7 @@ Thanks,
 ```
 Hi [Name],
 
-I'm [You] — building AgentAuth: scoped capability tokens + tamper-evident receipts at the MCP/tool boundary (pre-action enforcement, not post-hoc logging).
+I'm [You] — building Clay Seal: scoped capability tokens + tamper-evident receipts at the MCP/tool boundary (pre-action enforcement, not post-hoc logging).
 
 We modeled a Deep Agents fixture from public materials (supervisor + read/RAG/action subagents, staged approvals) and ran 79 live scenarios against gpt-5.4-mini. Interesting breaks weren't permission bypass — they were binding gaps: Unicode in approval surfaces, session aggregate limits, legacy connector equivalence, chat text treated as authorization.
 
@@ -126,9 +126,9 @@ Worth 20 minutes this week or next?
 ```
 Hi [Name],
 
-AgentAuth sits between an autonomous coding agent and its tools: attested identity, capability leases per task, signed commit tokens bound to exact tool args, hash-chained receipts.
+Clay Seal sits between an autonomous coding agent and its tools: attested identity, capability leases per task, signed commit tokens bound to exact tool args, hash-chained receipts.
 
-On our Devin-shaped benchmark, poisoned issues tricked live runs; the AgentAuth gate denied before merge. Separate soundness work: ~284k adversarial tamper trials, ~0% false-accept vs 67–100% for logging/signed-receipt baselines.
+On our Devin-shaped benchmark, poisoned issues tricked live runs; the Clay Seal gate denied before merge. Separate soundness work: ~284k adversarial tamper trials, ~0% false-accept vs 67–100% for logging/signed-receipt baselines.
 
 Looking for one design partner to pilot on a single high-risk path (PR merge, cloud admin, or ticket approval). 20-min call to see if the wedge matches your enterprise blockers?
 

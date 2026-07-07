@@ -1,7 +1,7 @@
-# agentauth-mcp — the AgentAuth gate as an MCP server
+# agentauth-mcp — the Clay Seal gate as an MCP server
 
 An authorization gate for autonomous coding agents (Devin), exposed over MCP. It
-integrates the **full agent-receipts stack** behind four tools and a CI merge
+integrates the **full clay-seal-receipts stack** behind four tools and a CI merge
 gate, so a closed agent you cannot modify is held to a human-signed scope.
 
 ```
@@ -11,7 +11,7 @@ Devin ──MCP/ngrok──▶ agentauth-gate (this server)
                        L3 receipts       AgentWrapper.record → ExecutionProof + audit chain
                        L4 proof path     auto shadow/prove   → prove when Rust CLI exists
                      ─────────────────────────────────────────────────────────
-                     embedded AgentAuth backend (in-process, throwaway sqlite)
+                     embedded Clay Seal backend (in-process, throwaway sqlite)
 ```
 
 ## The four tools (session lifecycle)
@@ -60,7 +60,7 @@ In Devin: **Settings → Connections → MCP servers → Add a custom MCP**, Tra
 Substitute your checkout path (or set `AGENTAUTH_MCP_PYTHON` when running `tests/test_stdio.py`).
 
 By default the gate uses `AGENTAUTH_MCP_RECEIPT_MODE=prove` when
-`target/release/agent-receipts` exists, otherwise it uses `shadow` so local stdio
+`target/release/clay-seal-receipts` exists, otherwise it uses `shadow` so local stdio
 smokes still authorize and write receipts. Set `AGENTAUTH_MCP_RECEIPT_MODE=prove`
 in production/CI to require the Rust proof path.
 

@@ -19,7 +19,7 @@ Requires corpora for ULB/ATIF/BFCL (`scripts/download_benchmark_corpora.sh`). Pr
 
 ```bash
 export AGENT_RECEIPTS_ALLOW_STUB=1
-cargo build -p agent-receipts-cli --release
+cargo build -p clay-seal-receipts-cli --release
 ```
 
 ## Deliverables

@@ -1,7 +1,7 @@
 # L1/L2 Workload-Key Hardening
 
 This document is the current production contract for the workload key used by
-AgentAuth credentials, Biscuit capability grants, and proof-of-possession.
+Clay Seal credentials, Biscuit capability grants, and proof-of-possession.
 
 ## Workload Key
 
@@ -16,7 +16,7 @@ process secret.
 
 ## Issuer Keys
 
-AgentAuth-issued JWT-SVIDs are also signed with per-customer Ed25519 keys.
+Clay Seal-issued JWT-SVIDs are also signed with per-customer Ed25519 keys.
 The implementation uses the JOSE `EdDSA` algorithm label because that is what
 the current Python JWT stack supports for Ed25519 OKP keys; verifiers still
 fail closed by allow-listing only that single algorithm and requiring stored
@@ -66,7 +66,7 @@ PoP is request-bound. The signed canonical payload includes:
 | `ath` | SHA-256 hash of the presented JWT or Biscuit token |
 | `iat` | issued-at timestamp; verifier enforces a bounded clock window |
 | `jti` | unique proof id |
-| `operation` | AgentAuth resource/action pair |
+| `operation` | Clay Seal resource/action pair |
 
 Server-side validation is fail-closed:
 

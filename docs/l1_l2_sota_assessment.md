@@ -13,7 +13,7 @@
 Deep research on whether the mechanisms in **L1 (agent identity)** and **L2 (delegation /
 capability grants)** represent the state of the art, and concrete improvements where they don't.
 
-**Scope.** Assessed the implementation on `origin/layer_1` (the AgentAuth backend) plus the
+**Scope.** Assessed the implementation on `origin/layer_1` (the Clay Seal backend) plus the
 `AuthorityBinding` integration on `layer_2`:
 
 - L1: [`agentauth/backend/identity.py`](../agentauth/backend/identity.py) (JWT-SVID issuance),
@@ -44,7 +44,7 @@ them**, which also yields interop with the MCP/A2A authorization world.
 | # | Mechanism (as built) | SOTA reference (2025–2026) | Verdict |
 |---|----------------------|----------------------------|---------|
 | 1 | **Biscuit** Datalog capability tokens, Ed25519 root, offline verify, monotonic attenuation | Biscuit v3 / UCAN / macaroons | **At SOTA** — keep |
-| 2 | **Historical:** JWT-SVID signing = RS256 (RSA); PoP signature = RSA PKCS#1 v1.5 | EdDSA/Ed25519 default for new AgentAuth-issued credentials and PoP | **Remediated on current branch** |
+| 2 | **Historical:** JWT-SVID signing = RS256 (RSA); PoP signature = RSA PKCS#1 v1.5 | EdDSA/Ed25519 default for new Clay Seal-issued credentials and PoP | **Remediated on current branch** |
 | 3 | **JWT-SVID is a bearer token** (PoP only on the capability side) | Key-bound identity: WIMSE **WIT**, **WIT-SVID** `cnf` (RFC 7800), DPoP-bound JWT-SVID | **Below SOTA** |
 | 4 | **Bespoke PoP**: workload signs `keyhash\|challenge\|resource\|action` | WIMSE **WPT** (request-bound proof JWT); DPoP (RFC 9449) | **Below SOTA / reinvention** |
 | 5 | PoP **freshness/replay**: server issues a challenge but the authorizer never enforces freshness or single-use | DPoP server **nonce** + `jti` single-use cache; request binding | **Gap (replayable)** |
@@ -73,7 +73,7 @@ The original assessment found two legacy RSA uses:
 - JWT-SVIDs are signed **RS256** with a per-customer RSA key (`identity.py`).
 - The PoP signature is **RSA PKCS#1 v1.5 + SHA-256** (`sign_pop`/`verify_pop` in `capabilities.py`).
 
-The current branch has removed those AgentAuth-issued RSA paths. JWT-SVIDs are
+The current branch has removed those Clay Seal-issued RSA paths. JWT-SVIDs are
 signed by per-customer Ed25519 keys and PoP requires Ed25519 workload keys.
 The remaining RS256 references are the prototype node-attestation document,
 which represents an external attestor and is tracked separately as attestation
@@ -101,7 +101,7 @@ don't fully solve it, and multi-audience tokens are replayable across audiences
 ([SPIFFE JWT-SVID](https://spiffe.io/docs/latest/spiffe-specs/jwt-svid/),
 [SPIFFE #260](https://github.com/spiffe/spiffe/issues/260)).
 
-The field has already converged on the fix, and it is **exactly what AgentAuth built by hand**:
+The field has already converged on the fix, and it is **exactly what Clay Seal built by hand**:
 
 - IETF **WIMSE** defines the **Workload Identity Token (WIT)** — a JWT that *binds a public key to
   the workload identity* and **must not be used as a bearer token** — and the **Workload Proof
@@ -112,7 +112,7 @@ The field has already converged on the fix, and it is **exactly what AgentAuth b
   drops `aud`, structurally closing JWT-SVID's bearer-replay risk
   ([SPIFFE deep dive](https://dev.to/kanywst/spiffe-compliance-deep-dive-5e29)).
 
-AgentAuth's `keyhash|challenge|resource|action` RSA signature is a bespoke WPT. Re-expressing it as
+Clay Seal's `keyhash|challenge|resource|action` RSA signature is a bespoke WPT. Re-expressing it as
 **WIT (key-bound identity via `cnf`) + WPT (request-bound proof JWT)** gets the same security with
 (a) a standard wire format MCP/A2A verifiers will understand, (b) audience scoping handled by the
 PoP layer instead of fragile `aud` matching, and (c) request binding (method + URI + body hash)
@@ -139,7 +139,7 @@ cache** for strong replay protection — noting that the `jti` cache "may not al
 when multiple servers behind a single endpoint have no shared state"
 ([RFC 9449](https://datatracker.ietf.org/doc/html/rfc9449),
 [WorkOS DPoP](https://workos.com/blog/dpop-rfc-9449-explained)). That caveat is the crux of the
-**offline** authorization model AgentAuth chose: pure-offline PoP *cannot* get single-use replay
+**offline** authorization model Clay Seal chose: pure-offline PoP *cannot* get single-use replay
 protection without shared state. The honest SOTA options:
 
 1. **Short, server-signed challenge with embedded expiry** so the offline authorizer can reject
@@ -161,7 +161,7 @@ always a leak-to-expiry window — which is the standard argument for a revocati
 ([Biscuit revocation](https://www.biscuitsec.org/docs/guides/revocation/)). Biscuit already
 provides **revocation identifiers**: each block's signature is a unique revocation ID, and revoking
 a token revokes it *and everything attenuated from it*; the library lists them and the app maintains
-the deny-list. UCAN has an analogous [revocation spec](https://ucan.xyz/revocation/). AgentAuth uses
+the deny-list. UCAN has an analogous [revocation spec](https://ucan.xyz/revocation/). Clay Seal uses
 none of this.
 
 > **Improvement 6.** Record revocation IDs at mint time; check a (small, cacheable) revocation list

@@ -1,4 +1,4 @@
-# AgentAuth — Examples & Demos
+# Clay Seal — Examples & Demos
 
 Runnable demos grouped by what they show. Most identity scripts are **zero-config**:
 they use a backend at `AGENTAUTH_BASE_URL` (default `http://localhost:8000`) when

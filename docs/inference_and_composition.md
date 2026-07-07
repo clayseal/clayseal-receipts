@@ -23,7 +23,7 @@ This is **logical composition**: the verifier checks both sub-proofs plus explic
 pip install torch onnx   # export ONNX
 # install ezkl CLI — see https://docs.ezkl.xyz
 ./scripts/ezkl_setup_fraud_head.sh
-CARGO_TARGET_DIR=$PWD/target cargo build -p agent-receipts-cli --release
+CARGO_TARGET_DIR=$PWD/target cargo build -p clay-seal-receipts-cli --release
 ```
 
 ## CLI
@@ -35,12 +35,12 @@ CARGO_TARGET_DIR=$PWD/target cargo build -p agent-receipts-cli --release
   --output-hash abc --out /tmp/inf.json --allow-stub
 
 # Composed one-shot
-./target/release/agent-receipts prove-composed \
+./target/release/clay-seal-receipts prove-composed \
   --amount 2500 --fraud-score 0.25 \
   --policy-commitment <hash> --model-provenance-hash sha256:fraud-head-onnx-v1 \
   --output-hash abc --context-hash ctx --out /tmp/composed.json --allow-stub
 
-./target/release/agent-receipts verify-composed --envelope /tmp/composed.json --allow-stub
+./target/release/clay-seal-receipts verify-composed --envelope /tmp/composed.json --allow-stub
 ```
 
 ## Python
@@ -87,7 +87,7 @@ EZKL compiles the ONNX head into a Halo2 circuit with a **per-model** proving/ve
 SOTA-8 adds a second backend that proves the *same* head via a universal zkVM with **no
 per-model trusted setup**. The canonical rule
 `fraud_head_score(amount) = clamp(amount / 10_000, 0, 1)` lives in
-[`inference.rs`](../crates/agent-receipts-composed/src/inference.rs); every backend attests to it.
+[`inference.rs`](../crates/clay-seal-receipts-composed/src/inference.rs); every backend attests to it.
 
 | Backend | `attestation` | Setup | Verifier anchor |
 |---------|---------------|-------|-----------------|
@@ -96,14 +96,14 @@ per-model trusted setup**. The canonical rule
 | SP1 / Plonky3 zkVM | `sp1` | **none** (universal) | program vk hash (`image_id`) |
 | Stub | `stub` | none | dev only — rejected in prod |
 
-The zkVM guest ([`crates/agent-receipts-zkvm/methods/guest`](../crates/agent-receipts-zkvm/methods/guest/src/main.rs))
+The zkVM guest ([`crates/clay-seal-receipts-zkvm/methods/guest`](../crates/clay-seal-receipts-zkvm/methods/guest/src/main.rs))
 runs the head inside the zkVM and commits the score to the journal; the receipt proves *this
 program* produced *this score*. `InferenceProofEnvelope` gains an `image_id` field and a `risc0`
 attestation; `verify_inference_envelope` re-runs the zkVM verifier.
 
-The `agent-receipts-zkvm` crate is **detached from the workspace** (its own `[workspace]`), so the
-rest of agent-receipts builds and tests without the zkVM toolchain. The composed crate invokes it
-by shelling out (`AGENT_RECEIPTS_ZKVM_BIN`, default `agent-receipts-zkvm`), exactly as it already
+The `clay-seal-receipts-zkvm` crate is **detached from the workspace** (its own `[workspace]`), so the
+rest of clay-seal-receipts builds and tests without the zkVM toolchain. The composed crate invokes it
+by shelling out (`AGENT_RECEIPTS_ZKVM_BIN`, default `clay-seal-receipts-zkvm`), exactly as it already
 does for `ezkl`.
 
 ```bash
@@ -115,8 +115,8 @@ scripts/zkvm_prove_fraud_head.sh 25000
 
 SOTA-12 adds a third zkVM backend on **SP1** (Succinct, Plonky3). The guest commits the same
 journal as RISC Zero — `(amount, output_hash, model_provenance_hash, score)` — so both backends
-attest to identical semantics. The composed crate shells out to `agent-receipts-sp1`
-(`AGENT_RECEIPTS_SP1_BIN`, default `agent-receipts-sp1`), mirroring the RISC Zero integration.
+attest to identical semantics. The composed crate shells out to `clay-seal-receipts-sp1`
+(`AGENT_RECEIPTS_SP1_BIN`, default `clay-seal-receipts-sp1`), mirroring the RISC Zero integration.
 
 ```bash
 # one-time: https://sp1up.succinct.xyz — pin CLI to match sp1-sdk 5.2.4

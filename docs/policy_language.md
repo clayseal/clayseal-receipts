@@ -18,7 +18,7 @@ See [../policies/fraud_decision.yaml](../policies/fraud_decision.yaml).
 | `output_schema` | no | `required` field names |
 
 MCP/tool authorization is intentionally not a policy-language field. Grant MCP
-tools through AgentAuth capability tokens using `{"resource": "mcp_tool",
+tools through Clay Seal capability tokens using `{"resource": "mcp_tool",
 "action": "<tool_name>"}` and let `ReceiptedMcpGateway` authorize that Biscuit
 operation before a tool handler runs.
 

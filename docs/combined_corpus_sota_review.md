@@ -155,7 +155,7 @@ they reinforce the same theme as A/B: *adopt the standard envelope, keep the mec
   ([arXiv 2606.04193](https://arxiv.org/html/2606.04193v1), Jun 2026) — a brand-new, near-identical
   thesis to ours combining **confidential receipts + receiver attestation**. Closest new comparable;
   read before finalizing the confidential-receipt design (intersects SOTA-9 + A).
-- **"Agent Receipts" open spec** (Ed25519 + **W3C Verifiable Credentials**) and **Signet** (MCP
+- **"Clay Seal Receipts" open spec** (Ed25519 + **W3C Verifiable Credentials**) and **Signet** (MCP
   middleware, bilateral COSE co-signing) — the name and category now have other occupants; our
   differentiation must stay the **ZK policy/inference proofs + transparency-service receipts**, not
   "signed JSON." Reinforces adopting COSE/SCITT so we interoperate rather than fork the term.

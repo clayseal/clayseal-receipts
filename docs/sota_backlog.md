@@ -87,7 +87,7 @@ Acceptance criteria:
 - assurance output distinguishes verified-TEE from claimed-TEE
 - docs: how the TEE leg substitutes for ZK inference at LLM scale
 
-Files likely touched: `crates/agent-receipts-composed/src/inference.rs` (or new `tee.rs`), `agentauth/receipts/tee.py`, `assurance.py`, `verification.py`, `docs/trust_model.md`.
+Files likely touched: `crates/clay-seal-receipts-composed/src/inference.rs` (or new `tee.rs`), `agentauth/receipts/tee.py`, `assurance.py`, `verification.py`, `docs/trust_model.md`.
 
 ### SOTA-3: RATS/EAT alignment + published assurance taxonomy `[x]` *(codex/evidence-plane)*
 
@@ -183,7 +183,7 @@ Acceptance criteria:
 - one aggregate proof verifies N actions; verify time grows sub-linearly vs N separate proofs
 - benchmark vs N independent verifications (use the new `benchmarks` extra)
 
-Files likely touched: `crates/agent-receipts-policy-circuit`, new `crates/agent-receipts-fold` (or SP1 integration), `compose.rs`, `benchmarks/`.
+Files likely touched: `crates/clay-seal-receipts-policy-circuit`, new `crates/clay-seal-receipts-fold` (or SP1 integration), `compose.rs`, `benchmarks/`.
 
 ---
 
@@ -205,7 +205,7 @@ Acceptance criteria:
 - a working non-EZKL inference proof for the fraud head with a documented cost comparison
 - a written decision record on ZK-vs-TEE-vs-opML routing by model size
 
-Files likely touched: `crates/agent-receipts-composed/src/inference.rs`, `circuits/`, `scripts/`, `docs/inference_and_composition.md`.
+Files likely touched: `crates/clay-seal-receipts-composed/src/inference.rs`, `circuits/`, `scripts/`, `docs/inference_and_composition.md`.
 
 ### SOTA-9: Confidential compliance proofs (policy on `y` without revealing `y`) `[x]` *(done — claude/evidence-plane)*
 
@@ -222,7 +222,7 @@ Acceptance criteria:
 - a proof that "policy P held on the committed output" verifies without the verifier learning the output
 - documented policy classes supported confidentially vs only in software
 
-Files likely touched: `crates/agent-receipts-policy-circuit/src/circuit.rs`, `lib.rs`, `docs/trust_model.md`.
+Files likely touched: `crates/clay-seal-receipts-policy-circuit/src/circuit.rs`, `lib.rs`, `docs/trust_model.md`.
 
 ### SOTA-10: Recursive composition (single SNARK over inference ∪ policy) `[x]` *(codex/evidence-plane)*
 
@@ -239,7 +239,7 @@ Acceptance criteria:
 - a single `ComposedProofEnvelope` verifies inference+policy without separately checking each sub-proof
 - binding guarantees preserved; tamper tests still fail
 
-Files likely touched: `crates/agent-receipts-composed/`, `crates/agent-receipts-policy-circuit/`, `docs/inference_and_composition.md`.
+Files likely touched: `crates/clay-seal-receipts-composed/`, `crates/clay-seal-receipts-policy-circuit/`, `docs/inference_and_composition.md`.
 
 ---
 
@@ -266,7 +266,7 @@ IETF SCITT standardizes almost exactly what we built by hand: a *Signed Statemen
 
 ### SOTA-12: SP1/Plonky3 zkVM port (carries Poseidon2) `[x]`
 
-**Status:** guest + host CLI in [`crates/agent-receipts-sp1/`](../crates/agent-receipts-sp1/) (detached
+**Status:** guest + host CLI in [`crates/clay-seal-receipts-sp1/`](../crates/clay-seal-receipts-sp1/) (detached
 workspace); `prove_inference_sp1` / `verify_inference_sp1` in composed crate; `--backend sp1` on
 main CLI and Python; build/benchmark scripts pin `sp1-sdk` 5.2.4. Measured SP1 prove times still
 require a version-locked `sp1up` run — see [sp1_benchmark.md](sp1_benchmark.md).

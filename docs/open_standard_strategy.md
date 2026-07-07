@@ -1,6 +1,6 @@
 # Open Standard Strategy
 
-This document captures the product thesis behind Agent Receipts and a concrete path for defining an open standard for agent IAM and execution evidence.
+This document captures the product thesis behind Clay Seal Receipts and a concrete path for defining an open standard for agent IAM and execution evidence.
 
 ## Executive summary
 

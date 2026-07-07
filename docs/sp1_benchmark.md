@@ -2,16 +2,16 @@
 
 Ports the SOTA-8 fraud head to **SP1** (Succinct, on Plonky3) to compare against the RISC Zero
 baseline. Same guest computation and journal bindings as RISC Zero for an apples-to-apples result.
-Crate: [`crates/agent-receipts-sp1/`](../crates/agent-receipts-sp1/) (detached from the workspace,
+Crate: [`crates/clay-seal-receipts-sp1/`](../crates/clay-seal-receipts-sp1/) (detached from the workspace,
 like the RISC Zero crate).
 
 ## Integration (done)
 
 | Piece | Location |
 |-------|----------|
-| SP1 guest (full journal) | [`program/src/main.rs`](../crates/agent-receipts-sp1/program/src/main.rs) |
-| Host `prove` / `verify` CLI | [`src/main.rs`](../crates/agent-receipts-sp1/src/main.rs) |
-| Composed inference backend | [`inference.rs`](../crates/agent-receipts-composed/src/inference.rs) — `InferenceAttestation::Sp1`, `prove_inference_sp1`, `verify_inference_sp1` |
+| SP1 guest (full journal) | [`program/src/main.rs`](../crates/clay-seal-receipts-sp1/program/src/main.rs) |
+| Host `prove` / `verify` CLI | [`src/main.rs`](../crates/clay-seal-receipts-sp1/src/main.rs) |
+| Composed inference backend | [`inference.rs`](../crates/clay-seal-receipts-composed/src/inference.rs) — `InferenceAttestation::Sp1`, `prove_inference_sp1`, `verify_inference_sp1` |
 | Main CLI | `agent-receipts prove-inference --backend sp1` |
 | Python | `prove_inference(..., backend="sp1")`, `AgentWrapper(inference_backend="sp1")` |
 | Build script | [`scripts/sp1_build_fraud_head.sh`](../scripts/sp1_build_fraud_head.sh) |

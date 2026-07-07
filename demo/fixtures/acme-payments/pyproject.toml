@@ -2,4 +2,4 @@
 name = "acme-payments-demo"
 version = "0.1.0"
 requires-python = ">=3.10"
-description = "Fixture repository for the AgentAuth Devin gate demo"
+description = "Fixture repository for the Clay Seal Devin gate demo"

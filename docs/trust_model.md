@@ -75,7 +75,7 @@ Unsigned certificates are rejected by default. Set
 Receipt assurance (`assurance.tier`) is derived from verified proof, TEE, or signature
 evidence. Policy gating on `policy.min_trust_tier` follows the same fail-closed rule:
 caller-supplied authority dictionaries may declare `declared` or `signed`, but higher
-tiers are ignored or rejected unless the authority came from verified AgentAuth identity
+tiers are ignored or rejected unless the authority came from verified Clay Seal identity
 evidence. In practice, `AuthorityBinding.from_agentauth_credential()` marks the binding
 as verified and derives `sender_constrained` from proof-of-possession, presenter key
 binding, and a capability grant. Plain JSON cannot set the internal
@@ -113,7 +113,7 @@ How it works:
 - Public inputs: `score_commitment`, `min`, `max`, `output_commitment`, `policy_commitment`. The
   policy bounds are public (the policy is not secret); the output value is not.
 - `prove_policy_range_confidential` / `verify_policy_range_confidential` (and
-  `agent-receipts prove-policy-confidential` / `verify-policy-confidential`). The verifier confirms the
+  `clay-seal-receipts prove-policy-confidential` / `verify-policy-confidential`). The verifier confirms the
   hidden score lies in range and is bound to the published commitment, learning nothing else.
 
 An auditor with the opening `(score, blinding)` can later re-derive the commitment to reveal the

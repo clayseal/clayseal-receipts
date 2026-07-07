@@ -47,7 +47,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 
-- Top-level `from agentauth import AgentAuth, AgentWrapper` exports live in this repo only.
+- Top-level `from agentauth import Identity, AgentWrapper` exports live in this repo only.
 - `AuthorityBinding` re-exported from `agentauth.core.authority_binding` (shared with L2).
 - `VERSION`, `_version.py`, and `pyproject.toml` aligned at **0.4.0**.
 - `RELEASE.md` updated for three-layer release process.
@@ -93,7 +93,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - HTTP verifier service (`POST /v1/verify`, `GET /health`, `GET /v1/version`) via `arctl serve`
 - Partner onboarding guide ([docs/design_partner.md](docs/design_partner.md))
 - Partner operations runbook ([docs/partner_runbook.md](docs/partner_runbook.md))
-- Receipt bundle export (`agent-receipts.receipt-bundle.v1`) and `arctl verify-bundle`
+- Receipt bundle export (`clay-seal-receipts.receipt-bundle.v1`) and `arctl verify-bundle`
 - `arctl` CLI: `doctor`, `export-audit`, `show-config`, `redact`, `serve`
 - Partner YAML config (`config/partner.example.yaml`) and `examples/partner_pilot.py`
 - `scripts/bootstrap.sh` and `scripts/partner_smoke.sh`
@@ -106,7 +106,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - MCP server supports stdio, SSE, and streamable HTTP transports
 - `ReceiptedMcpClient` supports prove + composed proofs on live MCP
-- Python tooling CLI renamed to **`arctl`** (Rust binary remains **`agent-receipts`**)
+- Python tooling CLI renamed to **`arctl`** (Rust binary remains **`clay-seal-receipts`**)
 
 ## [0.1.0] - 2026-05-29
 
@@ -118,6 +118,6 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - MCP integration: gateway, delegation, live server
 - EZKL fraud head path and logical composed verification
 
-[0.2.0]: https://github.com/pberlizov/agent-receipts/compare/v0.1.0...v0.2.0
-[0.2.1]: https://github.com/pberlizov/agent-receipts/compare/v0.2.0...v0.2.1
-[0.1.0]: https://github.com/pberlizov/agent-receipts/releases/tag/v0.1.0
+[0.2.0]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.1.0...v0.2.0
+[0.2.1]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.2.0...v0.2.1
+[0.1.0]: https://github.com/pberlizov/clay-seal-receipts/releases/tag/v0.1.0

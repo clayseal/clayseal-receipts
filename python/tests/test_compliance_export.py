@@ -89,7 +89,7 @@ def test_siem_otel_record_shape(shadow_bundle):
 
 def test_siem_cef_single_line(shadow_bundle):
     cef = export_siem_cef(shadow_bundle)
-    assert cef.startswith("CEF:0|Agent Receipts|Receipt|")
+    assert cef.startswith("CEF:0|Clay Seal Receipts|Receipt|")
     assert "proofId=" in cef
     assert "outcome=allow" in cef
 

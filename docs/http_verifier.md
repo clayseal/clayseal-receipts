@@ -49,7 +49,7 @@ Response:
   "valid": true,
   "reasons": [],
   "cryptographic": { "valid": true, "reasons": [] },
-  "schema": "agent-receipts.receipt-bundle.v1",
+  "schema": "clay-seal-receipts.receipt-bundle.v1",
   "proof_id": "...",
   "sdk_version": "0.2.1",
   "verifier_version": "0.2.1"

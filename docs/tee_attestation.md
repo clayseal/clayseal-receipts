@@ -1,6 +1,6 @@
 # TEE attestation (SOTA-2)
 
-Agent Receipts supports **TEE-hybrid** mode: a hardware attestation quote proves
+Clay Seal Receipts supports **TEE-hybrid** mode: a hardware attestation quote proves
 *where inference ran* (model/enclave identity via PCRs), while a ZK policy proof
 can still bind *what policy held* on the attested output.
 
@@ -72,13 +72,13 @@ arctl verify-bundle receipt.json --min-assurance-tier tee_attested
 
 ## RATS / EAT mapping
 
-| RATS role | Agent Receipts component |
+| RATS role | Clay Seal Receipts component |
 |-----------|-------------------------|
 | Attester | Agent runtime inside Nitro enclave (NSM issues document) |
 | Verifier | `verify_tee_quote` / `verify_receipt_bundle` |
 | Relying Party | Partner verifier / compliance consumer |
 
-Verified quotes emit `eat_profile: agent-receipts.eat-tee-v1` claims suitable for
+Verified quotes emit `eat_profile: clay-seal-receipts.eat-tee-v1` claims suitable for
 mapping onto RFC 9334 EAT consumers.
 
 ## Routing rule (model size)

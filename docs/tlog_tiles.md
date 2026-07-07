@@ -19,7 +19,7 @@ Tile height H = 8, so a level-`L` node spans `256**L` leaves. The `<N>` path use
 3-digit groups, all but the last prefixed with `x` (e.g. `1234067` → `x001/x234/067`).
 
 ```python
-files = chain.static_log_tiles("agent-receipts.local/audit")   # {path: bytes}
+files = chain.static_log_tiles("clay-seal-receipts.local/audit")   # {path: bytes}
 # serve `files` as static assets behind a CDN; clients fetch tiles + checkpoint and
 # compute any inclusion/consistency proof themselves — no dynamic API server.
 ```
@@ -27,7 +27,7 @@ files = chain.static_log_tiles("agent-receipts.local/audit")   # {path: bytes}
 CLI:
 
 ```bash
-arctl export-tiles --audit-db audit.sqlite --origin agent-receipts.local/audit --out ./log-tiles
+arctl export-tiles --audit-db audit.sqlite --origin clay-seal-receipts.local/audit --out ./log-tiles
 arctl verify-tiles --tiles-dir ./log-tiles --leaf <record_hash_hex>
 ```
 

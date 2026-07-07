@@ -1,6 +1,6 @@
 # WIMSE / transaction-token mapping (SOTA-15)
 
-Crosswalk from Agent Receipts mandate and authority evidence to IETF WIMSE and
+Crosswalk from Clay Seal Receipts mandate and authority evidence to IETF WIMSE and
 OAuth transaction-token-for-agents wire formats.
 
 ## Mandate → WIT

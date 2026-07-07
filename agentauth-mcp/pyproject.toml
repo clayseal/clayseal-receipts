@@ -1,7 +1,7 @@
 [project]
 name = "agentauth-mcp"
 version = "0.1.0"
-description = "AgentAuth gate exposed as an MCP server: identity + capability tokens + receipts + ZK proofs for autonomous coding agents (Devin)."
+description = "Clay Seal gate exposed as an MCP server: identity + capability tokens + receipts + ZK proofs for autonomous coding agents (Devin)."
 requires-python = ">=3.11"
 dependencies = [
     "agentauth-receipts[identity,mcp]>=0.5,<0.6",

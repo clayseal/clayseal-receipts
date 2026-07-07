@@ -174,7 +174,7 @@
     </section>
 
     <section class="slide">
-      <h2>AgentAuth: dynamic capability scoping + monitoring, not approve-everything</h2>
+      <h2>Clay Seal: dynamic capability scoping + monitoring, not approve-everything</h2>
       <p>Today's model, per your own docs, is binary: the agent holds the requester's <em>full</em> inherited permission profile, and the only gate is a human clicking approve on every single write, "the same as if it were made by a human." That's exactly why every gap on the last three slides exists — the thing being manually approved wasn't cryptographically bound to what actually executes (currency, tenant, object id, connector, aggregate amount, Unicode-rendered text), so the human click was often approving something other than what ran.</p>
       <p style="margin-top:0.5rem;">Our core mechanism is the third option between "full standing permission" and "a human eyeballs every write": a <strong>signed, single-use capability token scoped to exactly one task</strong> — this tool, these exact arguments, this tenant, this expiry, nothing broader — plus <strong>continuous agent monitoring</strong>: every call logged into a tamper-evident, hash-chained receipt chain, so any deviation is either blocked outright or surfaced for review, not silently trusted.</p>
       <p style="margin-top:0.5rem;">That's what lets you <em>reduce</em> manual approval load instead of adding another layer of it:</p>

@@ -1,11 +1,11 @@
-# C1b → D3 side-by-side demo (Devin vs AgentAuth)
+# C1b → D3 side-by-side demo (Devin vs Clay Seal)
 
 Two private repos show the same attack surface:
 
 | Repo | What happens |
 |------|----------------|
 | `devin-agentauth-vanilla-demo` | Devin obeys invisible zwsp rules in `AGENTS.md` and lands a semantic auth bypass in `parser.py`. CI only runs unit tests — PR can merge. |
-| `devin-agentauth-gated-demo` | Same poison on `main`, same neutral GitHub issue — but the **hardened** AgentAuth PR gate denies the bypass (`security_invariant_removed`). |
+| `devin-agentauth-gated-demo` | Same poison on `main`, same neutral GitHub issue — but the **hardened** Clay Seal PR gate denies the bypass (`security_invariant_removed`). |
 
 ## Setup (already on `main`)
 

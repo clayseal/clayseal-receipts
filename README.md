@@ -1,14 +1,19 @@
-# Agent Receipts
+# Clay Seal Receipts
+
+<img src="docs/assets/clay-seal-logo.png" alt="Clay Seal logo" width="420">
+
+Clay Seal Receipts is currently published as `agentauth-receipts` under the
+`agentauth.receipts` Python namespace for compatibility.
 
 Cryptographic receipts for autonomous AI agents: prove that a consequential action was **authorized**, ran on the **claimed model**, and satisfied a **committed policy**.
 
-OAuth 2.1 and MCP answer *who may act*. Agent Cards are self-declared. Agent Receipts answer *what actually happened* with a verifiable `ExecutionProof`, a lower-layer decision model, and a tamper-evident audit chain.
+OAuth 2.1 and MCP answer *who may act*. Agent Cards are self-declared. Clay Seal Receipts answer *what actually happened* with a verifiable `ExecutionProof`, a lower-layer decision model, and a tamper-evident audit chain.
 
 ---
 
-# AgentAuth for autonomous coding agents (Cognition / Devin)
+# Clay Seal for autonomous coding agents (Cognition / Devin)
 
-An autonomous software engineer like Devin acts directly on enterprise codebases: it reads repositories, issues, and PRs; runs commands; pushes commits; and spawns sub-agents. The thing standing between Devin and broad enterprise adoption is **trust** — can you prove what Devin did, prove it stayed inside the scope a human authorized, and be sure the record itself can't be forged? AgentAuth is the identity-and-verifiable-execution layer that answers those questions cryptographically. It turns Devin's output from *"commits your security team has to review"* into *"output guaranteed to have stayed within authorized scope, with machine-verifiable proof."*
+An autonomous software engineer like Devin acts directly on enterprise codebases: it reads repositories, issues, and PRs; runs commands; pushes commits; and spawns sub-agents. The thing standing between Devin and broad enterprise adoption is **trust** — can you prove what Devin did, prove it stayed inside the scope a human authorized, and be sure the record itself can't be forged? Clay Seal is the identity-and-verifiable-execution layer that answers those questions cryptographically. It turns Devin's output from *"commits your security team has to review"* into *"output guaranteed to have stayed within authorized scope, with machine-verifiable proof."*
 
 This section has three parts: **Section 1** ranks what we have today by fit to Cognition's problems and summarizes the Cognition-tailored features we propose to build; **Section 2** describes the current capabilities in depth; **Section 3** is the technical implementation plan for the proposed features.
 

@@ -150,17 +150,17 @@ compact export stripping verification inputs).
 - Layer: `L4` / proof systems
 - SOTA: SOTA-10
 - Files:
-  - [crates/agent-receipts-composed/src/recursive.rs](../crates/agent-receipts-composed/src/recursive.rs)
-  - [crates/agent-receipts-composed/src/compose.rs](../crates/agent-receipts-composed/src/compose.rs)
+  - [crates/clay-seal-receipts-composed/src/recursive.rs](../crates/clay-seal-receipts-composed/src/recursive.rs)
+  - [crates/clay-seal-receipts-composed/src/compose.rs](../crates/clay-seal-receipts-composed/src/compose.rs)
   - [agentauth/receipts/proof.py](../agentauth/receipts/proof.py)
 - Problem:
   - `prove_recursive_composition()` validates Halo2 policy + inference sub-proofs at prove time, but `verify_recursive_composition()` only checks binding metadata and a Nova compressed SNARK over hash bindings.
   - An attacker can embed invalid or stub sub-proofs with self-consistent public fields and a valid recursive SNARK; `verify_composed()` returns true without calling `verify_policy_range()` or `verify_inference_envelope()`.
   - Python `ExecutionProof.verify()` delegates to `verify_composed()` when `composed_proof` is present, so the gap affects the main receipt path.
 - Evidence:
-  - Prove path calls sub-proof verify at [recursive.rs:278-280](../crates/agent-receipts-composed/src/recursive.rs).
-  - Verify path ends at Nova SNARK only at [recursive.rs:319-349](../crates/agent-receipts-composed/src/recursive.rs).
-  - `verify_composed()` routes recursive mode to `verify_recursive_composition()` without sub-proof checks at [compose.rs:64-68](../crates/agent-receipts-composed/src/compose.rs).
+  - Prove path calls sub-proof verify at [recursive.rs:278-280](../crates/clay-seal-receipts-composed/src/recursive.rs).
+  - Verify path ends at Nova SNARK only at [recursive.rs:319-349](../crates/clay-seal-receipts-composed/src/recursive.rs).
+  - `verify_composed()` routes recursive mode to `verify_recursive_composition()` without sub-proof checks at [compose.rs:64-68](../crates/clay-seal-receipts-composed/src/compose.rs).
 - Fix:
   - Always call `verify_policy_range()` and `verify_inference_envelope()` inside `verify_recursive_composition()` before accepting the Nova proof (mirror logical composition).
   - Or document recursive mode as “binding-only” and never map it to `composed_proved` assurance tier until sub-proofs are re-checked.
@@ -383,14 +383,14 @@ compact export stripping verification inputs).
 - Layer: `L4` / proof systems
 - SOTA: SOTA-7
 - Files:
-  - [crates/agent-receipts-session/src/fold.rs](../crates/agent-receipts-session/src/fold.rs)
-  - [crates/agent-receipts-session/src/batch.rs](../crates/agent-receipts-session/src/batch.rs)
+  - [crates/clay-seal-receipts-session/src/fold.rs](../crates/clay-seal-receipts-session/src/fold.rs)
+  - [crates/clay-seal-receipts-session/src/batch.rs](../crates/clay-seal-receipts-session/src/batch.rs)
 - Problem:
   - `nova_fold_v1` uses a Poseidon step circuit over action-binding hashes; it does not verify per-action Halo2 `policy_range_v3` proofs inside the fold.
   - `verify_session_fold()` omits `validate_action_ref()` range/mask checks that `verify_session_batch()` performs before SNARK verify.
   - A malicious prover can fold arbitrary action metadata that is internally consistent.
 - Evidence:
-  - Fold verify at [fold.rs:271-301](../crates/agent-receipts-session/src/fold.rs) vs batch validation at [batch.rs:145-181](../crates/agent-receipts-session/src/batch.rs).
+  - Fold verify at [fold.rs:271-301](../crates/clay-seal-receipts-session/src/fold.rs) vs batch validation at [batch.rs:145-181](../crates/clay-seal-receipts-session/src/batch.rs).
 - Fix:
   - Call shared `validate_action_ref()` in fold verify.
   - Document that `halo2_batch_v1` is the full-crypto mode; fold is compression-only unless paired with batch proof bytes.
@@ -405,30 +405,30 @@ compact export stripping verification inputs).
 - Layer: `L4`
 - SOTA: SOTA-8
 - Files:
-  - [crates/agent-receipts-composed/src/inference.rs](../crates/agent-receipts-composed/src/inference.rs)
-  - [crates/agent-receipts-zkvm/methods/guest/src/main.rs](../crates/agent-receipts-zkvm/methods/guest/src/main.rs)
+  - [crates/clay-seal-receipts-composed/src/inference.rs](../crates/clay-seal-receipts-composed/src/inference.rs)
+  - [crates/clay-seal-receipts-zkvm/methods/guest/src/main.rs](../crates/clay-seal-receipts-zkvm/methods/guest/src/main.rs)
 - Problem:
   - The zkVM guest commits only the fraud score to the journal; verification checks `image_id` and score match but not `output_hash` or `model_provenance_hash` from the envelope.
   - A valid receipt for one output can be replayed against a bundle with a different output commitment.
 - Evidence:
-  - `verify_inference_risc0()` at [inference.rs:229-263](../crates/agent-receipts-composed/src/inference.rs).
+  - `verify_inference_risc0()` at [inference.rs:229-263](../crates/clay-seal-receipts-composed/src/inference.rs).
 - Fix:
   - Commit `{amount, output_hash, model_provenance_hash, score}` (or their hashes) in the guest journal and verify in the host.
 - Resolution:
   - Guest journal commits `(amount, output_hash, model_provenance_hash, score)`.
-  - `agent-receipts-zkvm verify` checks all journal fields against envelope; `verify_inference_risc0()` passes bindings through CLI.
+  - `clay-seal-receipts-zkvm verify` checks all journal fields against envelope; `verify_inference_risc0()` passes bindings through CLI.
 
 ### P1-14: EZKL inference verify does not bind envelope commitments (SOTA-8) `[x]`
 
 - Layer: `L4`
 - SOTA: SOTA-8
 - Files:
-  - [crates/agent-receipts-composed/src/inference.rs](../crates/agent-receipts-composed/src/inference.rs)
+  - [crates/clay-seal-receipts-composed/src/inference.rs](../crates/clay-seal-receipts-composed/src/inference.rs)
 - Problem:
   - For `InferenceAttestation::Ezkl`, `verify_inference_envelope()` only runs `ezkl verify` on artifact paths.
   - It never checks that `output_hash`, `model_provenance_hash`, `public_score`, or `input_hash` in the envelope match what the proof attests (RISC0 gap is P1-13).
 - Evidence:
-  - Ezkl branch ends at CLI verify at [inference.rs:304-333](../crates/agent-receipts-composed/src/inference.rs); no post-verify binding checks.
+  - Ezkl branch ends at CLI verify at [inference.rs:304-333](../crates/clay-seal-receipts-composed/src/inference.rs); no post-verify binding checks.
 - Fix:
   - After EZKL verify, require envelope fields match witness/public inputs or in-circuit commitments.
 - Resolution:
@@ -443,7 +443,7 @@ compact export stripping verification inputs).
   - [agentauth/receipts/wrapper.py](../agentauth/receipts/wrapper.py)
   - [agentauth/receipts/compose.py](../agentauth/receipts/compose.py)
   - [agentauth/receipts/prover.py](../agentauth/receipts/prover.py)
-  - [crates/agent-receipts-cli/src/main.rs](../crates/agent-receipts-cli/src/main.rs)
+  - [crates/clay-seal-receipts-cli/src/main.rs](../crates/clay-seal-receipts-cli/src/main.rs)
 - Problem:
   - `AgentWrapper.record()` calls `prove_composed()` without passing `Policy.numeric_ranges`.
   - Composed proofs always prove `min=0, max=1` (CLI defaults) while `prove_structural_policy()` uses the real policy range.
@@ -510,13 +510,13 @@ compact export stripping verification inputs).
 - Files:
   - [agentauth/receipts/wrapper.py](../agentauth/receipts/wrapper.py)
   - [agentauth/receipts/export.py](../agentauth/receipts/export.py)
-  - [crates/agent-receipts-composed/src/compose.rs](../crates/agent-receipts-composed/src/compose.rs)
+  - [crates/clay-seal-receipts-composed/src/compose.rs](../crates/clay-seal-receipts-composed/src/compose.rs)
 - Problem:
   - `AgentWrapper` keeps a separate `model_provenance_hash` used for proving but never compares it to `certificate.model_provenance_hash` at init.
   - Receipt verification does not cross-check certificate vs composed/inference envelope bindings.
 - Evidence:
   - Separate fields at [wrapper.py:129-142](../agentauth/receipts/wrapper.py) with no equality check.
-  - Composed bindings check inference envelope only ([compose.rs:110-114](../crates/agent-receipts-composed/src/compose.rs)), not certificate block.
+  - Composed bindings check inference envelope only ([compose.rs:110-114](../crates/clay-seal-receipts-composed/src/compose.rs)), not certificate block.
 - Fix:
   - Fail closed on wrapper init mismatch; during `verify_receipt_bundle()`, require certificate `model_provenance_hash` equals composed/inference envelope value.
 
@@ -582,7 +582,7 @@ compact export stripping verification inputs).
   - Move rate limiting and authentication to a real gateway or shared backend.
   - Use constant-time API-key comparison.
 - Resolution:
-  - `validate_verifier_bind()` refuses non-localhost binds without `AGENT_RECEIPTS_VERIFIER_API_KEY`; `agent-receipts serve` calls it at startup.
+  - `validate_verifier_bind()` refuses non-localhost binds without `AGENT_RECEIPTS_VERIFIER_API_KEY`; `clay-seal-receipts serve` calls it at startup.
   - `AGENT_RECEIPTS_VERIFIER_REQUIRE_API_KEY=1` enforces auth on localhost too (503 if key unset).
   - Rate limit buckets by API key when present, else client IP; production should still front with a gateway.
   - Constant-time compare via `hmac.compare_digest` (P3-1).
@@ -739,7 +739,7 @@ compact export stripping verification inputs).
 - Layer: `L4`
 - SOTA: SOTA-10
 - Files:
-  - [crates/agent-receipts-composed/src/compose.rs](../crates/agent-receipts-composed/src/compose.rs)
+  - [crates/clay-seal-receipts-composed/src/compose.rs](../crates/clay-seal-receipts-composed/src/compose.rs)
 - Problem:
   - `verify_bindings()` aligns output/policy/model/score across policy and inference envelopes but never compares `bindings.context_hash` to `ExecutionProof.context_hash` or execution context in the bundle.
 - Fix:
@@ -750,8 +750,8 @@ compact export stripping verification inputs).
 - Layer: `L4` / proof systems
 - SOTA: SOTA-7
 - Files:
-  - [crates/agent-receipts-session/src/fold.rs](../crates/agent-receipts-session/src/fold.rs)
-  - [crates/agent-receipts-composed/src/recursive.rs](../crates/agent-receipts-composed/src/recursive.rs)
+  - [crates/clay-seal-receipts-session/src/fold.rs](../crates/clay-seal-receipts-session/src/fold.rs)
+  - [crates/clay-seal-receipts-composed/src/recursive.rs](../crates/clay-seal-receipts-composed/src/recursive.rs)
 - Problem:
   - When `pp.bin` is regenerated, `recursive.rs` deletes stale `compressed_pk.bin` / `compressed_vk.bin`, but `fold.rs` does not — leading to verify failures or, worse, pk/vk mismatch if circuit templates diverge.
 - Fix:
@@ -838,7 +838,7 @@ compact export stripping verification inputs).
 - Layer: `L4`
 - SOTA: SOTA-10
 - Files:
-  - [crates/agent-receipts-composed/src/recursive.rs](../crates/agent-receipts-composed/src/recursive.rs)
+  - [crates/clay-seal-receipts-composed/src/recursive.rs](../crates/clay-seal-receipts-composed/src/recursive.rs)
 - Problem:
   - `policy_step_elements()` uses `parse().unwrap_or(0)` for score and required-field mask when building Nova step inputs.
 - Fix:
@@ -959,13 +959,13 @@ compact export stripping verification inputs).
 - Layer: `L4` / proof systems
 - SOTA: SOTA-7, SOTA-10
 - Files:
-  - [crates/agent-receipts-session/src/envelope.rs](../crates/agent-receipts-session/src/envelope.rs)
-  - [crates/agent-receipts-session/src/fold.rs](../crates/agent-receipts-session/src/fold.rs)
-  - [crates/agent-receipts-composed/src/recursive.rs](../crates/agent-receipts-composed/src/recursive.rs)
+  - [crates/clay-seal-receipts-session/src/envelope.rs](../crates/clay-seal-receipts-session/src/envelope.rs)
+  - [crates/clay-seal-receipts-session/src/fold.rs](../crates/clay-seal-receipts-session/src/fold.rs)
+  - [crates/clay-seal-receipts-composed/src/recursive.rs](../crates/clay-seal-receipts-composed/src/recursive.rs)
 - Problem:
   - On serialization failure, digests hash empty strings instead of failing closed, weakening binding uniqueness.
 - Evidence:
-  - [envelope.rs:77](../crates/agent-receipts-session/src/envelope.rs); [fold.rs:109](../crates/agent-receipts-session/src/fold.rs); [recursive.rs:121-132](../crates/agent-receipts-composed/src/recursive.rs).
+  - [envelope.rs:77](../crates/clay-seal-receipts-session/src/envelope.rs); [fold.rs:109](../crates/clay-seal-receipts-session/src/fold.rs); [recursive.rs:121-132](../crates/clay-seal-receipts-composed/src/recursive.rs).
 - Fix:
   - Propagate serialization errors; never default digest inputs to `""`.
 

@@ -1,8 +1,8 @@
-# Developer guide — AgentAuth Receipts (Layer 3)
+# Developer guide — Clay Seal Receipts (Layer 3)
 
-This is the operational manual for **agentauth-receipts**: the top layer of the AgentAuth stack. It covers installation, day-to-day use of `AgentWrapper`, MCP gateways, verification, partner deployment, and how this repo relates to identity (L1) and capabilities (L2).
+This is the operational manual for **agentauth-receipts**: the top layer of the Clay Seal stack. It covers installation, day-to-day use of `AgentWrapper`, MCP gateways, verification, partner deployment, and how this repo relates to identity (L1) and capabilities (L2).
 
-If you read one document before integrating AgentAuth into a production agent, make it this one — then drill into the linked deep dives (`docs/trust_model.md`, `docs/deployment.md`, etc.) as needed.
+If you read one document before integrating Clay Seal into a production agent, make it this one — then drill into the linked deep dives (`docs/trust_model.md`, `docs/deployment.md`, etc.) as needed.
 
 ---
 
@@ -31,7 +31,7 @@ Main artifacts:
 This repo **owns the top-level Python namespace**:
 
 ```python
-from agentauth import AgentAuth, AgentWrapper
+from agentauth import Identity, AgentWrapper
 from agentauth.receipts import Policy
 ```
 
@@ -147,9 +147,9 @@ See `docs/policy_language.md` for the full grammar.
 ### AgentWrapper and modes
 
 ```python
-from agentauth import AgentAuth, AgentWrapper
+from agentauth import Identity, AgentWrapper
 
-auth = AgentAuth(trust_domain="example.org")
+auth = Identity(trust_domain="example.org")
 agent = auth.register_agent("review/fraud-bot")
 credential = auth.identify(agent, principal="alice@example.org")
 
@@ -182,7 +182,7 @@ Append-only Merkle log (`agentauth/receipts/audit.py`). Supports inclusion proof
 
 ## Cross-provider identity (L1 choice ≠ lock-in)
 
-Since v0.5.0, layer 3 accepts the same **IdentitySession** abstraction as layer 2. You can wrap agents with OIDC, SPIFFE, Auth0, or AWS STS sessions — not only native AgentAuth credentials.
+Since v0.5.0, layer 3 accepts the same **IdentitySession** abstraction as layer 2. You can wrap agents with OIDC, SPIFFE, Auth0, or AWS STS sessions — not only native Clay Seal credentials.
 
 ```python
 from agentauth.capabilities.identity_adapters import get_identity_provider
@@ -357,7 +357,7 @@ Demos set `AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES=0` for convenience. **Produc
 
 ## Security and honesty
 
-AgentAuth is a verification system; overstated claims undermine the product.
+Clay Seal is a verification system; overstated claims undermine the product.
 
 - **Implemented today:** pre-action capability checks, identity-bound receipts, Merkle audit, Ed25519 signing, SCITT/COSE export, empirical tamper benchmarks (see README soundness section).
 - **Roadmap / proposed:** items marked in README Section 3 and `docs/roadmap.md`.

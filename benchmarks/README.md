@@ -1,6 +1,6 @@
 # Benchmark harness
 
-Self-contained E2E tests for the agent-receipts pipeline (L1 optional → L3 policy → agent/MCP execution → L4 export/verify → audit chain). All code lives under `benchmarks/` so it does not touch the rest of `main` while partners work elsewhere.
+Self-contained E2E tests for the clay-seal-receipts pipeline (L1 optional → L3 policy → agent/MCP execution → L4 export/verify → audit chain). All code lives under `benchmarks/` so it does not touch the rest of `main` while partners work elsewhere.
 
 ## Prerequisites
 

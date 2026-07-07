@@ -1,6 +1,6 @@
 # Decision model (L3)
 
-Agent Receipts separates **what was decided** from **what was cryptographically proven**. The lower-layer decision objects live in Python (`agentauth.receipts.decision`, `agentauth.receipts.runtime`) and appear on exported receipts under `decision`, `authority`, `action`, and optional `approval` / `budget` sections.
+Clay Seal Receipts separates **what was decided** from **what was cryptographically proven**. The lower-layer decision objects live in Python (`agentauth.receipts.decision`, `agentauth.receipts.runtime`) and appear on exported receipts under `decision`, `authority`, `action`, and optional `approval` / `budget` sections.
 
 ## DecisionResult
 

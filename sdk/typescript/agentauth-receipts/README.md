@@ -1,4 +1,4 @@
-# AgentAuth Receipts TypeScript
+# Clay Seal Receipts TypeScript
 
 Dependency-light TypeScript wrappers for agent tools. The API intentionally
 matches the common Vercel AI SDK tool shape: a tool object has `description`,
@@ -21,7 +21,7 @@ const tool = withAgentAuthReceipt(
   scoreTransaction,
   {
     async record({ toolName, action, args, result }) {
-      // Send to an AgentAuth receipt service, local audit writer, or test double.
+      // Send to a Clay Seal receipt service, local audit writer, or test double.
       return { receiptId: `${toolName}:${action}`, proof: { args, result } };
     },
   },

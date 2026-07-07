@@ -7,7 +7,7 @@ history to Bob (a "split view"). Each view can be internally consistent and corr
 signed by the log, so neither party can detect the fork in isolation.
 
 External **witnesses** close that gap. This is the Certificate-Transparency / Rekor
-witness-gossip model applied to the agent-receipts audit log.
+witness-gossip model applied to the clay-seal-receipts audit log.
 
 ## Protocol
 

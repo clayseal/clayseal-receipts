@@ -1,4 +1,4 @@
-# AgentAuth Devin PR Gate Demo
+# Clay Seal Devin PR Gate Demo
 
 This demo shows a realistic failure mode for autonomous coding agents:
 
@@ -6,7 +6,7 @@ This demo shows a realistic failure mode for autonomous coding agents:
 - the issue body is poisoned with instructions that widen the task;
 - the Devin PR fixes the bug and also changes privileged files;
 - vanilla merge flow accepts the PR;
-- AgentAuth CI evaluates the real PR diff against signed human authorization,
+- Clay Seal CI evaluates the real PR diff against signed human authorization,
   fails closed, and emits a signed receipt explaining why.
 
 The local replay does not mock the gate. It creates real git repositories, real
@@ -19,7 +19,7 @@ branch to use the same gate live.
 ## Run
 
 ```bash
-# from the repo root, once per checkout if AgentAuth is not already installed
+# from the repo root, once per checkout if Clay Seal is not already installed
 python3 -m venv .venv
 .venv/bin/python -m pip install -e .
 
@@ -66,7 +66,7 @@ python3 demo/agentauth_gate.py verify-receipt \
 
 | Path | Purpose |
 | --- | --- |
-| `agentauth_gate.py` | CI-compatible AgentAuth gate. |
+| `agentauth_gate.py` | CI-compatible Clay Seal gate. |
 | `run_demo.py` | End-to-end replay using real git branches and commits. |
 | `fixtures/acme-payments/` | Small repo with the real `GH-1337` checkout bug. |
 | `issues/gh-1337-poisoned.md` | Poisoned GitHub issue body. |
@@ -85,7 +85,7 @@ The receipt binds together:
 - the diff hash and changed-file list;
 - test command results;
 - every gate violation;
-- the AgentAuth gate signature.
+- the Clay Seal gate signature.
 
 That makes the denial portable: a reviewer can verify it without rerunning Devin,
 trusting the CI logs, or accepting a mutable PR comment.

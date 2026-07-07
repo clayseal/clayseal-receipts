@@ -1,13 +1,13 @@
 # Design partner guide
 
-This guide is for teams integrating Agent Receipts in a **pilot** (fraud MCP, policy receipts, optional ZK). It assumes you are not building on a hosted verifier yet — you run the SDK and CLI in your environment.
+This guide is for teams integrating Clay Seal Receipts in a **pilot** (fraud MCP, policy receipts, optional ZK). It assumes you are not building on a hosted verifier yet — you run the SDK and CLI in your environment.
 
 ## CLI naming
 
 | Command | Role |
 |---------|------|
 | **`arctl`** | Python SDK tooling (`doctor`, `verify-bundle`, `explain`, `audit-summary`, `replay-check`, `format-bundle`, `export-audit`) |
-| **`agent-receipts`** | Rust prover/verifier (`prove-policy`, `setup`, `verify-composed`) |
+| **`clay-seal-receipts`** | Rust prover/verifier (`prove-policy`, `setup`, `verify-composed`) |
 
 ## What you get
 
@@ -34,7 +34,7 @@ Full checklist: [deployment.md](deployment.md).
 ## 30-minute onboarding
 
 ```bash
-git clone <repo> && cd agent-receipts
+git clone <repo> && cd clay-seal-receipts
 bash scripts/bootstrap.sh          # pip, Rust CLI, proving keys
 cp config/partner.example.yaml config/partner.yaml
 # Edit partner.yaml: organization, principal_id, model_provenance_hash
@@ -101,7 +101,7 @@ python3 examples/mcp_live_prove_client.py
 
 ## Receipt bundle format
 
-Schema: `agent-receipts.receipt-bundle.v1`
+Schema: `clay-seal-receipts.receipt-bundle.v1`
 
 ```bash
 # Export happens in your agent code:
@@ -136,7 +136,7 @@ arctl export-audit --audit-db .audit/partner.sqlite --out audit/export.jsonl
 ## Known limitations (set expectations)
 
 - **Dev certificates** only unless you bring your own JSON cert format
-- **No hosted verifier** — partners run `agent-receipts` CLI locally
+- **No hosted verifier** — partners run `clay-seal-receipts` CLI locally
 - **Composed proofs** are logically bound (two verifiers), not one recursive SNARK
 - **EZKL** optional; stubs work for demos, production pilots should run real setup ([inference_and_composition.md](inference_and_composition.md))
 - **Fraud vertical** is the reference policy; general semantic policies are not ZK-proven yet

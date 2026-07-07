@@ -10,10 +10,10 @@ receipt** for pilots, local auditing, replay, policy debugging, and non-identity
 integrations.
 
 For production or consequential agent actions, a receipt should be considered an
-**AgentAuth production receipt** only when it is bound to an attested authority identity.
+**Clay Seal production receipt** only when it is bound to an attested authority identity.
 Today that identity-bound path is `AgentAuth.identify(...) -> AgentSession.wrap(...) ->
 AgentWrapper.run(...)`, where `AgentSession.wrap()` injects an `AuthorityBinding` derived
-from the live AgentAuth credential.
+from the live Clay Seal credential.
 
 The production goal is to preserve the standalone receipts path while making the trust
 boundary explicit and machine-checkable.
@@ -29,7 +29,7 @@ Current behavior:
 - Without a binding, `AgentWrapper` falls back to an authority context containing only
   the receipt certificate `agent_id`.
 - `partner_factory` and strict `arctl preflight` can still produce production-shaped
-  receipts without an AgentAuth identity binding.
+  receipts without a Clay Seal identity binding.
 
 Required changes:
 
@@ -93,15 +93,15 @@ Required changes:
 
 - Add a receipt-bound proof-of-possession section signed by the workload key.
 - Bind the signature to at least `proof_id`, `context_hash`, `output_hash`,
-  `policy_commitment`, and the AgentAuth credential/token hash.
+  `policy_commitment`, and the Clay Seal credential/token hash.
 - Include enough identity evidence for offline verification, or define an online verifier
-  path against the AgentAuth backend.
+  path against the Clay Seal backend.
 - Ensure verifier output can distinguish:
   - unbound receipt
   - declared authority only
   - signed authority
-  - sender-constrained AgentAuth authority
-  - workload-attested AgentAuth authority
+  - sender-constrained Clay Seal authority
+  - workload-attested Clay Seal authority
 
 Relevant code:
 
@@ -117,7 +117,7 @@ Current behavior:
 
 - `Policy.min_trust_tier` is enforced producer-side by `YamlPolicyEngine`.
 - Caller-declared high trust is rejected unless authority evidence came through the
-  verified AgentAuth credential path.
+  verified Clay Seal credential path.
 - Policies that omit `min_trust_tier` allow unbound receipts to satisfy output-only rules.
 
 Required changes:
@@ -141,13 +141,13 @@ Current issue:
 
 - `persist_certificate` is described as "Stable agent identity" in the deployment guide.
 - That certificate gives a stable receipt/certificate `agent_id`, but it is not the same
-  as an attested AgentAuth/SPIFFE workload identity.
+  as an attested Clay Seal/SPIFFE workload identity.
 
 Required changes:
 
 - Rename the deployment guide wording to "Stable receipt certificate identity" or
   "Stable receipt producer id".
-- Explicitly document that AgentAuth production identity requires
+- Explicitly document that Clay Seal production identity requires
   `AgentAuth.identify(...)` and `AgentSession.wrap(...)`.
 - Update design partner docs to say standalone `AgentWrapper` receipts are unbound unless
   an `AuthorityBinding` is supplied.
@@ -198,17 +198,17 @@ Keep supporting:
 - Shadow-mode instrumentation before an identity service is deployed.
 - Offline policy and proof experiments.
 - Partner pilots that bring their own operator certificate/signing infrastructure.
-- Receipts for systems that are not yet AgentAuth-integrated.
+- Receipts for systems that are not yet Clay Seal-integrated.
 
 But require the system to label them honestly as unbound or lower-assurance, and ensure
-production defaults cannot accidentally present them as attested AgentAuth identities.
+production defaults cannot accidentally present them as attested Clay Seal identities.
 
 ## Acceptance Criteria
 
 - A strict production config cannot pass preflight while producing unbound receipts.
 - A relying party can ask the verifier for both minimum execution assurance and minimum
   authority trust.
-- A receipt-bound workload proof is available for AgentAuth-issued credentials.
+- A receipt-bound workload proof is available for Clay Seal-issued credentials.
 - Unbound receipts remain easy to create intentionally, but they are labeled clearly in
   exports, verifier output, docs, and CLI explanations.
 - Tests cover:

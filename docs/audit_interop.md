@@ -98,7 +98,7 @@ Both SCRAPI directions are implemented (`agentauth/receipts/scrapi.py`):
   (`AGENTAUTH_SCITT_BASE_URL`, statement key via
   `AGENTAUTH_SCITT_STATEMENT_KEY_HEX`), handling 201-direct and 202-poll.
   Interop targets: Azure Code Transparency, DataTrails, self-hosted
-  scitt-ccf-ledger — or another AgentAuth verifier.
+  scitt-ccf-ledger — or another Clay Seal verifier.
 
 Live interop against a third-party SCITT service is not yet asserted in CI;
 the internal round-trip (sign → register → receipt → verify) is.
@@ -109,7 +109,7 @@ Receipts wrap into in-toto v1 Statements with the published predicate type
 **`https://agentauth.dev/receipt/v1`** inside DSSE envelopes (Ed25519 over the
 PAE). The subject digest is the SHA-256 of the bundle's canonical JSON
 (`agentauth.core.hash_util`), so stock supply-chain tooling verifies receipts
-with no AgentAuth code:
+with no Clay Seal code:
 
 ```bash
 cosign verify-blob-attestation \

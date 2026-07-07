@@ -1,7 +1,7 @@
 {
   "name": "@agentauth/receipts",
   "version": "0.5.0",
-  "description": "Dependency-light AgentAuth receipt wrappers for TypeScript agent tools.",
+  "description": "Dependency-light Clay Seal receipt wrappers for TypeScript agent tools.",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

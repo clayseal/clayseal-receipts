@@ -18,4 +18,4 @@ ezkl prove -M ezkl/model.compiled -W ezkl/witness.json --pk-path ezkl/pk.key --p
 ezkl verify --proof-path ezkl/proof.json -S ezkl/settings.json --vk-path ezkl/vk.key --srs-path ezkl/kzg.srs
 ```
 
-Agent Receipts wraps this via `agent-receipts prove-inference` and composes with Halo2 policy proofs.
+Clay Seal Receipts wraps this via `agent-receipts prove-inference` and composes with Halo2 policy proofs.

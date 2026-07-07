@@ -117,7 +117,7 @@ asyncio.run(run())
 Set `mode="prove"` and `prove_composed=True` on `AgentWrapper`. For `score_fraud_model`, the client unwraps `output["result"]` for policy checks and uses `context["input"]["amount"]` plus `fraud_score` for composed EZKL + Halo2 proofs.
 
 ```bash
-CARGO_TARGET_DIR=$PWD/target cargo build -p agent-receipts-cli --release
+CARGO_TARGET_DIR=$PWD/target cargo build -p clay-seal-receipts-cli --release
 python3 examples/mcp_live_prove_client.py
 ```
 
@@ -135,9 +135,9 @@ Or copy [config/cursor-mcp.json.example](../config/cursor-mcp.json.example) and 
 ```json
 {
   "mcpServers": {
-    "agent-receipts-fraud": {
+    "clay-seal-receipts-fraud": {
       "command": "python3",
-      "args": ["/absolute/path/to/agent-receipts/examples/mcp_live_server.py"]
+      "args": ["/absolute/path/to/clay-seal-receipts/examples/mcp_live_server.py"]
     }
   }
 }

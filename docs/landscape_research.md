@@ -2,7 +2,7 @@
 
 As of **June 19, 2026**, the market and standards landscape around agent identity, authorization, and evidence is crowded in adjacent layers but still incomplete as a whole.
 
-This memo summarizes what exists in open source and commercially, what is missing, and where Agent Receipts could add differentiated value.
+This memo summarizes what exists in open source and commercially, what is missing, and where Clay Seal Receipts could add differentiated value.
 
 ## Executive summary
 
@@ -143,7 +143,7 @@ There is also a rich ecosystem for artifact integrity and provenance:
 - **TUF** hardens software update distribution against key compromise and repository attacks.
 - **GUAC** turns supply-chain metadata into a graph for security analysis.
 
-This is one of the most important analogies for Agent Receipts.
+This is one of the most important analogies for Clay Seal Receipts.
 
 Supply-chain security has already shown that the combination of:
 
@@ -356,7 +356,7 @@ These companies prove that externalized, fine-grained authorization is already v
 
 These tools validate demand for operational visibility into AI systems, but they still leave room for a stronger evidence and trust layer.
 
-## Where Agent Receipts can still win
+## Where Clay Seal Receipts can still win
 
 The right position is not:
 

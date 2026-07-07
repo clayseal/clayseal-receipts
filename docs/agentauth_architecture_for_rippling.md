@@ -1,12 +1,12 @@
-# AgentAuth — Architecture Overview
+# Clay Seal — Architecture Overview
 
 *Prepared for Rippling · verifiable enforcement for agent tool calls*
 
 ---
 
-## 1. What AgentAuth is
+## 1. What Clay Seal is
 
-AgentAuth is one system for agent **identity** and verifiable **execution**. It
+Clay Seal is one system for agent **identity** and verifiable **execution**. It
 wraps an agent's tool calls, makes a policy decision *before* each
 side-effecting action, and binds that decision into a tamper-evident,
 cryptographically verifiable receipt. It is designed to sit exactly where
@@ -56,7 +56,7 @@ in principle" and "bound to what executes":
   routed through a less-governed connector; a value moved in excess of the
   requester's real authority.
 
-AgentAuth's controls are designed precisely for that space, and to **compose
+Clay Seal's controls are designed precisely for that space, and to **compose
 with** Rippling's existing layers rather than replace them.
 
 ---
@@ -126,14 +126,14 @@ append-only log, with consistency proofs and witness quorum for the log itself.
 Receipts are issued as **IETF SCITT** signed statements in **C2SP** checkpoint
 format — meaning a third party (an auditor, a customer's compliance team,
 Rippling itself) can verify *what an agent did and that it was authorized*
-without trusting AgentAuth's word for it.
+without trusting Clay Seal's word for it.
 
 This is not a bespoke format. As of 2026 the IETF is actively standardizing
 exactly this surface — **SCITT** and its reference APIs (SCRAPI), **Agent
 Enforcement Receipts**, and the **Verifiable AI Provenance** framework for
-high-risk AI decision trails. AgentAuth already emits what those drafts are
+high-risk AI decision trails. Clay Seal already emits what those drafts are
 defining. The differentiator versus the attestation-only entrants in this space
-is that AgentAuth's receipts record an **enforced decision**, not merely an
+is that Clay Seal's receipts record an **enforced decision**, not merely an
 observation — prevention plus proof, not proof alone.
 
 ---
@@ -186,7 +186,7 @@ a single documented golden path.
   roadmap (§5) aligns with the MCP ecosystem's own recognized need for a
   unified decision point.
 
-The result AgentAuth is aimed at: **loosen the human-in-the-loop-per-action
+The result Clay Seal is aimed at: **loosen the human-in-the-loop-per-action
 constraint where the binding underneath can now be trusted** — fewer manual
 approvals on what is verifiably in-scope and in-budget, concentrated human
 attention on what is genuinely novel or over-threshold, and a verifiable

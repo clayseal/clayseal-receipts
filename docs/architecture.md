@@ -1,6 +1,6 @@
 # Architecture
 
-Agent Receipts sits **above** OAuth 2.1 / MCP and **below** application code. It does not replace identity providers or tool authorization; it adds verifiable execution receipts.
+Clay Seal Receipts sits **above** OAuth 2.1 / MCP and **below** application code. It does not replace identity providers or tool authorization; it adds verifiable execution receipts.
 
 ## Layer 0 — Use existing infrastructure
 
@@ -48,7 +48,7 @@ Per consequential action:
 
 ### DecisionResult
 
-Per consequential action, Agent Receipts now also tracks an explicit lower-layer decision object:
+Per consequential action, Clay Seal Receipts now also tracks an explicit lower-layer decision object:
 
 - decision outcome
 - policy satisfaction
@@ -97,7 +97,7 @@ v0 uses operator-issued dev certificates.
 
 ## Layer 4 — Decision and evidence layer
 
-This is where `agent-receipts` focuses most of its value:
+This is where `clay-seal-receipts` focuses most of its value:
 
 - `DecisionResult` / `DecisionRecord` for non-binary outcomes
 - `ExecutionContext` for authority-aware action semantics

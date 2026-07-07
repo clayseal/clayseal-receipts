@@ -26,7 +26,7 @@ from agentauth.receipts.signing import generate_keypair
 issuer_key = generate_keypair()
 stmt = scitt.sign_receipt_bundle(bundle, issuer_key, issuer="acme.ai", subject="agent-42")
 
-ts = scitt.TransparencyService(generate_keypair(), service_id="agent-receipts.local/log")
+ts = scitt.TransparencyService(generate_keypair(), service_id="clay-seal-receipts.local/log")
 receipt = ts.register(stmt)                       # COSE Receipt (RFC 9162 inclusion proof)
 assert scitt.verify_receipt(stmt, receipt, ts.public_key)
 
@@ -43,11 +43,11 @@ The real audit log issues COSE Receipts for its own records — the SCITT verifi
 *is* the audit log's RFC 6962 tree:
 
 ```python
-receipt = chain.scitt_receipt(record.record_hash, service_id="agent-receipts.local/log")
+receipt = chain.scitt_receipt(record.record_hash, service_id="clay-seal-receipts.local/log")
 assert scitt.verify_receipt(bytes.fromhex(record.record_hash), receipt, chain.signing_key.public_key)
 
 # append-only proof between two checkpoints
-cons = chain.scitt_consistency_receipt(old_size, service_id="agent-receipts.local/log")
+cons = chain.scitt_consistency_receipt(old_size, service_id="clay-seal-receipts.local/log")
 assert scitt.verify_consistency_receipt(cons, trusted_old_root, chain.signing_key.public_key)
 ```
 

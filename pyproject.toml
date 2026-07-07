@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "agentauth-receipts"
 version = "0.5.0"
-description = "AgentAuth — verifiable execution receipts and policy runtime for autonomous AI agents"
+description = "Clay Seal — verifiable execution receipts and policy runtime for autonomous AI agents"
 readme = "README.md"
 license = "MIT"
 # biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.

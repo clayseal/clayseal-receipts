@@ -379,7 +379,7 @@ def export_siem_cef(bundle: dict[str, Any]) -> str:
     outcome = base["decision_outcome"] or "unknown"
     severity = 3 if outcome == "allow" else 6
     return (
-        f"CEF:0|Agent Receipts|Receipt|{esc(base['sdk_version'])}|agent_action|"
+        f"CEF:0|Clay Seal Receipts|Receipt|{esc(base['sdk_version'])}|agent_action|"
         f"Agent action receipt|{severity}|{extensions}"
     )
 

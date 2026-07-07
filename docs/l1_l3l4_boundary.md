@@ -9,7 +9,7 @@ L3/L4 should consume those facts for policy, receipts, replay, and audit.
 
 The shared object is `AuthorityBinding` in [authority_binding.py](../agentauth/receipts/authority_binding.py).
 
-The first concrete integration target is the partner `AgentAuth` credential
+The first concrete integration target is the partner `Clay Seal` credential
 shape from `origin/layer_1` (`CredentialOut` / SDK `Credential`). That payload
 already contains enough L1/L2 facts for `AuthorityBinding.from_agentauth_credential(...)`
 to build a native lower-layer authority object.
@@ -43,11 +43,11 @@ to build a native lower-layer authority object.
 | `budget_refs` | Budget identifiers the authority may draw on |
 | `approval_refs` | Approval grant identifiers required for spend |
 
-## AgentAuth credential mapping
+## Clay Seal credential mapping
 
 For the current partner branch, the mapping is:
 
-| AgentAuth field | AuthorityBinding field |
+| Clay Seal field | AuthorityBinding field |
 |-----------------|------------------------|
 | `spiffe_id` | `subject_id`, `workload_principal` |
 | `agent_id` | `authority_id` (current default) |

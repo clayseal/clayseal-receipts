@@ -1,4 +1,4 @@
-# Devin AgentAuth demo fixture (source of truth)
+# Devin Clay Seal demo fixture (source of truth)
 
 Multi-layer **issue + ADR + failing tests + repo memory** corruption for the
 `devin-agentauth-vanilla-demo` / `devin-agentauth-gated-demo` pair.

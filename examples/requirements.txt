@@ -1,4 +1,4 @@
-# Dependencies to run the AgentAuth examples.
+# Dependencies to run the Clay Seal examples.
 #
 # The examples can boot the backend in-process, so they need the backend's
 # runtime deps as well as the SDK. Easiest path:

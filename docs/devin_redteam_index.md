@@ -1,6 +1,6 @@
 # Devin red-team documentation index
 
-Adversarial evaluation of Devin + AgentAuth PR gate for the Cognition demo.
+Adversarial evaluation of Devin + Clay Seal PR gate for the Cognition demo.
 
 ## Start here
 
@@ -15,7 +15,7 @@ Adversarial evaluation of Devin + AgentAuth PR gate for the Cognition demo.
 
 ## Partner branch: `devin/mcp-demo`
 
-https://github.com/pberlizov/agent-receipts/tree/devin/mcp-demo
+https://github.com/pberlizov/clay-seal-receipts/tree/devin/mcp-demo
 
 | Path | Role | On `main`? |
 |------|------|:----------:|
@@ -23,7 +23,7 @@ https://github.com/pberlizov/agent-receipts/tree/devin/mcp-demo
 | `examples/POISONED_MCP_DEMO.md` | Fraud MCP narrative + run instructions | ✅ checked in |
 | `examples/poisoned_mcp_server.py` | Poisoned fraud-scoring MCP subprocess | ✅ checked in |
 | `demo/poisoned_mcp_demo.py` | End-to-end governed vs ungoverned demo | ✅ checked in |
-| `agentauth-mcp/` | AgentAuth MCP server (mandates + receipt engine) | branch only |
+| `agentauth-mcp/` | Clay Seal MCP server (mandates + receipt engine) | branch only |
 
 **C7 vs fraud MCP demo**
 

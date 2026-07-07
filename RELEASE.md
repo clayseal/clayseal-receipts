@@ -1,8 +1,8 @@
-# Release process — modular AgentAuth stack
+# Release process — modular Clay Seal stack
 
 Design partners and production integrators should pin **git tags**, not floating `main`.
 
-AgentAuth is split into four repositories. Install and tag them **in order**:
+Clay Seal is split into four repositories. Install and tag them **in order**:
 
 1. [agentauth-core](https://github.com/pberlizov/agentauth-core) (shared contracts + facade)
 2. [agentauth-identity](https://github.com/pberlizov/agentauth-identity) (layer 1)

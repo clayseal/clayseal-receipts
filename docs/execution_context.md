@@ -1,6 +1,6 @@
 # Execution context (L3-3)
 
-Agent Receipts separates **model input** from **authority-bearing runtime context**. The boundary is `ExecutionContext`.
+Clay Seal Receipts separates **model input** from **authority-bearing runtime context**. The boundary is `ExecutionContext`.
 
 ## Structure
 

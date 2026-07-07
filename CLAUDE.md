@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-**AgentAuth** is one system for agent **identity** *and* verifiable **execution**:
+**Clay Seal** is one system for agent **identity** *and* verifiable **execution**:
 
 - **Identity (L1/L2)** — an Auth0-equivalent, multi-tenant identity service that attests agent workloads and issues short-lived, verifiable JWT-SVID credentials and Biscuit capability tokens, with key rotation, JWKS, revocation, and an append-only identity event log.
 - **Receipts (L3/L4)** — a runtime that wraps an agent, runs a policy decision, and binds the outcome into a tamper-evident, cryptographically verifiable receipt (ZK / TEE / shadow paths) with a hash-chained audit log and a verifier.
@@ -127,7 +127,7 @@ Lives in the `agentauth-identity` repo, not here. Multi-tenant: every ORM model 
 `AgentWrapper` (`wrapper.py`) runs the policy engine, records the `DecisionResult`, and builds an `ExecutionProof` in modes shadow/recommend/bounded_auto/prove. `export.py` builds/verifies receipt bundles (v1/v2); `audit.py` is the hash-chained execution log with RFC 6962 inclusion/consistency proofs and witness quorum; `verifier_server.py` is the standalone receipt verifier (`GET /health`, `/ready`, `/v1/version`; `POST /v1/verify`), served via `arctl serve`.
 
 ### SDK surface (`agentauth.receipts` + the identity/capabilities deps)
-`from agentauth import AgentAuth, AgentSession, AgentWrapper, Policy, build_receipt_bundle, ...` — one import spanning both layers, where `AgentAuth`/`AgentSession` resolve from the installed `agentauth-identity` package and the receipt types from this one. Sub-namespaces `agentauth.identity` / `agentauth.capabilities` / `agentauth.receipts` are available for advanced use.
+`from agentauth import Identity, AgentSession, AgentWrapper, Policy, build_receipt_bundle, ...` — one import spanning both layers, where `Identity`/`AgentSession` resolve from the installed `agentauth-identity` package and the receipt types from this one. Sub-namespaces `agentauth.identity` / `agentauth.capabilities` / `agentauth.receipts` are available for advanced use.
 
 ## Configuration
 

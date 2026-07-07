@@ -1,6 +1,6 @@
-# AgentAuth documentation
+# Clay Seal documentation
 
-AgentAuth is one system for agent **identity** (L1/L2) and verifiable **execution**
+Clay Seal is one system for agent **identity** (L1/L2) and verifiable **execution**
 (L3/L4). It ships as a single installable package, `agentauth`, with one import
 namespace — see the [repository README](../README.md) for the developer surface and
 [CLAUDE.md](../CLAUDE.md) for the codebase map.

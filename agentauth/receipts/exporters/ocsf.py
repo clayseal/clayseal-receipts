@@ -77,8 +77,8 @@ def _metadata(bundle: dict[str, Any], profiles: list[str]) -> dict[str, Any]:
         "version": OCSF_SCHEMA_VERSION,
         "profiles": profiles,
         "product": {
-            "name": "AgentAuth Receipts",
-            "vendor_name": "AgentAuth",
+            "name": "Clay Seal Receipts",
+            "vendor_name": "Clay Seal",
             "version": bundle.get("sdk_version") or __version__,
         },
     }

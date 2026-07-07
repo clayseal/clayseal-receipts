@@ -1,8 +1,8 @@
 # Receipt Bundle v2
 
-Schema ID: `agent-receipts.receipt-bundle.v2`
+Schema ID: `clay-seal-receipts.receipt-bundle.v2`
 
-The SDK now **defaults to v2** when building receipts. v1 bundles (`agent-receipts.receipt-bundle.v1`) remain supported for load and verify.
+The SDK now **defaults to v2** when building receipts. v1 bundles (`clay-seal-receipts.receipt-bundle.v1`) remain supported for load and verify.
 
 ## Required sections
 

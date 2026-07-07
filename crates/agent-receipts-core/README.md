@@ -1,8 +1,8 @@
-# agent-receipts-core
+# clay-seal-receipts-core
 
-Reference Rust implementation of core Agent Receipts types: certificates, policy documents, execution proofs, and hash-chained audit records.
+Reference Rust implementation of core Clay Seal Receipts types: certificates, policy documents, execution proofs, and hash-chained audit records.
 
-**Runtime path today:** the Python SDK (`agentauth/receipts/`) owns the production types and audit chain. The CLI proving stack uses `agent-receipts-policy-circuit` and `agent-receipts-composed`, not this crate.
+**Runtime path today:** the Python SDK (`agentauth/receipts/`) owns the production types and audit chain. The CLI proving stack uses `clay-seal-receipts-policy-circuit` and `clay-seal-receipts-composed`, not this crate.
 
 This crate remains in the workspace for:
 

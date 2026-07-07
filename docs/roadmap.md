@@ -14,7 +14,7 @@ Status markers: `[ ]` not started · `[>]` **being worked on** (do not pick up) 
 - [x] Halo2 `policy_range_v1` circuit (in-circuit `min + diff = score` and `score + diff = max`)
 - [x] Halo2 `policy_range_v2` — binds output_hash and policy_commitment as public inputs
 - [x] Proof bytes attached in `prove` mode
-- [x] Local verifier CLI (`agent-receipts verify-policy`)
+- [x] Local verifier CLI (`clay-seal-receipts verify-policy`)
 - [x] Bit-decomposed range witnesses (24-bit)
 - [x] Halo2 `policy_range_v3` — in-circuit required-field presence mask (up to 8 fields)
 

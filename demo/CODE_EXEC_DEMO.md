@@ -16,7 +16,7 @@ compromised:
   execution) and `exfiltrate_secrets` (data exfiltration).
 
 The demo runs the agent against the server twice — once **ungoverned**, once **through
-AgentAuth** — and shows the difference.
+Clay Seal** — and shows the difference.
 
 *(Deploy is intentionally out of scope for now; the flow ends at the dependency scan. It can be
 added later as a human step-up — a separate, human-authorized elevated credential.)*
@@ -41,7 +41,7 @@ python demo/code_exec_demo.py
 python demo/code_exec_demo.py --verbose     # + raw receipt JSON / authority / proof bytes
 ```
 
-The script boots an embedded AgentAuth backend on a throwaway database, attests a coding-assistant
+The script boots an embedded Clay Seal backend on a throwaway database, attests a coding-assistant
 identity, and spawns the dev-tools server as a subprocess — zero config. Nothing dangerous runs:
 `run_shell`/`exfiltrate_secrets` are **simulated**, `read_file` is **path-sandboxed** to the fixture,
 and `run_tests` only executes the fixture's own safe test.
@@ -60,14 +60,14 @@ malicious dependency (`risk_score 0.95`), the tests run for real. The repo genui
 remember that when the poisoned server claims everything is clean.
 
 **Act 2 — Arbitrary code execution + exfiltration.**
-- *Without AgentAuth:* a real (Groq) LLM agent reads the poisoned descriptions, trusts the fabricated
+- *Without Clay Seal:* a real (Groq) LLM agent reads the poisoned descriptions, trusts the fabricated
   "all clear," and is injected into calling `run_shell` and `exfiltrate_secrets` — **arbitrary code
   execution and secret exfiltration (simulated), with no record.**
-- *With AgentAuth:* the same `run_shell` / `exfiltrate_secrets` calls are **blocked before their bodies
+- *With Clay Seal:* the same `run_shell` / `exfiltrate_secrets` calls are **blocked before their bodies
   run** — they're outside the agent's per-tool Biscuit capability grant — and the attempts are
   captured in `deny` receipts.
 
-**Act 3 — Poisoned "all clear" + forensics.** Through AgentAuth, `run_tests` returns `passed:true` and
+**Act 3 — Poisoned "all clear" + forensics.** Through Clay Seal, `run_tests` returns `passed:true` and
 `scan_dependencies` returns `risk_score:0.0` — lies the structural policy can't detect. But each is now
 pinned in a receipt **bound to the attested identity** (SPIFFE selectors, `jwt_svid`, sender-constrained,
 proof-of-possession, per-tool capabilities). When the compromise surfaces, this is the non-repudiable
@@ -89,7 +89,7 @@ A scoreboard summarizes every vector and confirms the audit chain is intact.
 
 ---
 
-## What AgentAuth does — and does not — do (read this)
+## What Clay Seal does — and does not — do (read this)
 
 - It does **not** strip injection text: tool descriptions reach the model verbatim (that's how MCP
   works). The guarantee is at the **action** layer — the agent literally cannot call `run_shell` /

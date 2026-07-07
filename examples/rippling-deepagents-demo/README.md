@@ -1,7 +1,7 @@
 # Rippling Deep Agents Demo Fixture
 
 Local, synthetic benchmark fixture for testing a Rippling-shaped Deep Agents
-system with and without AgentAuth runtime controls.
+system with and without Clay Seal runtime controls.
 
 The default data path uses the lightweight JSON/Markdown fixtures in this
 directory, preserving the original deterministic demo behavior.

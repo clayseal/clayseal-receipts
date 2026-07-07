@@ -1,4 +1,4 @@
-# AgentAuth — Architecture & Production-Readiness Review
+# Clay Seal — Architecture & Production-Readiness Review
 
 **Original review:** 2026-06-20 @ `5dd8121`
 **Re-review:** 2026-06-20 @ `e6b19d8` (after remediation commits `5cd3311`, `c00dc4b`, `e6b19d8`)
@@ -63,7 +63,7 @@ This is now a **credible, well-engineered pilot with a clean punch-list to GA**,
 ## 2. Resolved findings — verification detail
 
 **C1 — ZK range under-constraint → FIXED (re-read line-by-line).**
-`crates/agent-receipts-policy-circuit/src/circuit.rs`: `assign_diff` now takes `&AssignedCell` for both operands and uses `lhs.copy_advice(...)` / `rhs.copy_advice(...)` to bind the range-check cells to the instance-bound `score_cell`/`min_cell`/`max_cell` — exactly the pattern the confidential circuit already used. A new negative test, `mock_prover_rejects_split_public_range_witnesses`, constructs a circuit where the public score (`SCALE`) differs from the range-gate score (`SCALE/4`) and asserts `MockProver::verify()` fails. The range gate no longer floats free of the public inputs. **Soundness defect closed and regression-guarded.**
+`crates/clay-seal-receipts-policy-circuit/src/circuit.rs`: `assign_diff` now takes `&AssignedCell` for both operands and uses `lhs.copy_advice(...)` / `rhs.copy_advice(...)` to bind the range-check cells to the instance-bound `score_cell`/`min_cell`/`max_cell` — exactly the pattern the confidential circuit already used. A new negative test, `mock_prover_rejects_split_public_range_witnesses`, constructs a circuit where the public score (`SCALE`) differs from the range-gate score (`SCALE/4`) and asserts `MockProver::verify()` fails. The range gate no longer floats free of the public inputs. **Soundness defect closed and regression-guarded.**
 
 **H1 — plaintext keys → FIXED (fail-closed).**
 `agentauth/backend/secret_encryption.py`: new `secret_encryption_required()` returns true for any non-SQLite DB (or when `AGENTAUTH_REQUIRE_SECRET_ENCRYPTION` is set), and `validate_secret_encryption_config()` (called at app startup in `main.py`) **raises and refuses to boot** if encryption is required but no provider is configured. `decrypt_secret`/`decrypt_private_pem`/`decrypt_private_hex` now **refuse to load plaintext** when encryption is enabled (closes the downgrade/tamper gap). `/health` reports `secret_encryption.{enabled,required}`. *Residual (acceptable):* the default local SQLite dev DB still stores plaintext — but it's now visible and a production DB cannot.
@@ -97,7 +97,7 @@ The high-impact controls are now secure-by-default (bundle signatures required, 
 `agentauth/backend/attestation.py` still verifies an RS256 JWT signed by a tenant-registered key rather than performing a live TokenReview / AWS IID / GCP metadata check. Anyone with a tenant API key can register an attestor and self-issue any registered identity, so the trust root is API-key custody. Production SPIRE manifests exist under `identity/` but aren't wired to the backend. Honestly documented (`docs/l1_l2_hardening.md` updated). **Action:** integrate real SPIRE/cloud/hardware attestation; gate attestor registration behind stronger-than-API-key admin authz; add an attestation-document nonce to kill replay.
 
 **M1 — Nova/recursive composition is logical, not cryptographic; committed KZG keys unpinned (OPEN).**
-`crates/agent-receipts-composed/src/recursive.rs`, `…-session/src/fold.rs`: the Nova step circuits allocate step elements as free witnesses; the real security still comes from the plaintext software re-checks. Honest in code comments, but should not be marketed as recursive proof aggregation. Multi-MB Nova `pp`/`pk`/`vk` (a KZG trusted-setup component) remain committed to git and are deserialized without pinning `pp` to a known-good digest. **Action:** pin/regenerate the SRS; stop describing the Nova layer as cryptographic aggregation until step inputs are constrained.
+`crates/clay-seal-receipts-composed/src/recursive.rs`, `…-session/src/fold.rs`: the Nova step circuits allocate step elements as free witnesses; the real security still comes from the plaintext software re-checks. Honest in code comments, but should not be marketed as recursive proof aggregation. Multi-MB Nova `pp`/`pk`/`vk` (a KZG trusted-setup component) remain committed to git and are deserialized without pinning `pp` to a known-good digest. **Action:** pin/regenerate the SRS; stop describing the Nova layer as cryptographic aggregation until step inputs are constrained.
 
 **M3 — Mandate "trusted issuer registry" overstated (OPEN).**
 `mandate.py:127-136` performs *self-binding* (issuer string must equal the signer's own key), not registry-based issuer trust. **Action:** add a real trusted-issuer registry, or rename the claim.

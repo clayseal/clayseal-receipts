@@ -17,17 +17,17 @@
 
 \begin{document}
 
-{\LARGE\bfseries How AgentAuth works}\\[2pt]
+{\LARGE\bfseries How Clay Seal works}\\[2pt]
 {\color{gray}\small Verifiable enforcement for agent tool calls}
 \rule{\linewidth}{0.4pt}
 
-AgentAuth enforces authorization on an agent's tool calls and produces a cryptographic record of each one. It sits at the boundary in front of the tools, so every side-effecting call is evaluated before it runs, returns allow, human step-up, or deny, and is written to a tamper-evident log. Its defining property is that every authority signal is derived outside the agent's own reasoning, so adversarial prompting cannot manufacture permission from within. A governed action passes through the layers below.
+Clay Seal enforces authorization on an agent's tool calls and produces a cryptographic record of each one. It sits at the boundary in front of the tools, so every side-effecting call is evaluated before it runs, returns allow, human step-up, or deny, and is written to a tamper-evident log. Its defining property is that every authority signal is derived outside the agent's own reasoning, so adversarial prompting cannot manufacture permission from within. A governed action passes through the layers below.
 
 \begin{enumerate}[leftmargin=1.4em, itemsep=3pt, topsep=3pt, parsep=0pt]
 
 \item \textbf{Attested identity (L1/L2).} The agent's workload proves itself with a signed attestation document; selectors are derived from that evidence and the matching registration entry under default-deny, and the platform, not the caller, fixes the agent's type, tenant, and scopes. The result is a short-lived SPIFFE credential, a JWT-SVID signed with EdDSA (Ed25519) under per-customer keys, optionally carrying a Biscuit capability token that verifies offline and can be attenuated without contacting the issuer, sender-constrained by proof-of-possession. The adapter \code{authority\_binding.py} normalizes this into the authority context used by every later check.
 
-\item \textbf{Session capability lease.} From the user's original request, captured before any retrieved document or tool output can bias it, AgentAuth derives the tools and target entities the task legitimately needs and confines the session to them. Names are resolved against the tenant directory, and groups expand along membership edges under a bounded closure. A write to a tool or entity outside the lease is refused even with otherwise valid credentials, which closes connector substitution and misdirected injection.
+\item \textbf{Session capability lease.} From the user's original request, captured before any retrieved document or tool output can bias it, Clay Seal derives the tools and target entities the task legitimately needs and confines the session to them. Names are resolved against the tenant directory, and groups expand along membership edges under a bounded closure. A write to a tool or entity outside the lease is refused even with otherwise valid credentials, which closes connector substitution and misdirected injection.
 
 \item \textbf{Commit-token binding and policy governor.} Before a governed write, the control plane issues a single-use, Ed25519-signed token bound to the tool, the SHA-256 hash of the canonical-JSON arguments, the tenant, the authority, and the query id. The gateway re-derives that hash at the execution boundary and rejects any mismatch, so an approval is exact to its payload and cannot be replayed. Alongside it, a policy governor sets each tool's obligation: commit token sufficient, human step-up also required, or denied outright.
 
@@ -35,7 +35,7 @@ AgentAuth enforces authorization on an agent's tool calls and produces a cryptog
 
 \item \textbf{Behavior monitoring.} A per-session monitor extracts action features, such as a side-effecting call after a read-only stretch or off-scope references, scores each call for how unusual it is in context, and attaches the score to the receipt as evidence.
 
-\item \textbf{Verifiable receipt.} Each decision is appended to an RFC~6962 Merkle log. The receipt is a COSE\_Sign1 SCITT signed statement plus a COSE receipt that carries an RFC~9162 Merkle inclusion proof against the log, in C2SP checkpoint format, with a witness cosigning quorum over the log's consistency. A third party can verify what the agent did and that it was authorized, offline, without trusting AgentAuth.
+\item \textbf{Verifiable receipt.} Each decision is appended to an RFC~6962 Merkle log. The receipt is a COSE\_Sign1 SCITT signed statement plus a COSE receipt that carries an RFC~9162 Merkle inclusion proof against the log, in C2SP checkpoint format, with a witness cosigning quorum over the log's consistency. A third party can verify what the agent did and that it was authorized, offline, without trusting Clay Seal.
 
 \end{enumerate}
 

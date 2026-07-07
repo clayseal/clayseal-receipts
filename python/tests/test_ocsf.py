@@ -67,7 +67,7 @@ def _assert_base_event(event: dict, class_uid: int) -> None:
     metadata = event["metadata"]
     assert metadata["version"] == OCSF_SCHEMA_VERSION
     assert metadata["profiles"] == ["ai_operation"]
-    assert metadata["product"]["vendor_name"] == "AgentAuth"
+    assert metadata["product"]["vendor_name"] == "Clay Seal"
 
 
 def test_api_activity_maps_action_and_actor(bundle):
@@ -133,7 +133,7 @@ def test_exporter_posts_events(denied_bundle):
             return R()
 
     client = _Client()
-    result = OcsfExporter(endpoint="https://siem.example/ocsf", client=client).export(
+    result = OcsfExporter(endpoint="https://8.8.8.8/ocsf", client=client).export(
         denied_bundle
     )
     assert result["delivered"] is True

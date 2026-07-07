@@ -637,7 +637,7 @@ When you start an item, change it to `[>]` and add an owner note, for example:
 
 ---
 
-## Mapping to existing Agent Receipts implementation (so we can test now)
+## Mapping to existing Clay Seal Receipts implementation (so we can test now)
 
 This repo already contains key pieces of the *enforcement* and *monitoring* layers. The “repo
 indexing / retrieval / graph PageRank” parts are new work, but we can already run a redteaming-style
@@ -696,14 +696,14 @@ The harness is a JSONL-driven scenario runner that exercises the MCP broker path
 Run:
 
 ```bash
-cd /Users/pberlizov/Documents/GitHub/agent-receipts-main
+cd /Users/pberlizov/Documents/GitHub/clay-seal-receipts-main
 pytest -q python/tests/test_devin_redteaming_backlog.py
 ```
 
 Target a single case:
 
 ```bash
-cd /Users/pberlizov/Documents/GitHub/agent-receipts-main
+cd /Users/pberlizov/Documents/GitHub/clay-seal-receipts-main
 pytest -q python/tests/test_devin_redteaming_backlog.py -k poisoned_tool_output_attempts_transfer_without_commit
 ```
 

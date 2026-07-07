@@ -1,6 +1,6 @@
 # MCP integration
 
-Agent Receipts wraps [Model Context Protocol](https://modelcontextprotocol.io/) tool calls with the same audit chain and `ExecutionProof` envelope used for agent runs.
+Clay Seal Receipts wraps [Model Context Protocol](https://modelcontextprotocol.io/) tool calls with the same audit chain and `ExecutionProof` envelope used for agent runs.
 
 ## Components
 

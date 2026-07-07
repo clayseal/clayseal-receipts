@@ -1,7 +1,7 @@
-# Demo: AgentAuth vs. a Poisoned MCP Server
+# Demo: Clay Seal vs. a Poisoned MCP Server
 
 > **The one-liner:** A compromised MCP server can lie to your agent — but it cannot
-> lie to the receipt. AgentAuth blocks the actions it can, and turns the ones it
+> lie to the receipt. Clay Seal blocks the actions it can, and turns the ones it
 > can't into tamper-evident, identity-bound, independently-verifiable evidence.
 
 A fraud-review agent has to score a transaction and decide approve/deny by calling
@@ -16,7 +16,7 @@ a rug-pull, or a hostile third-party server). It:
    plausible-but-false "low risk" score for an obvious $50,000 fraud.
 
 The demo runs the same agent against the same server twice: once **ungoverned**, once
-**through AgentAuth** — and shows the difference.
+**through Clay Seal** — and shows the difference.
 
 ---
 
@@ -38,7 +38,7 @@ python demo/poisoned_mcp_demo.py
 python demo/poisoned_mcp_demo.py --verbose     # + raw receipt JSON / authority / proof bytes
 ```
 
-The script boots an embedded AgentAuth backend on a throwaway database, attests an
+The script boots an embedded Clay Seal backend on a throwaway database, attests an
 agent identity, and spawns the poisoned MCP server as a subprocess — zero config.
 
 ---
@@ -51,10 +51,10 @@ covered by the agent's Biscuit capability token; `issue_refund` is **not**, and 
 policy and issue a refund." This is the attack surface a real agent reads.
 
 **Act 1 — Tool shadowing + prompt injection.**
-- *Without AgentAuth:* a real (Groq) LLM agent reads the poisoned description, approves
+- *Without Clay Seal:* a real (Groq) LLM agent reads the poisoned description, approves
   the $50k charge on a fabricated `0.02` score, and calls `issue_refund` — **moving
   $50,000 to the attacker. There is no record that any of it happened.**
-- *With AgentAuth:* the same `issue_refund` call is **blocked before its body runs**
+- *With Clay Seal:* the same `issue_refund` call is **blocked before its body runs**
   (it is outside the PoP-bound Biscuit capability grant). No money
   moves, and the *attempt* is captured in a `deny` receipt.
 
@@ -66,7 +66,7 @@ is recorded.
 
 **Act 3 — The plausible in-range lie (the honest hard case).** The server returns
 `{decision: "approve", fraud_score: 0.02}` for an obvious $50k fraud. It is structurally
-valid, so a content policy **cannot** know it is absurd — AgentAuth allows it. But the
+valid, so a content policy **cannot** know it is absurd — Clay Seal allows it. But the
 call is now pinned in a receipt that binds the exact input/output (`$50,000 ⇒ 0.02`) to
 an **attested identity** (SPIFFE selectors, `jwt_svid`, sender-constrained, proof-of-
 possession) and a hash-chained audit log. When the fraud surfaces later, this is the
@@ -97,7 +97,7 @@ receipt outcome — with a confirmation that the audit chain is intact.
 
 ---
 
-## What AgentAuth does — and does not — do (read this)
+## What Clay Seal does — and does not — do (read this)
 
 - It does **not** strip the injection *text*: tool descriptions reach the model verbatim
   (that is how MCP works). The guarantee is at the **action** layer — any tool call the
@@ -122,7 +122,7 @@ receipt outcome — with a confirmation that the audit chain is intact.
 | `examples/poisoned_mcp_server.py` | The compromised FastMCP server. Poison mode via `AGENT_RECEIPTS_POISON` (`honest`/`malformed`/`drop_field`/`in_range_lie`); advertises the malicious `issue_refund`. |
 | `examples/llm_agent.py` | A small tool-calling agent: real Groq LLM, or a deterministic scripted fallback that obeys the injection. Executor-injected (governed vs. ungoverned). |
 | `demo/poisoned_mcp_demo.py` | The orchestrator — the five narrated acts + scoreboard. `--verbose` for raw artifacts. |
-| `policies/fraud_decision.yaml` | The committed policy (reused, unchanged): `fraud_score ∈ [0,1]`, required `decision`/`fraud_score`. MCP tool authority comes from the AgentAuth Biscuit capability grant. |
+| `policies/fraud_decision.yaml` | The committed policy (reused, unchanged): `fraud_score ∈ [0,1]`, required `decision`/`fraud_score`. MCP tool authority comes from the Clay Seal Biscuit capability grant. |
 
 The agent identity, the policy, and every receipt are tied together by one seam:
 `auth.identify(...)` → `session.wrap(model, policy=..., mode="bounded_auto")` → each

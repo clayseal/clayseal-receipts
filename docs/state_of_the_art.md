@@ -4,7 +4,7 @@
 
 ## Purpose
 
-[landscape_research.md](landscape_research.md) maps the **identity / authorization / policy (L1–L3)** market — who is acting, what they may do, which PDP decides. This document covers the part that is Agent Receipts' actual technical moat: the **cryptographic evidence plane (L4)** — *proving what actually happened*. It assesses the state of the art for each primitive we depend on, places our current implementation against it, and proposes concrete improvements.
+[landscape_research.md](landscape_research.md) maps the **identity / authorization / policy (L1–L3)** market — who is acting, what they may do, which PDP decides. This document covers the part that is Clay Seal Receipts' actual technical moat: the **cryptographic evidence plane (L4)** — *proving what actually happened*. It assesses the state of the art for each primitive we depend on, places our current implementation against it, and proposes concrete improvements.
 
 We are building, in the literature's emerging vocabulary, a **"sovereignty kernel" / verifiable agent execution layer**: cryptographic receipts that bind an agent's action to an authorized model, a committed policy, and a tamper-evident history. As of mid-2026 this is a *named, academically-articulated category* (see [Right to History](#a-direct-comparables-closest-systems-to-ours)) but has **no dominant production implementation** — the opportunity is real and still open.
 

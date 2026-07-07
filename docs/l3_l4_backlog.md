@@ -1,12 +1,12 @@
 # L3/L4 Backlog
 
-This backlog covers the lower layers that belong inside `agent-receipts`, starting from **L4 evidence/receipts** and then moving down into **L3 decision semantics and stateful authority context**.
+This backlog covers the lower layers that belong inside `clay-seal-receipts`, starting from **L4 evidence/receipts** and then moving down into **L3 decision semantics and stateful authority context**.
 
 This document is intentionally detailed. It is meant to guide implementation sequencing, scoping decisions, and division of responsibility with any partner or collaborator working on upper-layer identity and delegation primitives.
 
 ## Scope
 
-This backlog is for work that belongs inside `agent-receipts`.
+This backlog is for work that belongs inside `clay-seal-receipts`.
 
 It **does** include:
 
@@ -131,7 +131,7 @@ For active items, include an owner note inline, for example:
 
 ### Roadmap M1: Required-field constraints in-circuit `[x]`
 
-Halo2 circuit **`policy_range_v3`** in `crates/agent-receipts-policy-circuit`:
+Halo2 circuit **`policy_range_v3`** in `crates/clay-seal-receipts-policy-circuit`:
 
 - Proves numeric range + output/policy binding + required-field presence bitmask (up to 8 fields)
 - Envelope fields: `required_fields`, `public_inputs[3]` = `required_presence_mask`
@@ -180,7 +180,7 @@ Goal:
 
 Tasks:
 
-- Define an internal schema note for `agent-receipts.receipt-bundle.v2`
+- Define an internal schema note for `clay-seal-receipts.receipt-bundle.v2`
 - Keep v1 loading support
 - Add explicit `decision` block as a required section
 - Add explicit `authority` block as a required section

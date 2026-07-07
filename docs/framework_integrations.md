@@ -1,6 +1,6 @@
 # Framework Integrations
 
-AgentAuth receipts are intentionally framework-neutral. The core runtime wraps a
+Clay Seal receipts are intentionally framework-neutral. The core runtime wraps a
 callable and records an execution receipt; optional adapters make that callable
 shape fit common agent frameworks without adding hard dependencies to the base
 package.
@@ -14,7 +14,7 @@ The stack is designed so each layer can be used independently:
   capabilities or receipts.
 - **L2 only:** `agentauth.capabilities.identity_adapters` and
   `agentauth.capabilities.layer` normalize external identity claims and register
-  capability-layer implementations without installing the AgentAuth identity
+  capability-layer implementations without installing the Clay Seal identity
   server/client package. `agentauth.capabilities.authorizers` also adapts
   OPA/Rego, Cedar, OpenFGA, or other external decision engines into the same
   provider-neutral capability-authorizer shape.
@@ -118,7 +118,7 @@ tool = receipted_tool(
 ## External L2 Authorizers
 
 Use the capabilities package directly when a deployment already has policy
-infrastructure and only needs AgentAuth's provider-neutral L2 contract:
+infrastructure and only needs Clay Seal's provider-neutral L2 contract:
 
 ```python
 from agentauth.capabilities.authorizers import opa_authorizer, openfga_authorizer
@@ -138,7 +138,7 @@ openfga = openfga_authorizer(
 
 These return `CapabilityAuthorizer` callables that can be attached to an
 `IdentitySession` or passed through an identity-provider adapter without pulling
-in native AgentAuth L1 or L3.
+in native Clay Seal L1 or L3.
 
 ## Returning Receipt Metadata
 
@@ -213,7 +213,7 @@ tool = receipted_function_tool(
     score_transaction,
     policy,
     name="score_transaction",
-    description="Score a transaction under AgentAuth receipt policy.",
+    description="Score a transaction under Clay Seal receipt policy.",
     mode="shadow",
     audit_db=".audit/chain.sqlite",
 )
@@ -239,7 +239,7 @@ tool = receipted_tool(
 ```
 
 The helper applies CrewAI's `@tool` decorator after wrapping the callable with
-AgentAuth receipts.
+Clay Seal receipts.
 
 ## OpenAI Agents SDK
 
@@ -258,7 +258,7 @@ tool = receipted_function_tool(
 )
 ```
 
-The helper wraps a sync function with AgentAuth receipts, then applies the Agents
+The helper wraps a sync function with Clay Seal receipts, then applies the Agents
 SDK `function_tool` decorator. Pass SDK options such as `name_override` or
 `description_override` through `function_tool_kwargs`.
 
@@ -274,7 +274,7 @@ tool = receipted_kernel_function(
     score_transaction,
     policy,
     name="score_transaction",
-    description="Score a transaction under AgentAuth receipt policy.",
+    description="Score a transaction under Clay Seal receipt policy.",
     mode="shadow",
     audit_db=".audit/chain.sqlite",
 )
@@ -295,7 +295,7 @@ tool = receipted_function_tool(
     score_transaction,
     policy,
     name="score_transaction",
-    description="Score a transaction under AgentAuth receipt policy.",
+    description="Score a transaction under Clay Seal receipt policy.",
     mode="shadow",
     audit_db=".audit/chain.sqlite",
 )
@@ -316,7 +316,7 @@ tool = receipted_tool(
     score_transaction,
     policy,
     name="score_transaction",
-    description="Score a transaction under AgentAuth receipt policy.",
+    description="Score a transaction under Clay Seal receipt policy.",
     parameters={"type": "object", "properties": {"score": {"type": "number"}}},
     mode="shadow",
     audit_db=".audit/chain.sqlite",

@@ -1,10 +1,10 @@
 # Assurance taxonomy (SOTA-3)
 
-Agent Receipts exposes an **ordered trust scale** so evidence consumers can threshold
+Clay Seal Receipts exposes an **ordered trust scale** so evidence consumers can threshold
 verification (`require ≥ tee_attested`) and map receipts onto standard attestation
 vocabulary ([RFC 9334 RATS](https://www.rfc-editor.org/info/rfc9334)).
 
-Scale identifier: `agent-receipts.trust-tier.v1`
+Scale identifier: `clay-seal-receipts.trust-tier.v1`
 
 ## Ordered tiers (low → high)
 
@@ -36,7 +36,7 @@ Receipt `assurance.level` is the implementation label; `assurance.tier` is the p
 
 ## RATS role mapping
 
-| Agent Receipts component | RATS role | Responsibility |
+| Clay Seal Receipts component | RATS role | Responsibility |
 |--------------------------|-----------|----------------|
 | Agent / prover runtime | **Attester** | Produce execution evidence, proofs, signed receipts |
 | `verify_receipt_bundle` / HTTP `/v1/verify` | **Verifier** | Validate proofs, signatures, schema, assurance tier |

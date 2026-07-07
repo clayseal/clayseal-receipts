@@ -2,13 +2,13 @@
 
 ## Decision
 
-Use Ed25519 for AgentAuth-issued signing paths, and keep the two-artifact model:
+Use Ed25519 for Clay Seal-issued signing paths, and keep the two-artifact model:
 
 - a sender-constrained JWT-SVID for interoperable workload identity;
 - a sender-constrained Biscuit token for attenuable capabilities and offline
   authorization.
 
-Do not use RSA for newly issued AgentAuth JWT credentials. The only remaining
+Do not use RSA for newly issued Clay Seal JWT credentials. The only remaining
 RSA path is the prototype node-attestation document, which stands in for an
 external platform attestor and should be replaced by real SPIRE/cloud/hardware
 attestation.
@@ -46,7 +46,7 @@ revocation-id deny-lists.
 If all downstream consumers become Biscuit-aware, a single Biscuit carrying
 identity facts could be simpler. If all downstream consumers only need coarse
 OAuth-style authorization, a single sender-constrained JWT access token could be
-simpler. AgentAuth keeps both because it currently targets both identity interop
+simpler. Clay Seal keeps both because it currently targets both identity interop
 and attenuable agent delegation.
 
 ## Production Requirements
