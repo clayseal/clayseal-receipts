@@ -13,7 +13,7 @@ hex.workspace = true
 thiserror.workspace = true
 chrono.workspace = true
 uuid.workspace = true
-rusqlite = { version = "0.32", features = ["bundled"] }
+rusqlite = { version = "0.40", features = ["bundled"] }
 serde_yaml = "0.9"
 
 [dev-dependencies]
