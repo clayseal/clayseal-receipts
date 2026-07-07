@@ -8,6 +8,10 @@ on:
 jobs:
   python:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -29,7 +33,7 @@ jobs:
           ref: main
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
       - name: Install stack (contracts first, optional layers, then receipts)
         run: |
           pip install "./deps/agentauth-core[dev]"
@@ -51,6 +55,10 @@ jobs:
   # no capabilities. This job is the modularity guarantee.
   core-only:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -60,7 +68,7 @@ jobs:
           ref: main
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: ${{ matrix.python-version }}
       - name: Install receipts with core only
         run: |
           pip install "./deps/agentauth-core"
@@ -85,6 +93,37 @@ jobs:
           assert isinstance(report, dict)
           print("core-only receipts flow OK")
           PY
+
+  strict-verification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: pberlizov/agentauth-core
+          path: deps/agentauth-core
+          ref: main
+      - uses: actions/checkout@v4
+        with:
+          repository: pberlizov/agentauth-identity
+          path: deps/agentauth-identity
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install strict verification stack
+        run: |
+          pip install "./deps/agentauth-core[dev]"
+          pip install "./deps/agentauth-identity"
+          pip install -e ".[server,verifier]" pytest
+      - name: Signed certificate/envelope + L1 + mock TEE release gate
+        run: |
+          python benchmarks/run.py \
+            --suite synthetic_assurance \
+            --with-identity \
+            --attach-mock-tee \
+            --require-verify \
+            --results-dir benchmarks/results/ci_strict_assurance
 
   rust:
     runs-on: ubuntu-latest

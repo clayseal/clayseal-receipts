@@ -187,8 +187,11 @@ class ReceiptedMcpGateway:
         commit_ttl_seconds: int = 300,
         monitor_trace_window: int = 8,
         resource_ref_resolvers: dict[str, Any] | None = None,
+        used_token_store: Any | None = None,
     ) -> None:
+        from agentauth.capabilities.used_token_store import default_used_token_store
         from agentauth.receipts.behavior_monitor import NullBehaviorMonitor
+        from agentauth.receipts.environment import is_production
         from agentauth.receipts.sandbox_governor import NullSandboxGovernor
 
         self.agent = agent
@@ -222,7 +225,14 @@ class ReceiptedMcpGateway:
             self._authority = AuthorityContext.from_dict(authority)
         self._commit_signing_key = commit_signing_key
         self._commit_ttl_seconds = int(commit_ttl_seconds)
-        self._used_commit_tokens: set[str] = set()
+        self._used_token_store = (
+            used_token_store if used_token_store is not None else default_used_token_store()
+        )
+        if is_production() and self._used_token_store is None:
+            raise RuntimeError(
+                "production MCP gateway requires a distributed commit-token replay store; "
+                "set AGENTAUTH_COMMIT_TOKEN_REDIS_URL or AGENTAUTH_COMMIT_TOKEN_STORE"
+            )
         self._monitor_trace_window = int(monitor_trace_window)
         self._monitor_trace: list[Any] = []
         self._resource_ref_resolvers = dict(resource_ref_resolvers or {})
@@ -707,8 +717,7 @@ class ReceiptedMcpGateway:
                 session_id=self.session_id,
                 resource_scope=self.agent.compiled_resource_scope or None,
             )
-            if bound.resource_scope and not authority.resource_scope:
-                authority.resource_scope = list(bound.resource_scope)
+            authority = bound
         elif self.agent.compiled_resource_scope and not authority.resource_scope:
             authority.resource_scope = list(self.agent.compiled_resource_scope)
 
@@ -877,15 +886,14 @@ class ReceiptedMcpGateway:
                 merged = [*merged, "sandbox: invalid commit token encoding"]
                 blocked = True
             else:
-                ok, reason = verify_commit_token(signed_commit, ctx=execution_context)
+                ok, reason = verify_commit_token(
+                    signed_commit,
+                    ctx=execution_context,
+                    used_token_store=self._used_token_store,
+                )
                 if not ok:
                     merged = [*merged, f"sandbox: invalid commit token ({reason})"]
                     blocked = True
-                elif signed_commit.token.token_id in self._used_commit_tokens:
-                    merged = [*merged, "sandbox: commit token replay detected"]
-                    blocked = True
-                else:
-                    self._used_commit_tokens.add(signed_commit.token.token_id)
 
         if blocked and governor.is_blocking():
             return merged, governor

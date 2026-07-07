@@ -162,6 +162,11 @@ class AgentWrapper:
         # Fail closed before any state is created if a production process has a
         # soundness escape hatch set (defaults are safe; this just forbids them).
         enforce_production_soundness()
+        if is_production() and mode == "shadow":
+            raise RuntimeError(
+                "AGENT_RECEIPTS_ENV=production refuses shadow mode; use recommend, "
+                "bounded_auto, or prove with an explicit AgentCertificate"
+            )
         self.model = model
         self.policy = policy
         # Identity bound into every receipt unless a per-run binding overrides it.

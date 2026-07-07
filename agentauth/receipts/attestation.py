@@ -114,7 +114,23 @@ class EatJwtAttestationVerifier:
                     return jwt.PyJWK(entry).key
             raise ValueError(f"no JWKS key matches kid {kid!r}")
         if self.jwks_url:
-            return jwt.PyJWKClient(self.jwks_url).get_signing_key_from_jwt(token).key
+            from agentauth.core.safe_http import safe_http_get_json
+
+            jwks = safe_http_get_json(self.jwks_url, timeout=10.0)
+            header = jwt.get_unverified_header(token)
+            kid = header.get("kid")
+            keys = jwks.get("keys", [])
+            if kid is None:
+                if len(keys) == 1:
+                    return jwt.PyJWK(keys[0]).key
+                raise ValueError(
+                    "token has no 'kid' and the JWKS has multiple keys; cannot select "
+                    "a signing key unambiguously"
+                )
+            for entry in keys:
+                if entry.get("kid") == kid:
+                    return jwt.PyJWK(entry).key
+            raise ValueError(f"no JWKS key matches kid {kid!r}")
         raise ValueError(
             "eat_jwt verifier has no key source: pass context['public_key'] / "
             f"context['jwks'] or configure {JWKS_URL_ENV}"
@@ -147,6 +163,14 @@ class EatJwtAttestationVerifier:
                 f"must pin an issuer ({ISSUER_ENV}); otherwise it would accept tokens "
                 "from any signer in that key set."
             )
+        if uses_remote_jwks and not self.audience:
+            from agentauth.core.production import is_production
+
+            if is_production():
+                raise ValueError(
+                    f"eat_jwt verifier resolving keys from a remote JWKS ({JWKS_URL_ENV}) "
+                    f"must pin an audience ({AUDIENCE_ENV}) in production"
+                )
 
         key = self._resolve_key(token, context)
         options = {"verify_aud": self.audience is not None}

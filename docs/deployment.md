@@ -44,7 +44,7 @@ For the HTTP verifier, also confirm `curl /ready` returns `"ready": true`.
 | Stable agent identity | `persist_certificate` in partner YAML |
 | Config validation | `strict: true` + `arctl preflight --strict` |
 | Receipt authenticity | Configure `AGENT_RECEIPTS_TRUSTED_SIGNER_PUBLIC_KEYS` or `_KEY_IDS`; unsigned bundles fail verification by default |
-| Certificate issuer trust | Configure `AGENT_RECEIPTS_TRUSTED_CERTIFICATE_ISSUER_PUBLIC_KEYS` or `_KEY_IDS`; unsigned certs require the dev override below |
+| Certificate issuer trust | Set `AGENT_RECEIPTS_CERTIFICATE_ISSUER_KEY_PATH` on producers so generated partner certs are signed, and configure verifiers with `AGENT_RECEIPTS_TRUSTED_CERTIFICATE_ISSUER_PUBLIC_KEYS` or `_KEY_IDS`; unsigned certs require the dev override below |
 | Key encryption at rest | Non-SQLite identity DBs require `AGENTAUTH_SECRET_ENCRYPTION_PROVIDER`; plaintext keys are refused once encryption is enabled. Receipt signing keys honor `AGENT_RECEIPTS_REQUIRE_KEY_ENCRYPTION=1` (refuse to create an unencrypted on-disk key) |
 | Prover honesty | `prove` / proof-enabled `bounded_auto` fail if a requested prover returns no proof; stubs are off unless explicitly enabled |
 | Production guardrail | `AGENT_RECEIPTS_ENV=production` refuses to start when any soundness escape hatch is set (`AGENT_RECEIPTS_ALLOW_STUB`, `ALLOW_UNSIGNED_CERTIFICATE`, `ALLOW_UNSIGNED_CHECKPOINT`, `REQUIRE_BUNDLE_SIGNATURES=0`), implies `REQUIRE_PROVER`, forces strict config, and blocks the silent `FULL_ZK→SHADOW` downgrade |
@@ -120,6 +120,10 @@ hash chains and N Merkle roots. Two knobs make this safe and explicit:
   key and one `key_id`, instead of auto-generating a fresh key per container.
   `AGENT_RECEIPTS_REQUIRE_STABLE_SIGNER=1` (implied in production) refuses to start
   without it.
+- **Stable certificate issuer** — set `AGENT_RECEIPTS_CERTIFICATE_ISSUER_KEY_PATH`
+  anywhere partner certificates are created. Verifiers should pin the issuer public
+  key or `key_id` with `AGENT_RECEIPTS_TRUSTED_CERTIFICATE_ISSUER_PUBLIC_KEYS` or
+  `_KEY_IDS`.
 
 ### Verifier scaling
 

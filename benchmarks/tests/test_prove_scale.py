@@ -20,6 +20,7 @@ def _allow_stub(monkeypatch):
 
 
 @pytest.mark.requires_ulb
+@pytest.mark.requires_prover
 def test_prove_mode_ulb_limit_10():
     report = run_benchmarks(
         suites=["ulb_fraud"],

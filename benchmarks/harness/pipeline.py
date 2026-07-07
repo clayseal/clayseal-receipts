@@ -1,15 +1,23 @@
 from __future__ import annotations
 
 import json
+import os
 import tempfile
 import time
 import traceback
 import uuid
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
 from agentauth.receipts import AgentWrapper, Policy
+from agentauth.core.signing import SigningKey, sign_bundle
+from agentauth.receipts.certificate import (
+    AgentCertificate,
+    certificate_ref_hash,
+    sign_certificate,
+)
 from agentauth.receipts.export import build_receipt_bundle, verify_receipt_bundle
 from agentauth.receipts.inference import InferenceBackend
 from agentauth.receipts.mcp import ToolCallResult
@@ -51,10 +59,20 @@ class BenchmarkPipeline:
         self._audit_path = str(Path(self._tmpdir) / "audit.sqlite")
         self._identity: dict[str, Any] | None = None
         self._audit_signing_key = None
+        self._bundle_signing_key: SigningKey | None = None
+        self._certificate_issuer_key: SigningKey | None = None
+        self._strict_export_signing = (
+            self.config.require_verify
+            or self.config.attach_mock_tee
+            or self.config.mode == "prove"
+        )
         if self.config.export_receipts:
             from agentauth.core.signing import generate_keypair
 
             self._audit_signing_key = generate_keypair()
+            if self._strict_export_signing:
+                self._bundle_signing_key = generate_keypair()
+                self._certificate_issuer_key = generate_keypair()
         if self.config.with_identity:
             self._identity = self._bootstrap_identity()
 
@@ -77,6 +95,7 @@ class BenchmarkPipeline:
             self.policy,
             model_hash=model_hash,
         )
+        certificate = self._sign_certificate_for_export(certificate)
         audit_path = (
             self._audit_path
             if self.config.shared_audit_db
@@ -99,6 +118,49 @@ class BenchmarkPipeline:
         if self._audit_signing_key is not None:
             agent.audit.signing_key = self._audit_signing_key
         return agent
+
+    def _sign_certificate_for_export(self, certificate: AgentCertificate) -> AgentCertificate:
+        if self._certificate_issuer_key is None or certificate.issuer_signature is not None:
+            return certificate
+        return sign_certificate(certificate, self._certificate_issuer_key)
+
+    def _prepare_certificate_for_export(
+        self,
+        run_result: RunResult,
+        agent: AgentWrapper,
+    ) -> AgentCertificate:
+        certificate = self._sign_certificate_for_export(agent.certificate)
+        agent.certificate = certificate
+        expected_ref = certificate_ref_hash(certificate)
+        if run_result.proof.certificate_ref != expected_ref:
+            run_result.proof.certificate_ref = expected_ref
+            if run_result.audit_record is not None:
+                # The proof hash feeds the audit record; changing certificate_ref after
+                # execution would otherwise leave a stale inclusion claim.
+                run_result.audit_record = None
+        return certificate
+
+    @contextmanager
+    def _strict_verification_trust_env(self):
+        keys: dict[str, str] = {}
+        if self._bundle_signing_key is not None:
+            keys["AGENT_RECEIPTS_TRUSTED_SIGNER_PUBLIC_KEYS"] = (
+                self._bundle_signing_key.public_key_hex
+            )
+        if self._certificate_issuer_key is not None:
+            keys["AGENT_RECEIPTS_TRUSTED_CERTIFICATE_ISSUER_PUBLIC_KEYS"] = (
+                self._certificate_issuer_key.public_key_hex
+            )
+        previous = {key: os.environ.get(key) for key in keys}
+        os.environ.update(keys)
+        try:
+            yield
+        finally:
+            for key, value in previous.items():
+                if value is None:
+                    os.environ.pop(key, None)
+                else:
+                    os.environ[key] = value
 
     @staticmethod
     def _attach_mock_tee(run_result: RunResult, agent: AgentWrapper) -> None:
@@ -218,24 +280,31 @@ class BenchmarkPipeline:
         if self.config.export_receipts and run_result is not None:
             if self.config.attach_mock_tee:
                 self._attach_mock_tee(run_result, agent)
+            certificate = self._prepare_certificate_for_export(run_result, agent)
+            identity = outcome.get("identity") or outcome.get("identity_section")
+            if identity is None and self._identity:
+                identity = self._identity.get("identity_section")
             bundle = build_receipt_bundle(
                 run_result,
-                certificate=agent.certificate,
+                certificate=certificate,
                 policy=self.policy,
                 policy_path=REPO_POLICIES / "fraud_decision.yaml"
                 if self.policy.name == "fraud_decision"
                 else None,
                 context=outcome.get("export_context"),
-                identity=self._identity.get("identity_section") if self._identity else None,
+                identity=identity,
                 audit_chain=agent.audit,
             )
+            if self._bundle_signing_key is not None:
+                sign_bundle(bundle, self._bundle_signing_key, role="benchmark-harness")
             if self.config.results_dir:
                 receipt_path = self.config.results_dir / f"{case.suite}_{case.case_id}.json"
                 receipt_path.parent.mkdir(parents=True, exist_ok=True)
                 receipt_path.write_text(json.dumps(bundle, indent=2))
                 extra_metadata["receipt_path"] = str(receipt_path)
             export_ok = True
-            check = verify_receipt_bundle(bundle)
+            with self._strict_verification_trust_env():
+                check = verify_receipt_bundle(bundle)
             verify_valid = bool(check.get("valid"))
             verify_reasons = list(check.get("reasons") or [])
             if self.config.with_identity:

@@ -173,7 +173,6 @@ include = [
 # Identity backend/SDK and capability units are tested in their own repos.
 testpaths = ["python/tests", "sdk/python/tests", "benchmarks/tests"]
 pythonpath = ["."]
-asyncio_mode = "auto"
 
 [tool.coverage.run]
 # Measure the installed package, with branch coverage so we catch untaken

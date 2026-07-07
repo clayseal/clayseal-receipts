@@ -11,6 +11,15 @@ import pytest
 from agentauth.receipts import environment as env
 
 
+def _configure_production_baseline(monkeypatch) -> None:
+    """Minimum env for production startup checks added in agentauth-core 0.5+."""
+    monkeypatch.setenv(
+        "AGENT_RECEIPTS_TRUSTED_SIGNER_PUBLIC_KEYS",
+        "a336f3cb3b2d1199b62fd727ed122f580b1d613b9b2934a67e9a9b74432c9160",
+    )
+    monkeypatch.setenv("AGENTAUTH_HTTP_ALLOWED_HOSTS", "example.com")
+
+
 # --------------------------------------------------------------------------- #
 # Fix #5: production soundness deny-list
 # --------------------------------------------------------------------------- #
@@ -218,6 +227,7 @@ def test_transparency_register_blocked_in_production_without_single_writer(monke
 
     vs._reset_transparency_service()
     monkeypatch.setenv("AGENT_RECEIPTS_ENV", "production")
+    _configure_production_baseline(monkeypatch)
     monkeypatch.delenv("AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER", raising=False)
     monkeypatch.setenv("AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER", "")
     client = TestClient(vs.create_app())
@@ -231,6 +241,7 @@ def test_transparency_register_allowed_with_single_writer_flag(monkeypatch):
 
     vs._reset_transparency_service()
     monkeypatch.setenv("AGENT_RECEIPTS_ENV", "production")
+    _configure_production_baseline(monkeypatch)
     monkeypatch.setenv("AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER", "1")
     client = TestClient(vs.create_app())
     r = client.post("/entries", content=_statement(), headers={"Content-Type": scrapi.MEDIA_COSE})

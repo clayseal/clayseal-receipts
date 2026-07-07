@@ -4,9 +4,13 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from agentauth.receipts import AgentWrapper, Policy
 from agentauth.receipts.certificate import (
     dev_certificate,
+    load_managed_certificate_issuer_key,
+    load_or_create_partner_certificate,
     sign_certificate,
     verify_certificate_issuer,
 )
@@ -23,6 +27,41 @@ def test_sign_certificate_roundtrip():
     key = generate_keypair()
     signed = sign_certificate(cert, key)
     assert verify_certificate_issuer(signed) == []
+
+
+def test_partner_certificate_uses_managed_issuer_key(monkeypatch, tmp_path):
+    policy = Policy.from_yaml(ROOT / "policies" / "fraud_decision.yaml")
+    issuer_path = tmp_path / "issuer.key"
+    cert_path = tmp_path / "agent.cert.json"
+    monkeypatch.setenv("AGENT_RECEIPTS_CERTIFICATE_ISSUER_KEY_PATH", str(issuer_path))
+
+    cert = load_or_create_partner_certificate(
+        cert_path,
+        policy_commitment=policy.commitment(),
+        model_hash="sha256:model-dev-v1",
+        organization="acme",
+        principal_id="agent-prod",
+    )
+
+    assert cert.issuer_signature is not None
+    assert verify_certificate_issuer(cert) == []
+    assert load_or_create_partner_certificate(
+        cert_path,
+        policy_commitment=policy.commitment(),
+        model_hash="sha256:model-dev-v1",
+        organization="acme",
+        principal_id="agent-prod",
+    ).issuer_signature == cert.issuer_signature
+
+
+def test_managed_certificate_issuer_requires_encryption_when_configured(monkeypatch, tmp_path):
+    issuer_path = tmp_path / "issuer.key"
+    monkeypatch.setenv("AGENT_RECEIPTS_CERTIFICATE_ISSUER_KEY_PATH", str(issuer_path))
+    monkeypatch.setenv("AGENT_RECEIPTS_REQUIRE_KEY_ENCRYPTION", "1")
+    monkeypatch.delenv("AGENT_RECEIPTS_SIGNING_KEY_PASSWORD", raising=False)
+
+    with pytest.raises(ValueError, match="refusing to create unencrypted signing key"):
+        load_managed_certificate_issuer_key()
 
 
 def test_unsigned_certificate_rejected_by_default(monkeypatch):

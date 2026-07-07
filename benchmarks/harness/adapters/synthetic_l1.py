@@ -79,7 +79,7 @@ def _l1_jwt_tampered_invalid(spec: dict) -> BenchmarkCase:
         client, session = issue_session("l1-jwt-tamper", agent_type="l1-test", owner="l1@bench")
         run_result, bundle = export_identity_receipt(agent, client=client, session=session)
         token = (bundle.get("identity") or {}).get("jwt_svid") or ""
-        tampered_token = token[:-1] + ("a" if token[-1:] != "a" else "b")
+        tampered_token = token[:-6] + ("AAAAAA" if token[-6:] != "AAAAAA" else "BBBBBB")
         mutated = tamper_bundle(bundle, path="identity.jwt_svid", value=tampered_token)
         check = verify_bundle(mutated)
         observed = "verify_invalid" if not check.get("valid") else "verify_unexpected_pass"

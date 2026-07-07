@@ -69,10 +69,16 @@ def fetch_external_context(
         violations.append(f"context host {host!r} not in allowed_hosts")
 
     try:
-        request = urllib.request.Request(url, headers={"Accept": "text/plain, text/markdown"})
-        with urllib.request.urlopen(request, timeout=timeout) as response:
-            body = response.read().decode("utf-8", errors="replace")
-    except (urllib.error.URLError, TimeoutError) as exc:
+        from agentauth.core.safe_http import safe_urlopen, validate_outbound_url
+
+        validate_outbound_url(url, allowed_hosts=cfg.allowed_hosts or None)
+        body = safe_urlopen(
+            url,
+            timeout=timeout,
+            headers={"Accept": "text/plain, text/markdown"},
+            allowed_hosts=cfg.allowed_hosts or None,
+        ).decode("utf-8", errors="replace")
+    except Exception as exc:
         violations.append(f"context fetch failed: {exc}")
         body = ""
 

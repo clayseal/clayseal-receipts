@@ -12,6 +12,7 @@ from harness.synthetic_common import synthetic_case, synthetic_meta
 from harness.synthetic_helpers import (
     allow_stub_proofs,
     export_identity_receipt,
+    identity_section_for_session,
     issue_session,
     nitro_test_root,
     tamper_bundle,
@@ -96,6 +97,7 @@ def _assurance_tee_mock_verify_valid(spec: dict) -> BenchmarkCase:
         return {
             "ok": observed == "verify_valid",
             "run_result": run_result,
+            "identity": identity_section_for_session(client, session),
             "require_audit": False,
             "metadata": _meta(
                 spec,
@@ -154,6 +156,7 @@ def _assurance_inject_output_hash_mismatch(spec: dict) -> BenchmarkCase:
         return {
             "ok": observed == "verify_invalid",
             "run_result": run_result,
+            "identity": identity_section_for_session(client, session),
             "require_audit": False,
             "metadata": _meta(
                 spec,
@@ -178,6 +181,7 @@ def _assurance_inject_identity_jwt_tamper(spec: dict) -> BenchmarkCase:
         return {
             "ok": observed == "verify_invalid",
             "run_result": run_result,
+            "identity": identity_section_for_session(client, session),
             "require_audit": False,
             "metadata": _meta(
                 spec,
@@ -205,6 +209,7 @@ def _assurance_inject_strip_execution_proof(spec: dict) -> BenchmarkCase:
         return {
             "ok": observed == "verify_invalid",
             "run_result": run_result,
+            "identity": identity_section_for_session(client, session),
             "require_audit": False,
             "metadata": _meta(
                 spec,

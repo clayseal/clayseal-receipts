@@ -93,6 +93,9 @@ def enforce_production_soundness() -> None:
             "flags set: " + ", ".join(sorted(violations)) + ". Unset these before "
             "running in production; they are for local fixtures/offline demos only."
         )
+    from agentauth.core.production import enforce_production_policy
+
+    enforce_production_policy(layer="receipts")
 
 
 def require_prover_active() -> bool:
@@ -140,7 +143,10 @@ def load_managed_signing_key(
                 "path (or KMS-provisioned file) so replicas share one key_id."
             )
         return None
-    return load_or_create_key(path)
+    return load_or_create_key(
+        path,
+        require_encryption=_env_truthy("AGENT_RECEIPTS_REQUIRE_KEY_ENCRYPTION"),
+    )
 
 
 # --------------------------------------------------------------------------- #

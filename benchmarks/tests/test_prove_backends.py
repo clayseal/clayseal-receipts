@@ -18,6 +18,7 @@ def _allow_stub(monkeypatch):
 
 
 @pytest.mark.requires_ulb
+@pytest.mark.requires_prover
 @pytest.mark.parametrize("backend", ["ezkl", "risc0", "sp1"])
 def test_prove_backend_smoke(backend: str):
     report = run_backend_smoke(backend=backend, limit=3)
@@ -30,6 +31,7 @@ def test_prove_backend_smoke(backend: str):
 
 
 @pytest.mark.requires_ulb
+@pytest.mark.requires_prover
 @pytest.mark.skipif(
     os.environ.get("EV202_FULL") != "1",
     reason="Set EV202_FULL=1 to run full backend matrix",

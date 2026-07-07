@@ -35,6 +35,7 @@ def test_identity_at_scale_ulb_and_atif():
 
 
 @pytest.mark.requires_ulb
+@pytest.mark.requires_prover
 def test_prove_mode_ulb_smoke():
     report = run_benchmarks(
         suites=["ulb_fraud"],

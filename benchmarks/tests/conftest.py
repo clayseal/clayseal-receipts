@@ -26,11 +26,24 @@ HAS_ULB = ULB_CSV.is_file()
 HAS_BFCL = BFCL_JSON.is_file()
 
 
+def _has_prover_cli() -> bool:
+    try:
+        from agentauth.receipts.prover import locate_cli
+
+        return locate_cli().available
+    except Exception:  # noqa: BLE001 - skip if the prover cannot be inspected
+        return False
+
+
+HAS_PROVER = _has_prover_cli()
+
+
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line("markers", "requires_ulb: needs ULB fraud corpus")
     config.addinivalue_line("markers", "requires_bfcl: needs BFCL corpus")
     config.addinivalue_line("markers", "requires_ulb_bfcl: needs ULB and BFCL corpora")
     config.addinivalue_line("markers", "requires_ulb_atif: needs ULB and ATIF corpora")
+    config.addinivalue_line("markers", "requires_prover: needs agent-receipts prover CLI")
 
 
 def pytest_runtest_setup(item: pytest.Item) -> None:
@@ -42,3 +55,5 @@ def pytest_runtest_setup(item: pytest.Item) -> None:
         pytest.skip("ULB and BFCL corpora not downloaded")
     if item.get_closest_marker("requires_ulb_atif") and not (HAS_ULB and ATIF_DIR.is_dir()):
         pytest.skip("ULB and/or ATIF corpus not downloaded")
+    if item.get_closest_marker("requires_prover") and not HAS_PROVER:
+        pytest.skip("agent-receipts prover CLI not built")

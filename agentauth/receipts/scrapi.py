@@ -193,16 +193,21 @@ def publish_signed_statement(
     """
     import httpx
 
+    from agentauth.core.safe_http import validate_outbound_url
+
+    validated_base = validate_outbound_url(base_url.rstrip("/") + "/entries")
     own_client = client is None
-    http = client or httpx.Client(timeout=timeout)
+    http = client or httpx.Client(timeout=timeout, follow_redirects=False)
     request_headers = {"Content-Type": MEDIA_COSE, "Accept": MEDIA_COSE, **(headers or {})}
     try:
         response = http.post(
-            urljoin(base_url.rstrip("/") + "/", "entries"),
+            validated_base,
             content=signed_statement,
             headers=request_headers,
         )
         location = urljoin(base_url, response.headers.get("location", ""))
+        if location:
+            validate_outbound_url(location)
         if response.status_code == 201:
             return {
                 "entry_id": location.rsplit("/", 1)[-1]

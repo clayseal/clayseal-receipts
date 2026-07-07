@@ -5,7 +5,11 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from agentauth.receipts.certificate import dev_certificate, load_or_create_partner_certificate
+from agentauth.receipts.certificate import (
+    dev_certificate,
+    load_or_create_partner_certificate,
+    sign_with_managed_issuer,
+)
 from agentauth.receipts.partner_config import PartnerConfig
 from agentauth.receipts.policy import Policy
 from agentauth.receipts.wrapper import AgentWrapper
@@ -30,12 +34,14 @@ def build_agent_from_config(
             scope=["agent.run"],
         )
     else:
-        kwargs["certificate"] = dev_certificate(
-            policy.commitment(),
-            model_hash=cfg.model_provenance_hash,
-            organization=cfg.organization,
-            principal_id=cfg.principal_id,
-            scope=["agent.run"],
+        kwargs["certificate"] = sign_with_managed_issuer(
+            dev_certificate(
+                policy.commitment(),
+                model_hash=cfg.model_provenance_hash,
+                organization=cfg.organization,
+                principal_id=cfg.principal_id,
+                scope=["agent.run"],
+            )
         )
 
     return AgentWrapper(model=model, **kwargs)

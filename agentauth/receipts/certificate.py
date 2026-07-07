@@ -9,16 +9,22 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from agentauth.core.hash_util import hash_canonical_json
-from agentauth.core.signing import SigningKey, verify
+from agentauth.core.signing import SigningKey, load_or_create_key, verify
 
 TRUSTED_CERTIFICATE_ISSUER_PUBLIC_KEYS_ENV = "AGENT_RECEIPTS_TRUSTED_CERTIFICATE_ISSUER_PUBLIC_KEYS"
 TRUSTED_CERTIFICATE_ISSUER_KEY_IDS_ENV = "AGENT_RECEIPTS_TRUSTED_CERTIFICATE_ISSUER_KEY_IDS"
 ALLOW_UNSIGNED_CERTIFICATE_ENV = "AGENT_RECEIPTS_ALLOW_UNSIGNED_CERTIFICATE"
+CERTIFICATE_ISSUER_KEY_PATH_ENV = "AGENT_RECEIPTS_CERTIFICATE_ISSUER_KEY_PATH"
+REQUIRE_KEY_ENCRYPTION_ENV = "AGENT_RECEIPTS_REQUIRE_KEY_ENCRYPTION"
 
 
 def _split_env_list(name: str) -> set[str]:
     raw = os.getenv(name, "")
     return {item.strip() for item in raw.split(",") if item.strip()}
+
+
+def _env_truthy(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def trusted_certificate_issuer_policy_from_env() -> dict[str, set[str]]:
@@ -39,6 +45,33 @@ def sign_certificate(certificate: AgentCertificate, key: SigningKey) -> AgentCer
     """Return a copy of ``certificate`` with an Ed25519 issuer signature descriptor."""
     document = certificate_signing_document(certificate)
     return replace(certificate, issuer_signature=key.sign(document))
+
+
+def load_managed_certificate_issuer_key(
+    explicit_path: str | Path | None = None,
+) -> SigningKey | None:
+    """Load the configured certificate issuer key, if one is configured."""
+    path = explicit_path or os.environ.get(CERTIFICATE_ISSUER_KEY_PATH_ENV, "").strip() or None
+    if path is None:
+        return None
+    return load_or_create_key(
+        path,
+        require_encryption=_env_truthy(REQUIRE_KEY_ENCRYPTION_ENV),
+    )
+
+
+def sign_with_managed_issuer(
+    certificate: AgentCertificate,
+    *,
+    issuer_key_path: str | Path | None = None,
+) -> AgentCertificate:
+    """Sign ``certificate`` with the configured issuer key when available."""
+    if certificate.issuer_signature is not None:
+        return certificate
+    key = load_managed_certificate_issuer_key(issuer_key_path)
+    if key is None:
+        return certificate
+    return sign_certificate(certificate, key)
 
 
 def verify_certificate_issuer(certificate: AgentCertificate) -> list[str]:
@@ -159,6 +192,7 @@ def load_or_create_partner_certificate(
     principal_id: str,
     scope: list[str] | None = None,
     days_valid: int = 90,
+    issuer_key_path: str | Path | None = None,
 ) -> AgentCertificate:
     """
     Load stable agent certificate from disk, or create and persist a new one.
@@ -188,6 +222,7 @@ def load_or_create_partner_certificate(
         scope=scope,
         days_valid=days_valid,
     )
+    cert = sign_with_managed_issuer(cert, issuer_key_path=issuer_key_path)
     save_certificate(dest, cert)
     return cert
 

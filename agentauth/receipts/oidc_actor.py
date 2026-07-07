@@ -34,12 +34,19 @@ class VerifiedActorIdentity:
 
 
 def fetch_jwks(jwks_url: str, *, timeout: float = 10.0) -> dict[str, Any]:
-    request = urllib.request.Request(jwks_url, headers={"Accept": "application/json"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    if not isinstance(payload, dict) or not payload.get("keys"):
+    from agentauth.core.safe_http import safe_urlopen
+
+    payload = safe_urlopen(
+        jwks_url,
+        timeout=timeout,
+        headers={"Accept": "application/json"},
+    )
+    if not isinstance(payload, (bytes, bytearray)):
+        raise ValueError(f"JWKS at {jwks_url!r} did not return bytes")
+    parsed = json.loads(payload.decode("utf-8"))
+    if not isinstance(parsed, dict) or not parsed.get("keys"):
         raise ValueError(f"JWKS at {jwks_url!r} did not contain keys")
-    return payload
+    return parsed
 
 
 def _select_jwk(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
