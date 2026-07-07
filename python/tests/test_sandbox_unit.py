@@ -1234,3 +1234,21 @@ def test_overlay_reads_from_disk_when_no_text(sample_repo: Path) -> None:
     chunks = overlay.update_file("swe_triage/parser.py")
     assert chunks
     assert any(c.qualified_name == "parse_ticket" for c in chunks)
+
+
+def test_protected_zone_traversal_cannot_bypass_containment():
+    """A resource_ref with `../` or `./` must not evade a protected-zone pattern by
+    string-matching outside it while resolving inside it."""
+    from agentauth.receipts.protected_zone_governor import ProtectedZoneGovernor
+
+    g = ProtectedZoneGovernor()
+    for ref in (
+        "repo_write://src/../auth/config",   # resolves into auth/ (protected)
+        "repo_write://./auth/config",
+        "repo_write://x/../.env.prod",       # resolves into .env* (protected)
+        "repo_write://a/b/../../keys/id_rsa",
+    ):
+        assert g._is_protected(ref) is True, ref
+    # legit non-protected files are still not protected
+    assert g._is_protected("repo_write://src/app/main.py") is False
+    assert g._is_protected("repo_read://docs/readme.md") is False

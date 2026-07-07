@@ -15,6 +15,7 @@ from __future__ import annotations
 import fnmatch
 from dataclasses import dataclass
 
+from agentauth.core.path_matching import normalize_path
 from agentauth.core.runtime import ExecutionContext, SideEffectLevel
 
 from .behavior_monitor import BehaviorMonitorResult
@@ -100,10 +101,18 @@ class ProtectedZoneGovernor:
 
     @staticmethod
     def _strip_scheme(ref: str) -> str:
-        """Strip scheme to get the bare path for matching."""
+        """Strip scheme and canonicalize the path for matching.
+
+        Normalization is load-bearing: without it, `repo_write://src/../auth/config`
+        does not match a protected pattern `auth/*` (it string-starts with `src/`) yet
+        resolves into the protected zone — a containment bypass. `posixpath.normpath`
+        collapses `.`/`..`/`//` so the bare path is what it actually resolves to.
+        """
         for prefix in ("repo_write://", "repo_read://", "repo://", "file:"):
             if ref.startswith(prefix):
-                return ref[len(prefix):]
+                return normalize_path(ref[len(prefix):])
+        # Non-path schemes (net://, mcp://, …) are matched verbatim / by their own rules;
+        # don't normpath them (it would collapse the `//` in the scheme).
         return ref
 
     def _is_protected(self, resource_ref: str) -> bool:
