@@ -26,16 +26,16 @@ source "$TMP/venv/bin/activate"
 pip install -q --upgrade pip
 
 echo "==> Installing agentauth-core @ $TAG"
-pip install -q "git+https://github.com/pberlizov/agentauth-core.git@${TAG}"
+pip install -q "git+https://github.com/pberlizov/clay-seal-core.git@${TAG}"
 
 echo "==> Installing agentauth-identity @ $TAG"
-pip install -q "git+https://github.com/pberlizov/agentauth-identity.git@${TAG}"
+pip install -q "git+https://github.com/pberlizov/clay-seal-identity.git@${TAG}"
 
 echo "==> Installing agentauth-capabilities @ $TAG"
-pip install -q "git+https://github.com/pberlizov/agentauth-capabilities.git@${TAG}"
+pip install -q "git+https://github.com/pberlizov/clay-seal-capabilities.git@${TAG}"
 
 echo "==> Installing agentauth-receipts @ $TAG"
-pip install -q "git+https://github.com/pberlizov/agentauth-receipts.git@${TAG}[dev]"
+pip install -q "git+https://github.com/pberlizov/clay-seal-receipts.git@${TAG}[dev]"
 
 echo "==> Import smoke"
 python - <<'PY'

@@ -29,8 +29,8 @@ This section has three parts: **Section 1** ranks what we have today by fit to C
 
 This repo is layer 3 (receipts + verification). It depends on:
 
-- [agentauth-identity](https://github.com/pberlizov/agentauth-identity)
-- [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities)
+- [agentauth-identity](https://github.com/pberlizov/clay-seal-identity)
+- [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities)
 
 ```bash
 pip install -e ".[dev]"

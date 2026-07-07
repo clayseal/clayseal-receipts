@@ -55,8 +55,8 @@ Runtime data flow
 
 | Layer | Repo | You use it for |
 |-------|------|----------------|
-| L1 | [agentauth-identity](https://github.com/pberlizov/agentauth-identity) | Mint/verify agent credentials |
-| L2 | [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities) | Commit tokens, mandates, leases |
+| L1 | [agentauth-identity](https://github.com/pberlizov/clay-seal-identity) | Mint/verify agent credentials |
+| L2 | [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) | Commit tokens, mandates, leases |
 | L3 | **this repo** | Receipts, MCP, verify, demos |
 
 **Release rule:** tags are cut **identity → capabilities → receipts**. Pins in `pyproject.toml` reference git tags on GitHub.
@@ -68,10 +68,10 @@ Runtime data flow
 ### Production / partner (pinned tags)
 
 ```bash
-pip install "git+https://github.com/pberlizov/agentauth-core.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.5.0[partner]"
+pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clay-seal-identity.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0[partner]"
 ```
 
 The `[partner]` extra pulls server, MCP, verifier, and dev tooling.
@@ -79,7 +79,7 @@ The `[partner]` extra pulls server, MCP, verifier, and dev tooling.
 ### Local development (editable)
 
 ```bash
-git clone https://github.com/pberlizov/agentauth-receipts.git
+git clone https://github.com/pberlizov/clay-seal-receipts.git
 cd agentauth-receipts
 python -m venv .venv && source .venv/bin/activate
 
@@ -199,7 +199,7 @@ wrapper = wrap_with_identity_session(
 result = wrapper.run({"transaction_id": "t1"})
 ```
 
-Details: [capabilities cross_layer_integration.md](https://github.com/pberlizov/agentauth-capabilities/blob/main/docs/cross_layer_integration.md).
+Details: [capabilities cross_layer_integration.md](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/cross_layer_integration.md).
 
 ---
 
@@ -388,8 +388,8 @@ Current release line: **0.5.0** (`v0.5.0`).
 | Sandbox / leases | [docs/dynamic_planning.md](dynamic_planning.md) |
 | Policy syntax | [docs/policy_language.md](policy_language.md) |
 | HTTP verifier | [docs/http_verifier.md](http_verifier.md) |
-| L1 operations | [identity DEV_GUIDE](https://github.com/pberlizov/agentauth-identity/blob/main/docs/DEV_GUIDE.md) |
-| L2 / IdP adapters | [capabilities DEV_GUIDE](https://github.com/pberlizov/agentauth-capabilities/blob/main/docs/DEV_GUIDE.md) |
+| L1 operations | [identity DEV_GUIDE](https://github.com/pberlizov/clay-seal-identity/blob/main/docs/DEV_GUIDE.md) |
+| L2 / IdP adapters | [capabilities DEV_GUIDE](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md) |
 
 ---
 

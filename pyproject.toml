@@ -24,11 +24,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pberlizov/agentauth-receipts"
-Documentation = "https://github.com/pberlizov/agentauth-receipts/blob/main/docs/DEV_GUIDE.md"
-Repository = "https://github.com/pberlizov/agentauth-receipts"
-Issues = "https://github.com/pberlizov/agentauth-receipts/issues"
-Changelog = "https://github.com/pberlizov/agentauth-receipts/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/pberlizov/clay-seal-receipts"
+Documentation = "https://github.com/pberlizov/clay-seal-receipts/blob/main/docs/DEV_GUIDE.md"
+Repository = "https://github.com/pberlizov/clay-seal-receipts"
+Issues = "https://github.com/pberlizov/clay-seal-receipts/issues"
+Changelog = "https://github.com/pberlizov/clay-seal-receipts/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 # Dynamic sandbox / capability leases / task scoping enforcement (L2 features).

@@ -4,10 +4,10 @@ Design partners and production integrators should pin **git tags**, not floating
 
 Clay Seal is split into four repositories. Install and tag them **in order**:
 
-1. [agentauth-core](https://github.com/pberlizov/agentauth-core) (shared contracts + facade)
-2. [agentauth-identity](https://github.com/pberlizov/agentauth-identity) (layer 1)
-3. [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities) (layer 2)
-4. [agentauth-receipts](https://github.com/pberlizov/agentauth-receipts) (layer 3 — this repo)
+1. [agentauth-core](https://github.com/pberlizov/clay-seal-core) (shared contracts + facade)
+2. [agentauth-identity](https://github.com/pberlizov/clay-seal-identity) (layer 1)
+3. [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) (layer 2)
+4. [agentauth-receipts](https://github.com/pberlizov/clay-seal-receipts) (layer 3 — this repo)
 
 ## Current release
 
@@ -24,16 +24,16 @@ See [CHANGELOG.md](CHANGELOG.md) for changes.
 ## Partner install (pinned tags)
 
 ```bash
-pip install "git+https://github.com/pberlizov/agentauth-core.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.5.0[partner]"
+pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clay-seal-identity.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0[partner]"
 ```
 
 Or clone this repo at the tag and install editable:
 
 ```bash
-git clone https://github.com/pberlizov/agentauth-receipts.git
+git clone https://github.com/pberlizov/clay-seal-receipts.git
 cd agentauth-receipts
 git checkout v0.5.0
 pip install -e ".[partner]"
@@ -90,5 +90,5 @@ python demo/poisoned_mcp_demo.py
 ## Documentation
 
 - [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md) — comprehensive guide for layer 3
-- [agentauth-identity docs](https://github.com/pberlizov/agentauth-identity/blob/main/docs/DEV_GUIDE.md)
-- [agentauth-capabilities docs](https://github.com/pberlizov/agentauth-capabilities/blob/main/docs/DEV_GUIDE.md)
+- [agentauth-identity docs](https://github.com/pberlizov/clay-seal-identity/blob/main/docs/DEV_GUIDE.md)
+- [agentauth-capabilities docs](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md)
