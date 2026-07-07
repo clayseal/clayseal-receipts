@@ -16,6 +16,6 @@ thiserror.workspace = true
 bincode.workspace = true
 flate2 = "1"
 generic-array = "0.14"
-nova-snark = { version = "0.41", default-features = false }
+nova-snark = { version = "0.73", default-features = false }
 
 [dev-dependencies]
