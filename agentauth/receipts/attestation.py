@@ -98,11 +98,21 @@ class EatJwtAttestationVerifier:
         jwks = context.get("jwks")
         if jwks is not None:
             header = jwt.get_unverified_header(token)
+            kid = header.get("kid")
             keys = jwks.get("keys", [])
+            # A token with no 'kid' is only unambiguous against a single-key JWKS; with
+            # multiple keys, refuse rather than silently trusting the first entry.
+            if kid is None:
+                if len(keys) == 1:
+                    return jwt.PyJWK(keys[0]).key
+                raise ValueError(
+                    "token has no 'kid' and the JWKS has multiple keys; cannot select "
+                    "a signing key unambiguously"
+                )
             for entry in keys:
-                if header.get("kid") is None or entry.get("kid") == header.get("kid"):
+                if entry.get("kid") == kid:
                     return jwt.PyJWK(entry).key
-            raise ValueError(f"no JWKS key matches kid {header.get('kid')!r}")
+            raise ValueError(f"no JWKS key matches kid {kid!r}")
         if self.jwks_url:
             return jwt.PyJWKClient(self.jwks_url).get_signing_key_from_jwt(token).key
         raise ValueError(
@@ -122,6 +132,22 @@ class EatJwtAttestationVerifier:
         if isinstance(evidence, dict):
             raise ValueError("eat_jwt verifier expects a compact JWT string")
         token = evidence.decode("ascii") if isinstance(evidence, bytes) else str(evidence)
+
+        # Fail closed on the insecure-by-default case: verifying against a *remote* JWKS
+        # (no pinned key in context) with no issuer configured would accept any token
+        # that JWKS can sign, from any issuer. Require a pinned issuer for that path.
+        uses_remote_jwks = (
+            context.get("public_key") is None
+            and context.get("jwks") is None
+            and bool(self.jwks_url)
+        )
+        if uses_remote_jwks and not self.issuer:
+            raise ValueError(
+                f"eat_jwt verifier resolving keys from a remote JWKS ({JWKS_URL_ENV}) "
+                f"must pin an issuer ({ISSUER_ENV}); otherwise it would accept tokens "
+                "from any signer in that key set."
+            )
+
         key = self._resolve_key(token, context)
         options = {"verify_aud": self.audience is not None}
         try:

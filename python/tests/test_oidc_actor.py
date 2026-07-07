@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 
 import jwt
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -41,6 +42,7 @@ def test_verify_oidc_token_and_resolve_actor():
             "iss": GITHUB_ACTIONS_ISSUER,
             "actor": "devin-ai-integration[bot]",
             "repository": "org/repo",
+            "exp": int(time.time()) + 300,
         },
         private_key,
         algorithm="RS256",
@@ -59,10 +61,25 @@ def test_verify_oidc_token_and_resolve_actor():
     assert identity.repository == "org/repo"
 
 
+def test_verify_oidc_token_rejects_missing_exp():
+    private_key, jwks = _rsa_jwks()
+    token = jwt.encode(  # no exp — OIDC requires it
+        {"sub": "user:1", "iss": GITHUB_ACTIONS_ISSUER},
+        private_key,
+        algorithm="RS256",
+        headers={"kid": "test-kid"},
+    )
+    try:
+        verify_oidc_token(token, jwks=jwks, issuer=GITHUB_ACTIONS_ISSUER)
+        assert False, "expected missing-exp rejection"
+    except jwt.MissingRequiredClaimError:
+        pass
+
+
 def test_verify_oidc_token_rejects_wrong_issuer():
     private_key, jwks = _rsa_jwks(kid="other")
     token = jwt.encode(
-        {"sub": "user:123", "iss": "https://evil.example"},
+        {"sub": "user:123", "iss": "https://evil.example", "exp": int(time.time()) + 300},
         private_key,
         algorithm="RS256",
         headers={"kid": "other"},

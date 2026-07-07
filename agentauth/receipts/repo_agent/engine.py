@@ -1,4 +1,13 @@
-"""Repository agent run engine — secured receipts vs unrestricted tool access."""
+"""Repository agent run engine — secured receipts vs unrestricted tool access.
+
+.. warning::
+   This engine **executes arbitrary shell commands** (the agent's own tool calls;
+   ``_run`` below uses ``shell=True`` by design — this is the surface AgentAuth's
+   sandbox exists to contain). It must only ever run inside an isolated sandbox or
+   container with no host credentials, no production network, and a disposable
+   working tree. Never invoke it directly on a trusted host or a CI runner that holds
+   real secrets.
+"""
 
 from __future__ import annotations
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -170,6 +171,20 @@ def evaluate_stacked_pr_base(
     }
 
 
+_SAFE_GIT_REF = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._/+-]*$")
+
+
+def _safe_git_ref(ref: str, *, field: str) -> str:
+    """Reject option-like / metacharacter refs before they reach git argv.
+
+    ``target_ref``/SHAs here can originate from an untrusted receipt bundle; a ref such
+    as ``--output=…`` would otherwise be parsed by git as an option, not a ref.
+    """
+    if not isinstance(ref, str) or not _SAFE_GIT_REF.match(ref):
+        raise ValueError(f"unsafe git ref for {field!r}: {ref!r}")
+    return ref
+
+
 def stacked_base_warning(
     repo: Path,
     *,
@@ -179,8 +194,12 @@ def stacked_base_warning(
 ) -> dict[str, Any]:
     import subprocess
 
+    provided_base_sha = _safe_git_ref(provided_base_sha, field="provided_base_sha")
+    target_ref = _safe_git_ref(target_ref, field="target_ref")
+    head_sha = _safe_git_ref(head_sha, field="head_sha")
+
     target_sha = subprocess.check_output(
-        ["git", "-C", str(repo), "rev-parse", target_ref],
+        ["git", "-C", str(repo), "rev-parse", "--end-of-options", target_ref],
         text=True,
     ).strip()
     target_merge_base = subprocess.check_output(

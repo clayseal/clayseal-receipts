@@ -54,7 +54,11 @@ def _select_jwk(token: str, jwks: dict[str, Any]) -> dict[str, Any]:
         for jwk in keys:
             if jwk.get("kid") == kid:
                 return jwk
-    return keys[0]
+        raise ValueError(f"no JWKS key matches kid {kid!r}")
+    # No kid: only unambiguous against a single-key JWKS.
+    if len(keys) == 1:
+        return keys[0]
+    raise ValueError("token has no 'kid' and the JWKS has multiple keys")
 
 
 def verify_oidc_token(
@@ -67,7 +71,9 @@ def verify_oidc_token(
     """Verify JWT signature + issuer; optionally audience."""
     jwk = _select_jwk(token, jwks)
     key = jwt.PyJWK.from_dict(jwk).key
-    options = {"verify_aud": audience is not None}
+    # OIDC ID tokens MUST carry exp and iss (OpenID Connect Core §2); require them so a
+    # token without an expiry can never verify.
+    options = {"verify_aud": audience is not None, "require": ["exp", "iss"]}
     decode_kwargs: dict[str, Any] = {
         "algorithms": ["RS256", "EdDSA", "ES256"],
         "issuer": issuer,

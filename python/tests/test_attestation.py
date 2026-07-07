@@ -93,6 +93,22 @@ def test_eat_jwt_requires_key_source(rsa_key, monkeypatch):
         EatJwtAttestationVerifier().verify(token)
 
 
+def test_eat_jwt_remote_jwks_requires_pinned_issuer(rsa_key, monkeypatch):
+    # A remote JWKS with no pinned issuer would accept any token that key set can sign.
+    monkeypatch.setenv("AGENTAUTH_ATTESTATION_JWKS_URL", "https://verifier.example/jwks")
+    token = _token(rsa_key, {"iss": "https://anything.example"})
+    with pytest.raises(ValueError, match="must pin an issuer"):
+        EatJwtAttestationVerifier().verify(token)
+
+
+def test_eat_jwt_rejects_kidless_token_against_multikey_jwks(rsa_key):
+    # No 'kid' in the header + a multi-key JWKS must not silently pick the first key.
+    kidless = jwt.encode({"iss": "i"}, rsa_key, algorithm="RS256")
+    two_keys = {"keys": [_jwks(rsa_key, kid="a")["keys"][0], _jwks(rsa_key, kid="b")["keys"][0]]}
+    with pytest.raises(ValueError, match="multiple keys"):
+        EatJwtAttestationVerifier().verify(kidless, context={"jwks": two_keys})
+
+
 def test_verifiers_resolve_via_plugin_registry(rsa_key):
     verifier = plugins.get_plugin("attestation_verifiers", "eat_jwt")
     token = _token(rsa_key, {"iss": "i"})
