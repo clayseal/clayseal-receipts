@@ -17,6 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: pberlizov/clay-seal-core
+          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-core
           ref: main
       # identity + capabilities are OPTIONAL extras ([identity], [scoping]);
@@ -24,11 +25,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: pberlizov/clay-seal-identity
+          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-identity
           ref: main
       - uses: actions/checkout@v4
         with:
           repository: pberlizov/clay-seal-capabilities
+          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-capabilities
           ref: main
       - uses: actions/setup-python@v5
@@ -64,6 +67,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: pberlizov/clay-seal-core
+          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-core
           ref: main
       - uses: actions/setup-python@v5
@@ -101,11 +105,13 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: pberlizov/clay-seal-core
+          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-core
           ref: main
       - uses: actions/checkout@v4
         with:
           repository: pberlizov/clay-seal-identity
+          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-identity
           ref: main
       - uses: actions/setup-python@v5

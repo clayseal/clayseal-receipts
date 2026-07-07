@@ -170,7 +170,6 @@ def test_verify_signatures_rejects_untrusted_signer(monkeypatch):
     result = verify_bundle_signatures(
         bundle,
         trusted_public_keys={other.public_key_hex},
-        require_trust_anchor=True,
     )
     assert result["signed"] is True
     assert result["valid"] is False
@@ -185,7 +184,6 @@ def test_verify_signatures_accepts_trusted_signer(monkeypatch):
     result = verify_bundle_signatures(
         bundle,
         trusted_public_keys={key.public_key_hex},
-        require_trust_anchor=True,
     )
     assert result["valid"] is True
 

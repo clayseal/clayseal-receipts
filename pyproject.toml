@@ -141,8 +141,8 @@ vanta = "agentauth.receipts.exporters.vanta:VantaExporter"
 drata = "agentauth.receipts.exporters.drata:DrataExporter"
 
 [project.entry-points."agentauth.attestation_verifiers"]
-nitro = "agentauth.receipts.attestation:NitroAttestationVerifier"
-eat_jwt = "agentauth.receipts.attestation:EatJwtAttestationVerifier"
+nitro = "agentauth.receipts.attestation:NITRO_VERIFIER"
+eat_jwt = "agentauth.receipts.attestation:EAT_JWT_VERIFIER"
 
 # Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
 # under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the

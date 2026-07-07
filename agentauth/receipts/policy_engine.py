@@ -299,6 +299,10 @@ def _action_candidates(action: ActionDescriptor) -> tuple[set[str], set[str]]:
     action_names = {action.action_name}
     if "." in action.action_name:
         action_names.add(action.action_name.rsplit(".", 1)[-1])
+    if "/" in action.action_name:
+        # MCP-style names ("mcp.tools/call/<tool>"): the last segment is the
+        # tool name, the same convention verify_commit_token binds against.
+        action_names.add(action.action_name.rsplit("/", 1)[-1])
 
     resource_names: set[str] = set()
     if action.resource_type:

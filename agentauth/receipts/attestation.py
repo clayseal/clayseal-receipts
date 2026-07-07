@@ -186,3 +186,10 @@ class EatJwtAttestationVerifier:
         except jwt.PyJWTError as exc:
             raise ValueError(f"attestation token rejected: {exc}") from exc
         return dict(claims)
+
+
+# Default instances advertised via the plugin entry points, so
+# get_plugin("attestation_verifiers", ...) hands consumers a ready verifier.
+# Construct the classes directly to configure jwks_url / issuer / audience.
+NITRO_VERIFIER = NitroAttestationVerifier()
+EAT_JWT_VERIFIER = EatJwtAttestationVerifier()

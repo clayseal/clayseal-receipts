@@ -1236,7 +1236,13 @@ def verify_receipt_bundle(
         if isinstance(ctx_for_authority, dict) and isinstance(
             ctx_for_authority.get("authority"), dict
         ):
-            if authority != ctx_for_authority["authority"]:
+            # `binding_state` is a build-time annotation on the projection only
+            # (the context-bound authority never carries it); it is bound
+            # separately below by recomputing it from the bundle evidence.
+            authority_sans_annotation = {
+                key: value for key, value in authority.items() if key != "binding_state"
+            }
+            if authority_sans_annotation != ctx_for_authority["authority"]:
                 issues.append(
                     VerificationIssue(
                         VerifyErrorCode.AUTHORITY_MISMATCH,
@@ -1313,9 +1319,22 @@ def verify_receipt_bundle(
     binding_state = derive_binding_state(
         bundle,
         identity_bound=identity_bound,
-        workload_proof_valid=not workload_proof_issues,
+        workload_proof_valid=(
+            bundle.get("workload_proof") is not None and not workload_proof_issues
+        ),
     )
     assurance["authority_binding_state"] = binding_state
+    stored_authority = bundle.get("authority")
+    if isinstance(stored_authority, dict):
+        stored_binding_state = stored_authority.get("binding_state")
+        if stored_binding_state is not None and stored_binding_state != binding_state:
+            issues.append(
+                VerificationIssue(
+                    VerifyErrorCode.AUTHORITY_MISMATCH,
+                    "authority binding_state does not match the state recomputed "
+                    "from bundle evidence",
+                )
+            )
     if binding_state == BINDING_UNBOUND:
         assurance.setdefault("warnings", []).append(
             "receipt authority is unbound (no verified Clay Seal identity evidence)"
@@ -1666,7 +1685,6 @@ def verify_receipt_bundle(
             bundle,
             trusted_public_keys=signer_policy["public_keys"],
             trusted_key_ids=signer_policy["key_ids"],
-            require_trust_anchor=True,
         )
         if not signature_status.get("valid"):
             for reason in signature_status.get(

@@ -669,6 +669,10 @@ class AgentWrapper:
             authority = auth_raw
         elif isinstance(auth_raw, dict):
             authority = AuthorityContext.from_dict(auth_raw)
+            # A raw context dict is caller-declared, not the output of credential
+            # verification: never let it claim verified identity evidence, or a
+            # caller could satisfy min_trust_tier policies by assertion.
+            authority.evidence_verified = False
         else:
             authority = AuthorityContext(
                 authority_id=authority_id or str(self.certificate.agent_id),

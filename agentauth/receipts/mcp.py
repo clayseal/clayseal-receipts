@@ -100,6 +100,7 @@ class ToolCallResult:
     policy_violations: list[str] = field(default_factory=list)
     recommended_action: str | None = None
     monitoring: dict[str, Any] | None = None
+    workload_proof: dict[str, Any] | None = None
 
     @property
     def decision_outcome(self) -> DecisionOutcome:
@@ -228,11 +229,17 @@ class ReceiptedMcpGateway:
         self._used_token_store = (
             used_token_store if used_token_store is not None else default_used_token_store()
         )
-        if is_production() and self._used_token_store is None:
-            raise RuntimeError(
-                "production MCP gateway requires a distributed commit-token replay store; "
-                "set AGENTAUTH_COMMIT_TOKEN_REDIS_URL or AGENTAUTH_COMMIT_TOKEN_STORE"
-            )
+        if self._used_token_store is None:
+            if is_production():
+                raise RuntimeError(
+                    "production MCP gateway requires a distributed commit-token replay store; "
+                    "set AGENTAUTH_COMMIT_TOKEN_REDIS_URL or AGENTAUTH_COMMIT_TOKEN_STORE"
+                )
+            # Dev/single-instance default per the UsedTokenStore seam contract:
+            # replay of a consumed commit token is rejected within this process.
+            from agentauth.capabilities.commit import InMemoryUsedTokenStore
+
+            self._used_token_store = InMemoryUsedTokenStore()
         self._monitor_trace_window = int(monitor_trace_window)
         self._monitor_trace: list[Any] = []
         self._resource_ref_resolvers = dict(resource_ref_resolvers or {})
