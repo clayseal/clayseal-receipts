@@ -38,14 +38,14 @@ identity = ["agentauth-identity>=0.5,<0.6"]
 # Hosted FastAPI service (identity issuance/validation + receipt verifier).
 server = [
     "fastapi>=0.110,<1.0",
-    "uvicorn[standard]>=0.27,<1.0",
+    "uvicorn[standard]>=0.50.2,<1.0",
     "SQLAlchemy>=2.0,<3.0",
     "pydantic>=2.6,<3.0",
 ]
 mcp = [
     "mcp>=1.0",
     "httpx>=0.27",
-    "uvicorn>=0.30",
+    "uvicorn>=0.50.2",
     "groq>=0.11"
 ]
 onnx = [
@@ -56,7 +56,7 @@ ezkl = [
     "agentauth-receipts[onnx]",
 ]
 verifier = [
-    "uvicorn>=0.30",
+    "uvicorn>=0.50.2",
     "starlette>=0.37",
 ]
 otel = [

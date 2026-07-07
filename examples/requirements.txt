@@ -12,7 +12,7 @@
 
 # Backend runtime deps (used when an example boots an embedded backend).
 fastapi>=0.110,<1.0
-uvicorn[standard]>=0.27,<1.0
+uvicorn[standard]>=0.50.2,<1.0
 SQLAlchemy>=2.0,<3.0
 PyJWT[crypto]>=2.8,<3.0
 cryptography>=42.0
