@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
-# Verify a clean pip install of the three-layer stack from pinned git tags.
+# Verify a clean pip install of the modular four-repo stack from pinned git tags.
 # Run from any directory; creates a temp venv and exits non-zero on failure.
 set -euo pipefail
 
-TAG="${AGENTAUTH_TAG:-v0.4.0}"
+TAG="${AGENTAUTH_TAG:-v0.5.0}"
 PY="${PYTHON:-python3}"
+
+"$PY" - <<'PY'
+import sys
+
+if sys.version_info < (3, 10):
+    raise SystemExit(
+        "layer_install_smoke.sh requires Python >= 3.10; "
+        f"got {sys.version.split()[0]}. Set PYTHON=/path/to/python3.10+."
+    )
+PY
 
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
@@ -14,6 +24,9 @@ echo "==> Creating venv in $TMP"
 # shellcheck disable=SC1091
 source "$TMP/venv/bin/activate"
 pip install -q --upgrade pip
+
+echo "==> Installing agentauth-core @ $TAG"
+pip install -q "git+https://github.com/pberlizov/agentauth-core.git@${TAG}"
 
 echo "==> Installing agentauth-identity @ $TAG"
 pip install -q "git+https://github.com/pberlizov/agentauth-identity.git@${TAG}"
@@ -32,6 +45,7 @@ from agentauth import AgentWrapper
 from agentauth.receipts import Policy
 
 print("identity:", AgentAuth)
+print("core facade: imports ok")
 print("capabilities: issue_commit_token ok")
 print("receipts: AgentWrapper, Policy ok")
 PY

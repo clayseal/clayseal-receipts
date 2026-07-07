@@ -11,13 +11,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 The two layers are joined by one developer surface: `auth.identify(...)` returns a session, and `session.wrap(model, policy=...)` produces a receipting wrapper whose every receipt carries the *attested* identity.
 
-As of v0.4.0 the stack is split into three distributions that share the `agentauth`
-namespace. **This repo ships only `agentauth.receipts`**; identity and capabilities
-are declared as dependencies in `pyproject.toml` and installed alongside it:
+As of v0.5.0 the stack is split into four distributions that share the `agentauth`
+namespace. **This repo ships only `agentauth.receipts`**; core, identity, and
+capabilities are declared as dependencies in `pyproject.toml` and installed alongside it:
 
 - `agentauth.receipts` (**this repo**, `agentauth/receipts/`) — receipt runtime, policy engine, audit chain, verifier, MCP, proofs, **dynamic sandbox** (`sandbox_builder.py`, scoping, governors)
+- `agentauth.core` — from the **`agentauth-core`** dependency: shared contracts, signing/hash utilities, resource refs, decisions, budgets, mandates, delegations, task/tool scopes, and plugin protocols
 - `agentauth.identity` / `agentauth.backend` / `agentauth.workload_keys` / `agentauth.biscuit_scope` — from the **`agentauth-identity`** dependency: identity SDK + the FastAPI identity service
-- `agentauth.capabilities` / `agentauth.core` — from the **`agentauth-capabilities`** dependency: Biscuit capability tokens, mandates, task/tool scoping, decision runtime
+- `agentauth.capabilities` — from the **`agentauth-capabilities`** dependency: Biscuit provider implementations and capability integrations built on the core contracts
 
 Other top-level dirs in this repo:
 
@@ -25,19 +26,18 @@ Other top-level dirs in this repo:
 - `benchmarks/` — E2E harness, soundness benchmarks, trajectory corpus
 - `demo/` — narrated demos (`poisoned_mcp_demo.py`, sandboxed server)
 - `crates/` — Rust ZK/TEE proving core (Halo2 policy circuit, RISC Zero, session folding)
-- `dashboard/` — React/TypeScript SPA for managing agents
 - `identity/` — SPIRE/SPIFFE deployment manifests for production attestation
 
 Production identity uses SPIRE/SPIFFE attestation (`identity/`) instead of dev API-key JWTs.
 
 ## Commands
 
-### Install (three-layer stack, one venv)
+### Install (four distributions, one venv)
 ```bash
-# The agentauth-identity / agentauth-capabilities deps are declared in pyproject.toml
+# The agentauth-core / agentauth-identity / agentauth-capabilities deps are declared in pyproject.toml
 # (git refs); installing this package pulls them in. For local co-development, install
 # sibling checkouts editable first, then this repo:
-pip install -e ../agentauth-identity[dev] -e ../agentauth-capabilities[dev]
+pip install -e ../agentauth-core[dev] -e ../agentauth-identity[dev] -e ../agentauth-capabilities[dev]
 pip install -e ".[dev]"     # receipts runtime + backend(server) + mcp + verifier + test deps
 ```
 

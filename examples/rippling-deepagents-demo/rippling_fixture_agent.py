@@ -843,18 +843,18 @@ class HrDataStore:
         con: sqlite3.Connection,
         tenant_id: str,
     ) -> dict[str, str]:
-        return {
-            row["name"]: row["content"]
-            for row in con.execute(
-                """
-                SELECT name, content
-                FROM ai_skills
-                WHERE tenant_id = ?
-                ORDER BY trusted DESC, name
-                """,
-                (tenant_id,),
-            ).fetchall()
-        }
+        skills: dict[str, str] = {}
+        for row in con.execute(
+            """
+            SELECT name, content
+            FROM ai_skills
+            WHERE tenant_id = ?
+            ORDER BY trusted DESC, name, version DESC
+            """,
+            (tenant_id,),
+        ).fetchall():
+            skills.setdefault(row["name"], row["content"])
+        return skills
 
     @staticmethod
     def _json_cell(value: Any) -> Any:

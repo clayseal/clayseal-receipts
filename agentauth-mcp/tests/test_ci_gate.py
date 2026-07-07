@@ -15,7 +15,10 @@ from pathlib import Path
 
 import server
 
-VERIFIER = "/Users/yuvvan_talreja/Developer/devin-agentauth-gated-demo/.github/scripts/verify_pr_receipt.py"
+VERIFIER = os.environ.get(
+    "AGENTAUTH_CI_GATE_VERIFIER",
+    "/Users/yuvvan_talreja/Developer/devin-agentauth-gated-demo/.github/scripts/verify_pr_receipt.py",
+)
 PY = sys.executable
 
 
@@ -23,10 +26,13 @@ def git(repo: Path, *args: str) -> None:
     subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True, text=True)
 
 
-def run_verifier(repo: Path, manifest_glob: str, gate_key_id: str, mandate_key_id: str, base: str, head: str):
+def run_verifier(
+    repo: Path, manifest_glob: str, gate_key_id: str, mandate_key_id: str, base: str, head: str
+):
     return subprocess.run(
         [
-            PY, VERIFIER,
+            PY,
+            VERIFIER,
             "--receipt", manifest_glob,
             "--trusted-gate-key-id", gate_key_id,
             "--trusted-mandate-key-id", mandate_key_id,
@@ -81,7 +87,9 @@ r = run_verifier(tmp, ".agentauth/receipts/*.json", gate_key_id, mandate_key_id,
 results["pass_clean"] = (r.returncode == 0, r.stdout.strip() or r.stderr.strip())
 
 # CASE 2: PR also edits auth.py with no receipt -> FAIL (coverage)
-(tmp / "swe_triage" / "auth.py").write_text("# original auth\nTICKET_RE = re.compile(r'...', re.IGNORECASE)\n")
+(tmp / "swe_triage" / "auth.py").write_text(
+    "# original auth\nTICKET_RE = re.compile(r'...', re.IGNORECASE)\n"
+)
 git(tmp, "add", "-A")
 git(tmp, "commit", "-qm", "pr: sneak auth.py change")
 r = run_verifier(tmp, ".agentauth/receipts/*.json", gate_key_id, mandate_key_id, "main", "pr")

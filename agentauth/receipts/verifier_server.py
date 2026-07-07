@@ -46,7 +46,8 @@ else:
 def require_verifier_deps() -> None:
     if _STARLETTE_IMPORT_ERROR is not None:
         raise ImportError(
-            "HTTP verifier requires starlette. Install with: pip install 'agent-receipts[verifier]'"
+            "HTTP verifier requires starlette. Install with: "
+            "pip install 'agentauth-receipts[verifier]'"
         ) from _STARLETTE_IMPORT_ERROR
 
 

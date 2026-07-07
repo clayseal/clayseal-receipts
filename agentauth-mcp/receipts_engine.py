@@ -5,6 +5,7 @@ This is where all four agent-receipts layers meet:
   L2 capability -> a Biscuit scoped to the mandate; session.authorize() (PoP)
   L3 receipts   -> AgentWrapper.record() per action -> ExecutionProof + audit chain
   L4 ZK proof   -> mode="prove", prove_policy=True -> real Halo2 policy proof
+                    when AGENTAUTH_MCP_RECEIPT_MODE=prove and the CLI exists
 
 There is no diff parsing. The capability token decides allow/deny; the policy
 engine (driven by the same capability grant via the AuthorityBinding) gates the
@@ -16,19 +17,19 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from agentauth.receipts import signing
+from agentauth.core import signing
+from agentauth.core.runtime import ActionDescriptor, SideEffectLevel
+from agentauth.core.signing import SigningKey
+from mandate import Mandate
+from sessions import SessionEntry
+
+import config
 from agentauth.receipts.certificate import dev_certificate
 from agentauth.receipts.export import build_receipt_bundle
+from agentauth.receipts.integration import wrap_agentauth_session
 from agentauth.receipts.policy import Policy
 from agentauth.receipts.proof import DecisionOutcome
 from agentauth.receipts.prover import verify_structural_policy
-from agentauth.receipts.integration import wrap_agentauth_session
-from agentauth.core.runtime import ActionDescriptor, SideEffectLevel
-from agentauth.core.signing import SigningKey
-
-import config
-from mandate import Mandate
-from sessions import SessionEntry
 
 SESSION_RECEIPT_SCHEMA = "agentauth-mcp.session-receipt.v1"
 
@@ -37,22 +38,23 @@ _NOOP_MODEL = lambda _inp: {}  # noqa: E731
 
 
 def make_wrapper(agent_session: Any, *, policy: Policy, audit_db: str) -> Any:
-    """Build a prove-mode AgentWrapper bound to this attested identity.
+    """Build an AgentWrapper bound to this attested identity.
 
     session.wrap() injects the AuthorityBinding (from the credential's capabilities)
-    and wires capability_authorizer=session.authorize. mode="prove" requires an
-    explicit certificate; dev_certificate's default model hash matches the wrapper's.
+    and wires capability_authorizer=session.authorize. Prove mode requires the Rust
+    CLI; local/dev stdio defaults to shadow mode when the CLI is absent.
     """
     certificate = dev_certificate(
         policy.commitment(),
         organization=config.TENANT_ORG,
         principal_id=config.SERVER_NAME,
     )
-    return wrap_agentauth_session(agent_session,
+    return wrap_agentauth_session(
+        agent_session,
         _NOOP_MODEL,
         policy=policy,
-        mode="prove",
-        prove_policy=True,
+        mode=config.RECEIPT_MODE,
+        prove_policy=config.PROVE_POLICY,
         prove_composed=False,  # policy-only Halo2; no inference/composed backend
         certificate=certificate,
         audit_db=audit_db,

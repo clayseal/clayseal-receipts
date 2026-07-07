@@ -23,29 +23,26 @@ import sys
 from dataclasses import dataclass
 from typing import Any
 
+import briefing
+import receipts_engine
 import uvicorn
+from agentauth.core import signing
+from identity_backend import EmbeddedBackend, boot_embedded_backend
+from mandate import Mandate, load_mandate
 from mcp.server.fastmcp import FastMCP
 from mcp.server.transport_security import TransportSecuritySettings
+from sessions import SessionStore
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
+import config
+from agentauth.receipts.policy import Policy
 
 
 def _log(msg: str) -> None:
     """Operator-facing line. NEVER stdout: in stdio transport stdout is the
     JSON-RPC channel and any stray byte breaks the protocol."""
     print(msg, file=sys.stderr, flush=True)
-
-
-from agentauth.receipts import signing
-from agentauth.receipts.policy import Policy
-
-import briefing
-import config
-import receipts_engine
-from identity_backend import EmbeddedBackend, boot_embedded_backend
-from mandate import Mandate, load_mandate
-from sessions import SessionStore
-
 
 @dataclass
 class GateState:

@@ -9,7 +9,7 @@ Devin ──MCP/ngrok──▶ agentauth-gate (this server)
                        L1 identity      AgentAuth.identify  → JWT-SVID
                        L2 capability     Biscuit (PoP)       → session.authorize
                        L3 receipts       AgentWrapper.record → ExecutionProof + audit chain
-                       L4 ZK proof       mode="prove"        → real Halo2 policy proof
+                       L4 proof path     auto shadow/prove   → prove when Rust CLI exists
                      ─────────────────────────────────────────────────────────
                      embedded AgentAuth backend (in-process, throwaway sqlite)
 ```
@@ -42,7 +42,7 @@ and any number of MCP servers run side by side. One-time setup:
 ```bash
 cd agentauth-mcp
 uv venv --python 3.12 .venv
-uv pip install -e '../agent-receipts[mcp,server,verifier]' uvicorn starlette httpx pyyaml
+uv pip install -e . -e '..[identity,mcp,server,verifier]'
 .venv/bin/python setup_mandate.py     # generate the signed mandate + keys
 ```
 
@@ -52,23 +52,21 @@ In Devin: **Settings → Connections → MCP servers → Add a custom MCP**, Tra
 ```json
 {
   "transport": "STDIO",
-  "command": "/absolute/path/to/agent-receipts/agentauth-mcp/.venv/bin/python",
-  "args": ["/absolute/path/to/agent-receipts/agentauth-mcp/server.py"]
+  "command": "/absolute/path/to/agentauth-receipts/agentauth-mcp/.venv/bin/python",
+  "args": ["/absolute/path/to/agentauth-receipts/agentauth-mcp/server.py"]
 }
 ```
 
 Substitute your checkout path (or set `AGENTAUTH_MCP_PYTHON` when running `tests/test_stdio.py`).
 
-The poisoned lab is a *separate* STDIO server, added the same way (and they no
-longer fight over a URL):
+By default the gate uses `AGENTAUTH_MCP_RECEIPT_MODE=prove` when
+`target/release/agent-receipts` exists, otherwise it uses `shadow` so local stdio
+smokes still authorize and write receipts. Set `AGENTAUTH_MCP_RECEIPT_MODE=prove`
+in production/CI to require the Rust proof path.
 
-```json
-{
-  "transport": "STDIO",
-  "command": "/absolute/path/to/agent-receipts/mcp-lab/.venv/bin/python",
-  "args": ["/absolute/path/to/agent-receipts/mcp-lab/server.py", "--stdio", "--auto-arm-after", "1"]
-}
-```
+The old checked-in poisoned `mcp-lab/` fixture was removed from this launch repo.
+If you keep a separate lab checkout, add it as its own STDIO server; otherwise
+run only the `agentauth-mcp` gate connection.
 
 Then tell Devin (Knowledge/playbook): *"Use the agentauth-gate connection. Call
 begin_authorized_session first, authorize_action before each file edit, and

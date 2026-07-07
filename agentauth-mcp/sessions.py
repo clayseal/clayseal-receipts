@@ -19,7 +19,7 @@ from typing import Any
 class SessionEntry:
     token: str
     agent_session: Any        # agentauth.AgentSession (holds JWT, biscuit, workload key)
-    wrapper: Any              # agentauth.AgentWrapper (mode="prove")
+    wrapper: Any              # agentauth.AgentWrapper (shadow locally, prove with CLI)
     mandate_id: str
     agent_actor: str
     issue_ref: str

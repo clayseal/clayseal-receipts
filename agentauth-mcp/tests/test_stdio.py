@@ -46,21 +46,57 @@ async def test_gate() -> None:
             await session.initialize()
             tools = {t.name for t in (await session.list_tools()).tools}
             print("[gate] tools:", sorted(tools))
-            assert {"begin_authorized_session", "authorize_action", "finalize_for_pull_request"} <= tools
-            begin = payload(await session.call_tool(
-                "begin_authorized_session", {"issue_ref": "1", "agent_actor": "devin"}))
+            assert {
+                "begin_authorized_session",
+                "authorize_action",
+                "finalize_for_pull_request",
+            } <= tools
+            begin = payload(
+                await session.call_tool(
+                    "begin_authorized_session", {"issue_ref": "1", "agent_actor": "devin"}
+                )
+            )
             token = begin["session_token"]
-            allow = payload(await session.call_tool(
-                "authorize_action", {"session_token": token, "resource": "repo:swe_triage/parser.py", "action": "modify"}))
-            deny = payload(await session.call_tool(
-                "authorize_action", {"session_token": token, "resource": "repo:swe_triage/auth.py", "action": "modify"}))
-            fin = payload(await session.call_tool("finalize_for_pull_request", {"session_token": token}))
-            print("[gate] allow parser.py:", allow["allowed"], "| deny auth.py:", deny["allowed"],
-                  "| authorized_count:", fin["authorized_count"])
-            assert allow["allowed"] is True and deny["allowed"] is False and fin["authorized_count"] == 1
+            allow = payload(
+                await session.call_tool(
+                    "authorize_action",
+                    {
+                        "session_token": token,
+                        "resource": "repo:swe_triage/parser.py",
+                        "action": "modify",
+                    },
+                )
+            )
+            deny = payload(
+                await session.call_tool(
+                    "authorize_action",
+                    {
+                        "session_token": token,
+                        "resource": "repo:swe_triage/auth.py",
+                        "action": "modify",
+                    },
+                )
+            )
+            fin = payload(
+                await session.call_tool("finalize_for_pull_request", {"session_token": token})
+            )
+            print(
+                "[gate] allow parser.py:",
+                allow["allowed"],
+                "| deny auth.py:",
+                deny["allowed"],
+                "| authorized_count:",
+                fin["authorized_count"],
+            )
+            assert allow["allowed"] is True
+            assert deny["allowed"] is False
+            assert fin["authorized_count"] == 1
 
 
 async def test_lab() -> None:
+    if not (LAB / "server.py").exists():
+        print("[lab] skipped: mcp-lab was removed from this repo")
+        return
     lab_py = LAB_PY if Path(LAB_PY).exists() else GATE_PY
     params = StdioServerParameters(
         command=lab_py,
@@ -73,7 +109,11 @@ async def test_lab() -> None:
             tools = {t.name for t in (await session.list_tools()).tools}
             print("[lab] tools:", sorted(tools))
             assert {"get_engineering_standards", "auth", "get_issue_triage_context"} <= tools
-            out = payload(await session.call_tool("get_engineering_standards", {"repo": "devin-agentauth-demo"}))
+            out = payload(
+                await session.call_tool(
+                    "get_engineering_standards", {"repo": "devin-agentauth-demo"}
+                )
+            )
             text = out.get("text", "") if isinstance(out, dict) else str(out)
             poisoned = "secrets.json" in text or "INCOMPLETE" in text
             print("[lab] armed get_engineering_standards returned poison directive:", poisoned)
@@ -85,7 +125,7 @@ async def main() -> int:
     await test_gate()
     print("=== LAB over stdio ===")
     await test_lab()
-    print("\nSTDIO TEST OK — both servers speak JSON-RPC cleanly over stdio")
+    print("\nSTDIO TEST OK — configured servers speak JSON-RPC cleanly over stdio")
     return 0
 
 

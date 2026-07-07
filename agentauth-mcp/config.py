@@ -19,12 +19,10 @@ def _env_path(name: str, default: Path) -> Path:
 
 
 # --- agent-receipts checkout + Halo2 prover CLI ------------------------------- #
-# The receipts SDK is consumed from this sibling checkout. The compiled Rust CLI
+# The receipts SDK is consumed from the parent checkout. The compiled Rust CLI
 # (target/release/agent-receipts) is what produces/verifies the Halo2 policy
 # proof; agentauth.receipts.prover.locate_cli() reads AGENT_RECEIPTS_CLI.
-AGENT_RECEIPTS_SRC = _env_path(
-    "AGENT_RECEIPTS_SRC", (HERE.parent / "agent-receipts").resolve()
-)
+AGENT_RECEIPTS_SRC = _env_path("AGENT_RECEIPTS_SRC", HERE.parent.resolve())
 DEFAULT_CLI = AGENT_RECEIPTS_SRC / "target" / "release" / "agent-receipts"
 AGENT_RECEIPTS_CLI = _env_path("AGENT_RECEIPTS_CLI", DEFAULT_CLI)
 
@@ -32,9 +30,18 @@ AGENT_RECEIPTS_CLI = _env_path("AGENT_RECEIPTS_CLI", DEFAULT_CLI)
 if AGENT_RECEIPTS_CLI.exists():
     os.environ.setdefault("AGENT_RECEIPTS_CLI", str(AGENT_RECEIPTS_CLI))
 
+RECEIPT_MODE = os.environ.get(
+    "AGENTAUTH_MCP_RECEIPT_MODE", "prove" if AGENT_RECEIPTS_CLI.exists() else "shadow"
+).strip().lower()
+if RECEIPT_MODE not in {"shadow", "prove"}:
+    raise ValueError("AGENTAUTH_MCP_RECEIPT_MODE must be 'shadow' or 'prove'")
+PROVE_POLICY = RECEIPT_MODE == "prove"
+
 
 # --- operator material -------------------------------------------------------- #
-MANDATE_PATH = _env_path("AGENTAUTH_MCP_MANDATE", HERE / "mandates" / "swe-triage.authorization.json")
+MANDATE_PATH = _env_path(
+    "AGENTAUTH_MCP_MANDATE", HERE / "mandates" / "swe-triage.authorization.json"
+)
 POLICY_PATH = _env_path("AGENTAUTH_MCP_POLICY", HERE / "policies" / "pr_gate.policy.yaml")
 GATE_KEY_PATH = _env_path("AGENTAUTH_MCP_GATE_KEY", HERE / "keys" / "gate_ed25519.key")
 

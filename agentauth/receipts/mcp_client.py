@@ -12,8 +12,9 @@ from pathlib import Path
 from typing import Any, Literal
 
 from agentauth.core.delegation import DelegationToken
-from agentauth.receipts.mcp import MCP_TOOL_CALL_ACTION, ReceiptedMcpGateway, ToolCallResult
 from agentauth.core.runtime import ActionDescriptor, SideEffectLevel
+
+from agentauth.receipts.mcp import MCP_TOOL_CALL_ACTION, ReceiptedMcpGateway, ToolCallResult
 from agentauth.receipts.wrapper import AgentWrapper
 
 try:
@@ -40,7 +41,7 @@ MCP_API_KEY_ENV = "AGENT_RECEIPTS_MCP_API_KEY"
 def require_mcp() -> None:
     if _MCP_IMPORT_ERROR is not None:
         raise ImportError(
-            "MCP SDK required. Install with: pip install 'agent-receipts[mcp]'"
+            "MCP SDK required. Install with: pip install 'agentauth-receipts[mcp]'"
         ) from _MCP_IMPORT_ERROR
 
 

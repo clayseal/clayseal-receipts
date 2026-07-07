@@ -10,10 +10,10 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from agentauth.receipts import signing
+from agentauth.core import signing
+from mandate import write_signed_mandate
 
 import config
-from mandate import write_signed_mandate
 
 HERE = Path(__file__).resolve().parent
 MANDATE_KEY_PATH = HERE / "keys" / "mandate_ed25519.key"

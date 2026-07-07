@@ -101,15 +101,21 @@ def issue_session(
 
 @contextmanager
 def allow_stub_proofs() -> Iterator[None]:
-    previous = os.environ.get("AGENT_RECEIPTS_ALLOW_STUB")
-    os.environ["AGENT_RECEIPTS_ALLOW_STUB"] = "1"
+    env = {
+        "AGENT_RECEIPTS_ALLOW_STUB": "1",
+        "AGENT_RECEIPTS_ALLOW_UNSIGNED_CERTIFICATE": "1",
+        "AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES": "0",
+    }
+    previous = {key: os.environ.get(key) for key in env}
+    os.environ.update(env)
     try:
         yield
     finally:
-        if previous is None:
-            os.environ.pop("AGENT_RECEIPTS_ALLOW_STUB", None)
-        else:
-            os.environ["AGENT_RECEIPTS_ALLOW_STUB"] = previous
+        for key, value in previous.items():
+            if value is None:
+                os.environ.pop(key, None)
+            else:
+                os.environ[key] = value
 
 
 @contextmanager

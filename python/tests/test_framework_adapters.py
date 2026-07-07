@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import builtins
 import sys
 import types
 
@@ -148,6 +149,14 @@ def test_langchain_tool_uses_optional_core(monkeypatch, tmp_path):
 def test_langchain_missing_dependency_has_actionable_error(monkeypatch):
     monkeypatch.delitem(sys.modules, "langchain_core.runnables", raising=False)
     monkeypatch.delitem(sys.modules, "langchain_core", raising=False)
+    real_import = builtins.__import__
+
+    def blocked_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "langchain_core.runnables":
+            raise ImportError("simulated missing langchain_core.runnables")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", blocked_import)
 
     with pytest.raises(ImportError, match="agentauth-receipts\\[langchain\\]"):
         receipted_runnable(lambda inp: inp, _policy(), mode="shadow", audit_db=":memory:")

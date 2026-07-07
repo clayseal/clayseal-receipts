@@ -68,9 +68,10 @@ Runtime data flow
 ### Production / partner (pinned tags)
 
 ```bash
-pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.4.0"
-pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.4.0"
-pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.4.0[partner]"
+pip install "git+https://github.com/pberlizov/agentauth-core.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.5.0[partner]"
 ```
 
 The `[partner]` extra pulls server, MCP, verifier, and dev tooling.
@@ -83,6 +84,7 @@ cd agentauth-receipts
 python -m venv .venv && source .venv/bin/activate
 
 # Install lower layers first (sibling clones or git URLs)
+pip install -e "../agentauth-core[dev]"
 pip install -e "../agentauth-identity[dev]"
 pip install -e "../agentauth-capabilities[dev]"
 pip install -e ".[dev]"
@@ -180,7 +182,7 @@ Append-only Merkle log (`agentauth/receipts/audit.py`). Supports inclusion proof
 
 ## Cross-provider identity (L1 choice ≠ lock-in)
 
-Since v0.4.0, layer 3 accepts the same **IdentitySession** abstraction as layer 2. You can wrap agents with OIDC, SPIFFE, Auth0, or AWS STS sessions — not only native AgentAuth credentials.
+Since v0.5.0, layer 3 accepts the same **IdentitySession** abstraction as layer 2. You can wrap agents with OIDC, SPIFFE, Auth0, or AWS STS sessions — not only native AgentAuth credentials.
 
 ```python
 from agentauth.capabilities.identity_adapters import get_identity_provider
@@ -264,7 +266,7 @@ Configure API keys, rate limits, and body size caps for production (`docs/http_v
 
 ## Partner deployment workflow
 
-1. **Pin a tag** — see [RELEASE.md](../RELEASE.md) (currently `v0.4.0`).
+1. **Pin a tag** — see [RELEASE.md](../RELEASE.md) (currently `v0.5.0`).
 2. **Copy config** — `cp config/partner.example.yaml config/partner.yaml`.
 3. **Preflight** — `bash scripts/partner_preflight.sh config/partner.yaml`.
 4. **Run smoke** — `bash scripts/layer_install_smoke.sh` then `arctl doctor`.
@@ -333,7 +335,7 @@ High-value test modules for integrators:
 
 **Symptom:** Subtle verification failures after upgrading one repo only.
 
-**Fix:** Align tags (`v0.4.0` on all three). Check `VERSION`, `pyproject.toml`, and `agentauth/receipts/_version.py` in this repo match.
+**Fix:** Align tags (`v0.5.0` on all three). Check `VERSION`, `pyproject.toml`, and `agentauth/receipts/_version.py` in this repo match.
 
 ### Shadow vs bounded_auto confusion
 
@@ -372,7 +374,7 @@ Read `docs/trust_model.md` before telling customers what guarantees they get.
 4. Run `bash scripts/layer_install_smoke.sh` against published tags.
 5. Notify partners with exact pip lines (in RELEASE.md).
 
-Current release line: **0.4.0** (`v0.4.0`).
+Current release line: **0.5.0** (`v0.5.0`).
 
 ---
 

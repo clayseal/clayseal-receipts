@@ -146,7 +146,8 @@ eat_jwt = "agentauth.receipts.attestation:EatJwtAttestationVerifier"
 
 # Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
 # under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the
-# agentauth-identity wheel and capabilities/core from the agentauth-capabilities wheel;
+# agentauth-identity wheel, capabilities from agentauth-capabilities, and core/facade
+# from agentauth-core;
 # shipping copies here would overlap their RECORD on a clean install.
 # `only-include` (not `packages`) is used so the path is kept, not relocated to the root.
 [tool.hatch.build.targets.wheel]

@@ -1,30 +1,33 @@
-# Release process — three-layer stack
+# Release process — modular AgentAuth stack
 
 Design partners and production integrators should pin **git tags**, not floating `main`.
 
-AgentAuth is split into three repositories. Install and tag them **in order**:
+AgentAuth is split into four repositories. Install and tag them **in order**:
 
-1. [agentauth-identity](https://github.com/pberlizov/agentauth-identity) (layer 1)
-2. [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities) (layer 2)
-3. [agentauth-receipts](https://github.com/pberlizov/agentauth-receipts) (layer 3 — this repo)
+1. [agentauth-core](https://github.com/pberlizov/agentauth-core) (shared contracts + facade)
+2. [agentauth-identity](https://github.com/pberlizov/agentauth-identity) (layer 1)
+3. [agentauth-capabilities](https://github.com/pberlizov/agentauth-capabilities) (layer 2)
+4. [agentauth-receipts](https://github.com/pberlizov/agentauth-receipts) (layer 3 — this repo)
 
 ## Current release
 
 | Field | Value |
 |-------|--------|
-| Version | **0.4.0** |
-| Tag | `v0.4.0` |
-| Identity pin | `agentauth-identity @ v0.4.0` |
-| Capabilities pin | `agentauth-capabilities @ v0.4.0` |
+| Version | **0.5.0** |
+| Tag | `v0.5.0` |
+| Core pin | `agentauth-core @ v0.5.0` |
+| Identity pin | `agentauth-identity @ v0.5.0` |
+| Capabilities pin | `agentauth-capabilities @ v0.5.0` |
 
 See [CHANGELOG.md](CHANGELOG.md) for changes.
 
 ## Partner install (pinned tags)
 
 ```bash
-pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.4.0"
-pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.4.0"
-pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.4.0[partner]"
+pip install "git+https://github.com/pberlizov/agentauth-core.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/agentauth-identity.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/agentauth-capabilities.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/agentauth-receipts.git@v0.5.0[partner]"
 ```
 
 Or clone this repo at the tag and install editable:
@@ -32,13 +35,13 @@ Or clone this repo at the tag and install editable:
 ```bash
 git clone https://github.com/pberlizov/agentauth-receipts.git
 cd agentauth-receipts
-git checkout v0.4.0
+git checkout v0.5.0
 pip install -e ".[partner]"
 ```
 
 ## Cut a release (maintainers)
 
-Tag **identity → capabilities → receipts** so downstream `pyproject.toml` git pins resolve.
+Tag **core → identity → capabilities → receipts** so downstream version ranges resolve.
 
 ```bash
 # 1. Align versions in each repo
@@ -50,9 +53,9 @@ Tag **identity → capabilities → receipts** so downstream `pyproject.toml` gi
 bash scripts/layer_install_smoke.sh
 
 # 3. Per repo: commit, tag, push
-git tag -a v0.4.0 -m "Release v0.4.0"
+git tag -a v0.5.0 -m "Release v0.5.0"
 git push origin main
-git push origin v0.4.0
+git push origin v0.5.0
 ```
 
 ## Version alignment checklist (receipts repo)

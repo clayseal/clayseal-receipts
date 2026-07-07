@@ -1,0 +1,284 @@
+{
+  "scenarios": [
+    {
+      "id": "revoke_baseline_validates",
+      "suite": "synthetic_revocation",
+      "description": "Freshly issued identity session validates before revocation.",
+      "category": "baseline",
+      "attack_surface": "credential_lifecycle",
+      "defense_layer": "L1_identity",
+      "attack": "none",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_blocks_validate",
+      "suite": "synthetic_revocation",
+      "description": "Revoked identity session fails live validation.",
+      "category": "control",
+      "attack_surface": "credential_lifecycle",
+      "defense_layer": "L1_identity",
+      "attack": "use_revoked_token",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_allows_reidentify",
+      "suite": "synthetic_revocation",
+      "description": "A revoked agent can re-identify into a new valid session.",
+      "category": "baseline",
+      "attack_surface": "credential_lifecycle",
+      "defense_layer": "L1_identity",
+      "attack": "none",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_unknown_agent_404",
+      "suite": "synthetic_revocation",
+      "description": "Revoking an unknown agent returns an explicit not-found error.",
+      "category": "control",
+      "attack_surface": "credential_lifecycle",
+      "defense_layer": "L1_identity",
+      "attack": "unknown_agent_revoke",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_receipt_bundle_persisted",
+      "suite": "synthetic_revocation",
+      "description": "A receipt bundle remains exportable after identity revocation.",
+      "category": "blind_spot",
+      "attack_surface": "offline_receipt_verification",
+      "defense_layer": "L3_receipts",
+      "attack": "post_revocation_receipt_export",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_live_validate_fails",
+      "suite": "synthetic_revocation",
+      "description": "Live identity validation fails after revocation even when a receipt exists.",
+      "category": "control",
+      "attack_surface": "credential_lifecycle",
+      "defense_layer": "L1_identity",
+      "attack": "use_revoked_token",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_offline_bundle_still_valid",
+      "suite": "synthetic_revocation",
+      "description": "Offline bundle verification does not consult live revocation state.",
+      "category": "blind_spot",
+      "attack_surface": "offline_receipt_verification",
+      "defense_layer": "L3_receipts",
+      "attack": "offline_verify_after_revoke",
+      "ev": "EV-103"
+    },
+    {
+      "id": "revoke_identity_bundle_valid_before_revoke",
+      "suite": "synthetic_revocation",
+      "description": "Identity-bound receipt verifies before revocation.",
+      "category": "baseline",
+      "attack_surface": "offline_receipt_verification",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "none",
+      "ev": "EV-103"
+    },
+    {
+      "id": "tenant_own_validate_works",
+      "suite": "synthetic_tenant",
+      "description": "A tenant can validate its own session token.",
+      "category": "baseline",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity",
+      "attack": "none",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_cannot_validate_foreign_token",
+      "suite": "synthetic_tenant",
+      "description": "A tenant cannot validate another tenant's session token.",
+      "category": "control",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity",
+      "attack": "cross_tenant_validate",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_cannot_revoke_foreign_agent",
+      "suite": "synthetic_tenant",
+      "description": "A tenant cannot revoke another tenant's agent.",
+      "category": "control",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity",
+      "attack": "cross_tenant_revoke",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_spiffe_paths_differ",
+      "suite": "synthetic_tenant",
+      "description": "Tenant-issued SPIFFE paths are distinct.",
+      "category": "control",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity",
+      "attack": "spiffe_namespace_collision",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_cannot_get_foreign_agent",
+      "suite": "synthetic_tenant",
+      "description": "A tenant cannot read another tenant's agent record.",
+      "category": "control",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity",
+      "attack": "cross_tenant_agent_read",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_cross_validate_token_from_bundle",
+      "suite": "synthetic_tenant",
+      "description": "A JWT copied from a receipt bundle cannot validate under a foreign tenant.",
+      "category": "control",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity",
+      "attack": "cross_tenant_bundle_token_validate",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_offline_bundle_verify_passes",
+      "suite": "synthetic_tenant",
+      "description": "A tenant's own identity-bound offline receipt bundle verifies.",
+      "category": "baseline",
+      "attack_surface": "offline_receipt_verification",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "none",
+      "ev": "EV-102"
+    },
+    {
+      "id": "tenant_cross_tenant_bundle_identity_mismatch",
+      "suite": "synthetic_tenant",
+      "description": "Replacing a bundle's issuer JWKS with another tenant's JWKS invalidates verification.",
+      "category": "control",
+      "attack_surface": "tenant_boundary",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "cross_tenant_jwks_swap",
+      "ev": "EV-102"
+    },
+    {
+      "id": "l1_jwt_eddsa_valid",
+      "suite": "synthetic_l1",
+      "description": "Ed25519 JWT-SVID identity evidence verifies in a receipt bundle.",
+      "category": "baseline",
+      "attack_surface": "jwt_identity",
+      "defense_layer": "L1_identity",
+      "attack": "none",
+      "ev": "EV-101"
+    },
+    {
+      "id": "l1_jwt_tampered_invalid",
+      "suite": "synthetic_l1",
+      "description": "Tampering the JWT-SVID invalidates the receipt bundle.",
+      "category": "control",
+      "attack_surface": "jwt_identity",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "jwt_tamper",
+      "ev": "EV-101"
+    },
+    {
+      "id": "l1_biscuit_minted",
+      "suite": "synthetic_l1",
+      "description": "A session with capabilities receives a Biscuit capability token.",
+      "category": "baseline",
+      "attack_surface": "capability_token",
+      "defense_layer": "L1_identity+L2_capabilities",
+      "attack": "none",
+      "ev": "EV-101"
+    },
+    {
+      "id": "l1_pop_bearer_rejected",
+      "suite": "synthetic_l1",
+      "description": "Bearer-only validation fails when proof-of-possession is required.",
+      "category": "control",
+      "attack_surface": "proof_of_possession",
+      "defense_layer": "L1_identity",
+      "attack": "stolen_bearer_token",
+      "ev": "EV-101"
+    },
+    {
+      "id": "l1_key_rotate_old_token_still_valid",
+      "suite": "synthetic_l1",
+      "description": "JWT key rotation preserves existing unexpired tokens during grace period.",
+      "category": "baseline",
+      "attack_surface": "key_rotation",
+      "defense_layer": "L1_identity",
+      "attack": "none",
+      "ev": "EV-101"
+    },
+    {
+      "id": "l1_authority_matches_jwt_sub",
+      "suite": "synthetic_l1",
+      "description": "Receipt authority matches the attested JWT subject.",
+      "category": "control",
+      "attack_surface": "authority_binding",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "declared_identity_mismatch",
+      "ev": "EV-101"
+    },
+    {
+      "id": "l1_wrong_jwks_invalid",
+      "suite": "synthetic_l1",
+      "description": "Receipt verification fails with a wrong issuer JWKS.",
+      "category": "control",
+      "attack_surface": "jwt_identity",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "jwks_swap",
+      "ev": "EV-101"
+    },
+    {
+      "id": "assurance_tee_mock_verify_valid",
+      "suite": "synthetic_assurance",
+      "description": "Mock Nitro TEE evidence verifies under the local assurance fixture.",
+      "category": "baseline",
+      "attack_surface": "tee_attestation",
+      "defense_layer": "L3_receipts",
+      "attack": "none",
+      "ev": "EV-203"
+    },
+    {
+      "id": "assurance_tee_missing_blind_spot",
+      "suite": "synthetic_assurance",
+      "description": "TEE_HYBRID receipts without a quote fail verification and document the assurance gap.",
+      "category": "blind_spot",
+      "attack_surface": "tee_attestation",
+      "defense_layer": "L3_receipts",
+      "attack": "missing_tee_quote",
+      "ev": "EV-203"
+    },
+    {
+      "id": "assurance_inject_output_hash_mismatch",
+      "suite": "synthetic_assurance",
+      "description": "Changing receipt output after execution invalidates hash-bound verification.",
+      "category": "control",
+      "attack_surface": "tamper_evidence",
+      "defense_layer": "L3_receipts",
+      "attack": "output_hash_mismatch",
+      "ev": "EV-203"
+    },
+    {
+      "id": "assurance_inject_identity_jwt_tamper",
+      "suite": "synthetic_assurance",
+      "description": "Tampering identity JWT evidence invalidates bundle verification.",
+      "category": "control",
+      "attack_surface": "identity_evidence",
+      "defense_layer": "L1_identity+L3_receipts",
+      "attack": "identity_jwt_tamper",
+      "ev": "EV-203"
+    },
+    {
+      "id": "assurance_inject_strip_execution_proof",
+      "suite": "synthetic_assurance",
+      "description": "Removing execution proof invalidates or rejects the receipt bundle.",
+      "category": "control",
+      "attack_surface": "tamper_evidence",
+      "defense_layer": "L3_receipts",
+      "attack": "strip_execution_proof",
+      "ev": "EV-203"
+    }
+  ]
+}

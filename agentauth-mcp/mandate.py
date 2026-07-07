@@ -16,7 +16,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from agentauth.receipts import signing
+from agentauth.core import signing
 
 MANDATE_SCHEMA = "agentauth.human_authorization.v1"
 
@@ -98,7 +98,9 @@ def load_mandate(path: str | Path, *, trusted_key_id: str | None = None) -> Mand
         )
 
     if not signing.verify(document, signature):
-        raise MandateError("mandate signature is invalid — refusing to issue authority (fail closed)")
+        raise MandateError(
+            "mandate signature is invalid — refusing to issue authority (fail closed)"
+        )
 
     pinned = trusted_key_id or os.environ.get("AGENTAUTH_MCP_TRUSTED_MANDATE_KEY_ID")
     if pinned and signature.get("key_id") != pinned:
@@ -109,7 +111,9 @@ def load_mandate(path: str | Path, *, trusted_key_id: str | None = None) -> Mand
     return Mandate(document=document, signature=signature)
 
 
-def write_signed_mandate(path: str | Path, document: dict[str, Any], key: signing.SigningKey) -> dict[str, Any]:
+def write_signed_mandate(
+    path: str | Path, document: dict[str, Any], key: signing.SigningKey
+) -> dict[str, Any]:
     """Sign ``document`` and persist the full envelope (helper for setup/tests)."""
     envelope = {"document": document, "signature": key.sign(document)}
     Path(path).parent.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,7 @@
 # Downloaded corpora (~2GB) and nested clone checkouts
-corpus/
+corpus/*
+!corpus/synthetic/
+!corpus/synthetic/scenarios.json
 
 # Benchmark run artifacts
 results/

@@ -42,28 +42,52 @@ async def main() -> int:
                 "finalize_for_pull_request",
             } <= tools
 
-            begin = payload(await session.call_tool(
-                "begin_authorized_session", {"issue_ref": "1", "agent_actor": "devin-ai-integration[bot]"}
-            ))
+            begin = payload(
+                await session.call_tool(
+                    "begin_authorized_session",
+                    {"issue_ref": "1", "agent_actor": "devin-ai-integration[bot]"},
+                )
+            )
             token = begin["session_token"]
             assert "swe_triage" not in json.dumps(begin), "scope paths leaked to agent"
-            print("begin OK, scope hidden (token-only):", begin["authority_summary"]["scope_model"][:50], "...")
+            print(
+                "begin OK, scope hidden (token-only):",
+                begin["authority_summary"]["scope_model"][:50],
+                "...",
+            )
 
-            allow = payload(await session.call_tool(
-                "authorize_action", {"session_token": token, "resource": "repo:swe_triage/parser.py", "action": "modify"}
-            ))
-            deny = payload(await session.call_tool(
-                "authorize_action", {"session_token": token, "resource": "repo:swe_triage/auth.py", "action": "modify"}
-            ))
+            allow = payload(
+                await session.call_tool(
+                    "authorize_action",
+                    {
+                        "session_token": token,
+                        "resource": "repo:swe_triage/parser.py",
+                        "action": "modify",
+                    },
+                )
+            )
+            deny = payload(
+                await session.call_tool(
+                    "authorize_action",
+                    {
+                        "session_token": token,
+                        "resource": "repo:swe_triage/auth.py",
+                        "action": "modify",
+                    },
+                )
+            )
             print("allow parser.py:", allow)
             print("deny auth.py:", deny)
             assert allow["allowed"] is True
             assert deny["allowed"] is False
 
-            fin = payload(await session.call_tool(
-                "finalize_for_pull_request", {"session_token": token}
-            ))
-            print("finalize:", {k: fin.get(k) for k in ("receipt_ref", "authorized_count", "denied_count")})
+            fin = payload(
+                await session.call_tool("finalize_for_pull_request", {"session_token": token})
+            )
+            print(
+                "finalize:",
+                {k: fin.get(k) for k in ("receipt_ref", "authorized_count", "denied_count")},
+            )
             assert fin["authorized_count"] == 1 and fin["denied_count"] == 1
 
     print("\nHTTP TEST OK")

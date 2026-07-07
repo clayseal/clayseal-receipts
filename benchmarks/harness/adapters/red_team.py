@@ -86,6 +86,7 @@ def iter_cases(*, limit: int | None = None, options=None) -> Iterator[BenchmarkC
 
 def _all_cases() -> Iterator[BenchmarkCase]:
     yield _fraud_missing_decision()
+    yield _fraud_missing_score()
     yield _fraud_score_overflow()
     yield _fraud_negative_score()
     yield _fraud_valid_baseline()
@@ -162,6 +163,38 @@ def _fraud_score_overflow():
         attack_surface="fraud_schema",
         defense_layer="L3_policy",
         attack="fraud_score_above_max",
+    )
+
+
+def _fraud_missing_score():
+    def execute(agent):
+        apply_agent_policy(agent, fraud_policy())
+        agent.model = lambda _inp: {"decision": "approve"}
+        result = agent.run({"transaction_id": "rt-missing-score", "amount": 10.0})
+        observed = "policy_rejected" if not result.policy_satisfied else "policy_accepted"
+        expected = "policy_rejected"
+        return {
+            "ok": _mitigation_ok(expected, observed),
+            "run_result": result,
+            "require_audit": True,
+            "metadata": _result_meta(
+                category="control",
+                attack="omit_required_score_field",
+                attack_surface="fraud_schema",
+                defense_layer="L3_policy",
+                expected=expected,
+                observed=observed,
+            ),
+        }
+
+    return _case(
+        "fraud_missing_score",
+        "Fraud policy must reject output missing required fraud_score field",
+        "control",
+        execute,
+        attack_surface="fraud_schema",
+        defense_layer="L3_policy",
+        attack="omit_required_score_field",
     )
 
 

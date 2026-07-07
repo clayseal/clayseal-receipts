@@ -171,7 +171,7 @@ def _assurance_inject_identity_jwt_tamper(spec: dict) -> BenchmarkCase:
         client, session = issue_session("assurance-id", agent_type="inj-test", owner="inj@bench")
         run_result, bundle = export_identity_receipt(agent, client=client, session=session)
         token = (bundle.get("identity") or {}).get("jwt_svid") or ""
-        tampered = token[:-1] + ("x" if token[-1:] != "x" else "y")
+        tampered = token[:-6] + ("AAAAAA" if token[-6:] != "AAAAAA" else "BBBBBB")
         mutated = tamper_bundle(bundle, path="identity.jwt_svid", value=tampered)
         check = verify_bundle(mutated)
         observed = "verify_invalid" if not check.get("valid") else "verify_unexpected_pass"
