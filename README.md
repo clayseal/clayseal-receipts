@@ -53,7 +53,7 @@ Pinned partner install:
 pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
 pip install "git+https://github.com/pberlizov/clay-seal-identity.git@v0.5.0"
 pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0[partner]"
+pip install "agentauth-receipts[partner] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
 ```
 
 Editable development:

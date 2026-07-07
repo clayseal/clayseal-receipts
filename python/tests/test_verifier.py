@@ -130,6 +130,17 @@ def test_verify_bad_json(client: TestClient):
     assert r.status_code == 400
 
 
+def test_verify_rejects_body_over_configured_limit(client: TestClient, monkeypatch):
+    monkeypatch.setenv("AGENT_RECEIPTS_MAX_BODY_BYTES", "4")
+    r = client.post(
+        "/v1/verify",
+        content=b'{"too":"large"}',
+        headers={"content-type": "application/json"},
+    )
+    assert r.status_code == 413
+    assert "request body exceeds 4 bytes" in r.json()["reasons"]
+
+
 def test_verify_malformed_bundle_returns_structured_verdict(client: TestClient):
     r = client.post("/v1/verify", json={})
     assert r.status_code == 200

@@ -1,13 +1,17 @@
 # Clay Seal documentation
 
-Clay Seal is one system for agent **identity** (L1/L2) and verifiable **execution**
-(L3/L4). It ships as a single installable package, `agentauth`, with one import
-namespace — see the [repository README](../README.md) for the developer surface and
-[CLAUDE.md](../CLAUDE.md) for the codebase map.
+Clay Seal is one modular system for agent **identity** (L1), dynamic
+**capabilities** (L2), and verifiable **execution receipts** (L3). The current
+repositories are independently installable as `agentauth-core`,
+`agentauth-identity`, `agentauth-capabilities`, and `agentauth-receipts`, with
+the compatibility import namespace `agentauth.*`.
+
+Start with the [repository README](../README.md) for the developer surface and
+[DEV_GUIDE.md](DEV_GUIDE.md) for the layer 3 integration path.
 
 This index catalogs everything under `docs/`. New to the project? Start with
-[architecture.md](architecture.md), then [trust_model.md](trust_model.md) and
-[decision_model.md](decision_model.md).
+[architecture.md](architecture.md), then [trust_model.md](trust_model.md),
+[decision_model.md](decision_model.md), and [PRIVACY.md](PRIVACY.md).
 
 ## Architecture & core model
 
@@ -20,7 +24,7 @@ This index catalogs everything under `docs/`. New to the project? Start with
 - [inference_and_composition.md](inference_and_composition.md) — EZKL inference proofs and composition with the policy proof.
 - [roadmap.md](roadmap.md) — what is implemented and what is planned.
 
-## Identity (L1/L2)
+## Identity and capabilities (L1/L2)
 
 - [l1_l2_token_architecture.md](l1_l2_token_architecture.md) — token architecture decision (JWT-SVID + capability tokens).
 - [l1_l2_hardening.md](l1_l2_hardening.md) — workload-key hardening for the identity backend.
@@ -37,6 +41,7 @@ This index catalogs everything under `docs/`. New to the project? Start with
 - [tlog_tiles.md](tlog_tiles.md) — tile-based static transparency-log export.
 - [scitt.md](scitt.md) — SCITT-aligned receipts (COSE / RFC 6962).
 - [tee_attestation.md](tee_attestation.md) — TEE quote verification (Nitro / TDX / CC).
+- [PRIVACY.md](PRIVACY.md) — receipt-layer data minimization, retention, exports, and production controls.
 
 ## Integration & interop
 

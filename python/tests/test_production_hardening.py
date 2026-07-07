@@ -238,7 +238,11 @@ def test_transparency_register_blocked_in_production_without_single_writer(monke
     monkeypatch.delenv("AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER", raising=False)
     monkeypatch.setenv("AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER", "")
     client = TestClient(vs.create_app())
-    r = client.post("/entries", content=_statement(), headers={"Content-Type": scrapi.MEDIA_COSE})
+    r = client.post(
+        "/entries",
+        content=_statement(),
+        headers={"Content-Type": scrapi.MEDIA_COSE, "X-API-Key": "test-verifier-key"},
+    )
     assert r.status_code == 409
     assert scrapi.decode_problem_details(r.content)["title"] == "Transparency Registration Disabled"
 
@@ -251,7 +255,11 @@ def test_transparency_register_allowed_with_single_writer_flag(monkeypatch):
     _configure_production_baseline(monkeypatch)
     monkeypatch.setenv("AGENT_RECEIPTS_TRANSPARENCY_SINGLE_WRITER", "1")
     client = TestClient(vs.create_app())
-    r = client.post("/entries", content=_statement(), headers={"Content-Type": scrapi.MEDIA_COSE})
+    r = client.post(
+        "/entries",
+        content=_statement(),
+        headers={"Content-Type": scrapi.MEDIA_COSE, "X-API-Key": "test-verifier-key"},
+    )
     assert r.status_code == 201
 
 
