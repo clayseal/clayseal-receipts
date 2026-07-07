@@ -243,7 +243,9 @@ class RepoWorkspace:
     def _resolve(self, rel: str) -> Path:
         clean = rel.lstrip("/")
         path = (self.root / clean).resolve()
-        if not str(path).startswith(str(self.root.resolve())):
+        # Use a real ancestor check, not a string prefix: `startswith` would let a sibling
+        # like `<root>-evil` pass because its path string starts with the root's.
+        if not path.is_relative_to(self.root.resolve()):
             raise ValueError("path escapes repo root")
         return path
 
