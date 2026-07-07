@@ -4,8 +4,9 @@ import json
 from dataclasses import dataclass
 from typing import Any
 from urllib.error import URLError
-from urllib.request import Request, urlopen
+from urllib.request import Request, build_opener
 
+from agentauth.core.safe_http import _NoRedirectHandler
 from agentauth.receipts.behavior_monitor import (
     BehaviorMonitorResult,
     BehaviorMonitorWithContract,
@@ -61,7 +62,7 @@ class HttpSidecarBehaviorMonitor(BehaviorMonitorWithContract):
                 "Accept": "application/json",
             },
         )
-        with urlopen(req, timeout=self.timeout_seconds) as resp:  # noqa: S310
+        with build_opener(_NoRedirectHandler).open(req, timeout=self.timeout_seconds) as resp:
             data = resp.read()
         parsed = json.loads(data.decode("utf-8") if isinstance(data, (bytes, bytearray)) else data)
         if not isinstance(parsed, dict):
@@ -110,4 +111,3 @@ class HttpSidecarBehaviorMonitor(BehaviorMonitorWithContract):
         except (URLError, TimeoutError, ValueError, json.JSONDecodeError):
             return None
         return self._parse_result(raw)
-
