@@ -70,10 +70,11 @@ def production_soundness_violations() -> list[str]:
     for name in _SOUNDNESS_TRUTHY_DENY:
         if _env_truthy(name):
             violations.append(f"{name}={os.environ.get(name)}")
-    # Disabling the default-on bundle-signature requirement is a downgrade.
-    if _env_falsey(REQUIRE_BUNDLE_SIGNATURES_ENV):
+    # Bundle signatures must be explicitly required in production.
+    if not _env_truthy(REQUIRE_BUNDLE_SIGNATURES_ENV):
         violations.append(
-            f"{REQUIRE_BUNDLE_SIGNATURES_ENV}={os.environ.get(REQUIRE_BUNDLE_SIGNATURES_ENV)}"
+            f"{REQUIRE_BUNDLE_SIGNATURES_ENV} must be set to 1 in production "
+            f"(current={os.environ.get(REQUIRE_BUNDLE_SIGNATURES_ENV)!r})"
         )
     return violations
 

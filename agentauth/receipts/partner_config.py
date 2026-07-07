@@ -83,7 +83,9 @@ class PartnerConfig:
             # Production forces strict validation so a producing profile cannot ship
             # with placeholder config (fix #2/#5).
             strict=bool(raw.get("strict", False)) or is_production(),
-            require_identity_binding=bool(raw.get("require_identity_binding", False)),
+            require_identity_binding=bool(
+                raw.get("require_identity_binding", is_production())
+            ),
             config_dir=base,
             config_path=config_path,
         )

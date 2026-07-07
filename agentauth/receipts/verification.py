@@ -32,6 +32,7 @@ class VerifyErrorCode(str, Enum):
     SIGNER_REVOKED = "signer_revoked"
     WITNESS_DIVERGENCE = "witness_divergence"
     AUTHORITY_UNBOUND = "authority_unbound"
+    AUTHORITY_TRUST_THRESHOLD_NOT_MET = "authority_trust_threshold_not_met"
 
 
 @dataclass

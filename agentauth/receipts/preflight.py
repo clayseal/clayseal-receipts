@@ -92,18 +92,26 @@ def run_preflight(
         )
 
     if cfg.require_identity_binding:
-        # The attested identity is injected at runtime by AgentSession.wrap(...), not by
-        # this config, so preflight can only confirm the guard is armed. Receipts produced
-        # by a directly-constructed (unbound) AgentWrapper will now fail at run time.
-        checks.append(
-            _check(
-                "identity_binding_required",
-                True,
-                "require_identity_binding=true: receipts MUST be produced via "
-                "AgentSession.wrap(...) (attested identity); unbound wrappers fail at run time",
-                blocking=False,
+        identity_url = os.environ.get("AGENTAUTH_API_URL", "").strip()
+        if strict and not identity_url:
+            checks.append(
+                _check(
+                    "identity_source",
+                    False,
+                    "AGENTAUTH_API_URL must be set when require_identity_binding=true "
+                    "(Clay Seal identity service endpoint for attested receipts)",
+                )
             )
-        )
+        else:
+            checks.append(
+                _check(
+                    "identity_binding_required",
+                    True,
+                    "require_identity_binding=true: receipts MUST be produced via "
+                    "AgentSession.wrap(...) (attested identity); unbound wrappers fail at run time",
+                    blocking=False,
+                )
+            )
 
     require_prover = cfg.mode == "prove"
     diag = run_diagnostics(require_prover=require_prover)
@@ -130,7 +138,6 @@ def run_preflight(
                 "verifier_api_key",
                 False,
                 "set AGENT_RECEIPTS_VERIFIER_API_KEY in strict deployment",
-                blocking=False,
             )
         )
     else:

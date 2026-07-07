@@ -18,6 +18,8 @@ def _configure_production_baseline(monkeypatch) -> None:
         "a336f3cb3b2d1199b62fd727ed122f580b1d613b9b2934a67e9a9b74432c9160",
     )
     monkeypatch.setenv("AGENTAUTH_HTTP_ALLOWED_HOSTS", "example.com")
+    monkeypatch.setenv("AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES", "1")
+    monkeypatch.setenv("AGENT_RECEIPTS_VERIFIER_API_KEY", "test-verifier-key")
 
 
 # --------------------------------------------------------------------------- #
@@ -30,11 +32,16 @@ def _configure_production_baseline(monkeypatch) -> None:
         ("AGENT_RECEIPTS_ALLOW_UNSIGNED_CERTIFICATE", "1"),
         ("AGENT_RECEIPTS_ALLOW_UNSIGNED_CHECKPOINT", "1"),
         ("AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES", "0"),
+        ("AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES", ""),
     ],
 )
 def test_production_refuses_soundness_downgrades(monkeypatch, flag, value):
     monkeypatch.setenv("AGENT_RECEIPTS_ENV", "production")
-    monkeypatch.setenv(flag, value)
+    _configure_production_baseline(monkeypatch)
+    if value:
+        monkeypatch.setenv(flag, value)
+    else:
+        monkeypatch.delenv(flag, raising=False)
     with pytest.raises(RuntimeError, match="soundness-downgrading"):
         env.enforce_production_soundness()
 

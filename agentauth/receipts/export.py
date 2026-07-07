@@ -52,6 +52,7 @@ from agentauth.receipts.verification import (
     VerifyErrorCode,
     verification_result,
 )
+from agentauth.receipts.binding_state import BINDING_UNBOUND, derive_binding_state
 from agentauth.receipts.wrapper import RunResult
 
 REQUIRE_BUNDLE_SIGNATURES_ENV = "AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES"
@@ -179,6 +180,25 @@ def build_receipt_bundle(
         from agentauth.core.mandate import mandate_bundle_section
 
         common["mandate"] = mandate_bundle_section(signed_mandate)
+
+    if result.workload_proof is not None:
+        common["workload_proof"] = result.workload_proof
+
+    from agentauth.receipts.binding_state import (
+        annotate_authority_binding_state,
+        derive_binding_state,
+    )
+
+    binding_state = derive_binding_state(
+        common,
+        identity_bound=bool(identity),
+        workload_proof_valid=result.workload_proof is not None,
+    )
+    if isinstance(common.get("authority"), dict):
+        common["authority"] = annotate_authority_binding_state(
+            common["authority"],
+            binding_state=binding_state,
+        )
 
     if scitt_issuer_key is not None:
         from agentauth.receipts.scitt_bundle import (
@@ -726,6 +746,35 @@ def _audit_record_signature_issues(bundle: dict[str, Any]) -> list[VerificationI
     return issues
 
 
+def _workload_proof_issues(bundle: dict[str, Any], proof: ExecutionProof) -> list[VerificationIssue]:
+    from agentauth.receipts.workload_proof import verify_workload_proof
+
+    section = bundle.get("workload_proof")
+    if not section:
+        return []
+    authority = bundle.get("authority") or {}
+    if isinstance(bundle.get("execution_context"), dict):
+        auth_ctx = bundle["execution_context"].get("authority")
+        if isinstance(auth_ctx, dict):
+            authority = auth_ctx
+    identity = bundle.get("identity") if isinstance(bundle.get("identity"), dict) else None
+    credential_hash_value = None
+    if isinstance(identity, dict):
+        credential_hash_value = identity.get("credential_hash")
+    issues = []
+    for reason in verify_workload_proof(
+        section,
+        proof_id=str(proof.proof_id),
+        context_hash=proof.context_hash,
+        output_hash=proof.output_hash,
+        policy_commitment=proof.policy_commitment,
+        credential_hash_value=credential_hash_value,
+        presenter_key_hash=authority.get("presenter_key_hash"),
+    ):
+        issues.append(VerificationIssue(VerifyErrorCode.PROOF_INVALID, reason))
+    return issues
+
+
 def _session_proof_issues(bundle: dict[str, Any], proof: ExecutionProof) -> list[VerificationIssue]:
     from agentauth.receipts.session import verify_bundle_session_proof
 
@@ -1004,6 +1053,7 @@ def verify_receipt_bundle(
     bundle: dict[str, Any],
     *,
     min_assurance_tier: str | None = None,
+    min_authority_trust_tier: str | None = None,
     require_identity_binding: bool = False,
 ) -> dict[str, Any]:
     """
@@ -1015,8 +1065,11 @@ def verify_receipt_bundle(
     Authority binding: `identity_issues` authenticates an embedded identity when one
     is present. When ``require_identity_binding`` is set OR a ``min_assurance_tier`` is
     requested (a relying party asking for an assurance floor), a bundle with no
-    *validated* identity binding is rejected with ``AUTHORITY_UNBOUND`` — authority-unbound
-    receipts stay valid only when neither is asked for.
+    *validated* identity binding is rejected with ``AUTHORITY_UNBOUND``.
+
+    ``min_assurance_tier`` thresholds **execution** proof assurance (ZK/TEE/shadow).
+    ``min_authority_trust_tier`` thresholds **authority** trust derived from verified
+    identity evidence in the authority block (separate from execution assurance).
     """
     issues: list[VerificationIssue] = []
 
@@ -1053,10 +1106,12 @@ def verify_receipt_bundle(
     identity_bound = (
         isinstance(bundle.get("identity"), dict) and not identity_evidence_issues
     )
+    workload_proof_issues = _workload_proof_issues(bundle, proof)
     issues.extend(_scitt_section_issues(bundle))
     issues.extend(_tool_witness_issues(bundle))
     issues.extend(_witness_divergence_issues(bundle))
     issues.extend(_session_proof_issues(bundle, proof))
+    issues.extend(workload_proof_issues)
     issues.extend(_delegation_issues(bundle))
     issues.extend(_composed_context_binding_issues(proof))
     issues.extend(_stub_proof_issues(proof))
@@ -1255,6 +1310,16 @@ def verify_receipt_bundle(
                     )
 
     assurance = enrich_assurance_dict(assurance_from_proof(proof).to_dict())
+    binding_state = derive_binding_state(
+        bundle,
+        identity_bound=identity_bound,
+        workload_proof_valid=not workload_proof_issues,
+    )
+    assurance["authority_binding_state"] = binding_state
+    if binding_state == BINDING_UNBOUND:
+        assurance.setdefault("warnings", []).append(
+            "receipt authority is unbound (no verified Clay Seal identity evidence)"
+        )
     stored_assurance = stored_assurance_dict(bundle)
     if stored_assurance:
         if stored_assurance.get("level") != assurance["level"]:
@@ -1307,12 +1372,79 @@ def verify_receipt_bundle(
                     VerificationIssue(
                         VerifyErrorCode.ASSURANCE_THRESHOLD_NOT_MET,
                         (
-                            f"assurance tier {actual.value!r} (ordinal {tier_ordinal(actual)}) "
+                            f"execution assurance tier {actual.value!r} "
+                            f"(ordinal {tier_ordinal(actual)}) "
                             f"is below required {required.value!r} "
                             f"(ordinal {tier_ordinal(required)})"
                         ),
                     )
                 )
+
+    if min_authority_trust_tier is not None:
+        from agentauth.core.runtime import AuthorityContext
+        from agentauth.receipts.policy_engine import _effective_authority_trust_tier
+
+        authority_raw = None
+        execution_context = bundle.get("execution_context")
+        if isinstance(execution_context, dict) and isinstance(
+            execution_context.get("authority"), dict
+        ):
+            authority_raw = execution_context["authority"]
+        elif isinstance(bundle.get("authority"), dict):
+            authority_raw = bundle["authority"]
+
+        if authority_raw is None:
+            issues.append(
+                VerificationIssue(
+                    VerifyErrorCode.AUTHORITY_UNBOUND,
+                    "min_authority_trust_tier requires an authority block on the receipt",
+                )
+            )
+        else:
+            authority_ctx = AuthorityContext.from_dict(authority_raw)
+            if identity_bound:
+                authority_ctx.evidence_verified = True
+            tier_value, tier_issues = _effective_authority_trust_tier(authority_ctx)
+            for message in tier_issues:
+                issues.append(VerificationIssue(VerifyErrorCode.AUTHORITY_MISMATCH, message))
+            try:
+                required_auth = parse_trust_tier(min_authority_trust_tier)
+            except ValueError as exc:
+                issues.append(
+                    VerificationIssue(
+                        VerifyErrorCode.UNSUPPORTED_ASSURANCE,
+                        f"invalid min_authority_trust_tier: {min_authority_trust_tier!r} ({exc})",
+                    )
+                )
+                required_auth = None
+            if required_auth is not None:
+                if tier_value is None:
+                    issues.append(
+                        VerificationIssue(
+                            VerifyErrorCode.AUTHORITY_TRUST_THRESHOLD_NOT_MET,
+                            "authority trust tier could not be derived from receipt evidence",
+                        )
+                    )
+                else:
+                    actual_auth = parse_trust_tier(tier_value)
+                    assurance["authority_trust_tier"] = actual_auth.value
+                    assurance["authority_trust_tier_ordinal"] = tier_ordinal(actual_auth)
+                    assurance["required_authority_trust_tier"] = required_auth.value
+                    assurance["required_authority_trust_tier_ordinal"] = tier_ordinal(
+                        required_auth
+                    )
+                    if not meets_assurance_threshold(actual_auth, required_auth):
+                        issues.append(
+                            VerificationIssue(
+                                VerifyErrorCode.AUTHORITY_TRUST_THRESHOLD_NOT_MET,
+                                (
+                                    f"authority trust tier {actual_auth.value!r} "
+                                    f"(ordinal {tier_ordinal(actual_auth)}) "
+                                    f"is below required {required_auth.value!r} "
+                                    f"(ordinal {tier_ordinal(required_auth)})"
+                                ),
+                            )
+                        )
 
     evidence = bundle.get("evidence", {})
     if evidence:

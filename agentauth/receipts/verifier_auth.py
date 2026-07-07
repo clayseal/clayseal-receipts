@@ -179,9 +179,11 @@ def require_prover_for_ready() -> bool:
 
 def require_identity_binding_from_env() -> bool:
     """Verifier-side toggle: reject authority-unbound bundles on /v1/verify."""
-    return os.environ.get("AGENT_RECEIPTS_REQUIRE_IDENTITY_BINDING", "").strip().lower() in (
-        "1",
-        "true",
-        "yes",
-        "on",
-    )
+    explicit = os.environ.get("AGENT_RECEIPTS_REQUIRE_IDENTITY_BINDING", "").strip().lower()
+    if explicit in ("0", "false", "no", "off"):
+        return False
+    if explicit in ("1", "true", "yes", "on"):
+        return True
+    from agentauth.receipts.environment import is_production
+
+    return is_production()

@@ -1,6 +1,11 @@
 # Developer guide — Clay Seal Receipts (Layer 3)
 
-This is the operational manual for **agentauth-receipts**: the top layer of the Clay Seal stack. It covers installation, day-to-day use of `AgentWrapper`, MCP gateways, verification, partner deployment, and how this repo relates to identity (L1) and capabilities (L2).
+This is the operational manual for **Clay Seal Receipts**: the top layer of the
+Clay Seal stack. The package name remains `agentauth-receipts`, and the Python
+namespace remains `agentauth.receipts`, for compatibility. The product name for
+developers and customers is Clay Seal. This guide covers installation,
+day-to-day use of `AgentWrapper`, MCP gateways, verification, partner
+deployment, and how this repo relates to identity (L1) and capabilities (L2).
 
 If you read one document before integrating Clay Seal into a production agent, make it this one — then drill into the linked deep dives (`docs/trust_model.md`, `docs/deployment.md`, etc.) as needed.
 
@@ -80,13 +85,13 @@ The `[partner]` extra pulls server, MCP, verifier, and dev tooling.
 
 ```bash
 git clone https://github.com/pberlizov/clay-seal-receipts.git
-cd agentauth-receipts
+cd clay-seal-receipts
 python -m venv .venv && source .venv/bin/activate
 
 # Install lower layers first (sibling clones or git URLs)
-pip install -e "../agentauth-core[dev]"
-pip install -e "../agentauth-identity[dev]"
-pip install -e "../agentauth-capabilities[dev]"
+pip install -e "../clay-seal-core[dev]"
+pip install -e "../clay-seal-identity[dev]"
+pip install -e "../clay-seal-capabilities[dev]"
 pip install -e ".[dev]"
 ```
 
@@ -107,6 +112,7 @@ python demo/poisoned_mcp_demo.py      # narrated security demo
 | `verifier` | Standalone HTTP verifier |
 | `deepagents` | Rippling-style red-team fixtures (heavy deps) |
 | `kms` | AWS/GCP KMS for signing key encryption |
+| `frameworks` | LangChain, Pydantic AI, LlamaIndex, CrewAI, OpenAI Agents, Semantic Kernel, AutoGen, Haystack |
 
 ---
 
@@ -366,6 +372,22 @@ Read `docs/trust_model.md` before telling customers what guarantees they get.
 
 ---
 
+## Privacy and data handling
+
+Layer 3 can process prompts, tool inputs, model outputs, source-code snippets,
+policy decisions, identity context, capability context, and exported audit
+payloads. Decide which fields belong in receipts before production rollout.
+
+Use hashes or external references for sensitive payloads when the verifier does
+not need raw content. Enable signed bundles, signed audit checkpoints, trusted
+signer allowlists, HTTP verifier limits, exporter allowlists, and retention
+rules before handling user, employee, financial, or regulated data.
+
+Read [docs/PRIVACY.md](PRIVACY.md) alongside [docs/trust_model.md](trust_model.md)
+and [docs/deployment.md](deployment.md).
+
+---
+
 ## Releases (maintainers)
 
 1. Align versions in identity, capabilities, receipts.
@@ -388,6 +410,7 @@ Current release line: **0.5.0** (`v0.5.0`).
 | Sandbox / leases | [docs/dynamic_planning.md](dynamic_planning.md) |
 | Policy syntax | [docs/policy_language.md](policy_language.md) |
 | HTTP verifier | [docs/http_verifier.md](http_verifier.md) |
+| Privacy and data handling | [docs/PRIVACY.md](PRIVACY.md) |
 | L1 operations | [identity DEV_GUIDE](https://github.com/pberlizov/clay-seal-identity/blob/main/docs/DEV_GUIDE.md) |
 | L2 / IdP adapters | [capabilities DEV_GUIDE](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md) |
 

@@ -55,6 +55,7 @@ def verify_bundle_payload(
     bundle: dict[str, Any],
     *,
     min_assurance_tier: str | None = None,
+    min_authority_trust_tier: str | None = None,
     require_identity_binding: bool | None = None,
 ) -> dict[str, Any]:
     """Run verification and return API-shaped response."""
@@ -64,6 +65,7 @@ def verify_bundle_payload(
         result = verify_receipt_bundle(
             bundle,
             min_assurance_tier=min_assurance_tier,
+            min_authority_trust_tier=min_authority_trust_tier,
             require_identity_binding=require_identity_binding,
         )
     except (KeyError, TypeError, ValueError) as exc:
@@ -162,7 +164,12 @@ async def verify_v1(request: Request) -> JSONResponse:
             status_code=400,
         )
     min_tier = request.query_params.get("min_assurance_tier")
-    payload = verify_bundle_payload(body, min_assurance_tier=min_tier)
+    min_auth_tier = request.query_params.get("min_authority_trust_tier")
+    payload = verify_bundle_payload(
+        body,
+        min_assurance_tier=min_tier,
+        min_authority_trust_tier=min_auth_tier,
+    )
     invalid_tier = any(
         issue.get("code") == "unsupported_assurance"
         and issue.get("message", "").startswith("invalid min_assurance_tier:")

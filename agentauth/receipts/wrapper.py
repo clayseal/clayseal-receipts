@@ -62,6 +62,7 @@ class RunResult:
     audit_record: Any | None
     decision: DecisionResult
     execution_context: ExecutionContext
+    workload_proof: dict[str, Any] | None = None
 
     @property
     def policy_violations(self) -> list[str]:
@@ -158,6 +159,8 @@ class AgentWrapper:
         task_mandate: Mandate | dict[str, Any] | None = None,
         capability_authorizer: CapabilityAuthorizer | None = None,
         require_identity_binding: bool = False,
+        workload_private_pem: str | None = None,
+        agentauth_credential_token: str | None = None,
     ) -> None:
         # Fail closed before any state is created if a production process has a
         # soundness escape hatch set (defaults are safe; this just forbids them).
@@ -170,12 +173,14 @@ class AgentWrapper:
         self.model = model
         self.policy = policy
         # Identity bound into every receipt unless a per-run binding overrides it.
-        # Set by AgentSession.wrap() from a live attested AgentAuth credential;
+        # Set by AgentSession.wrap() from a live attested Clay Seal credential;
         # None means the wrapper runs unbound (the standalone receipts path).
         self.default_authority_binding = default_authority_binding
         # When True, refuse to produce a receipt without an attested authority
         # binding (production profiles that must not emit authority-unbound receipts).
         self.require_identity_binding = require_identity_binding
+        self._workload_private_pem = workload_private_pem
+        self._agentauth_credential_token = agentauth_credential_token
         self.capability_authorizer = capability_authorizer
         self.policy_engine = policy_engine or YamlPolicyEngine(policy)
         self.reservation_callback = reservation_callback or noop_reservation_callback
@@ -561,13 +566,56 @@ class AgentWrapper:
             budget_effects=budget_effects,
         )
 
+        workload_proof = self._maybe_sign_workload_proof(
+            proof=proof,
+            authority_binding=authority_binding,
+        )
+
         return RunResult(
             output=output,
             proof=proof,
             audit_record=audit_record,
             decision=decision,
             execution_context=execution_context,
+            workload_proof=workload_proof,
         )
+
+    def _maybe_sign_workload_proof(
+        self,
+        *,
+        proof: ExecutionProof,
+        authority_binding: AuthorityBinding | dict[str, Any] | None,
+    ) -> dict[str, Any] | None:
+        if not self._workload_private_pem:
+            return None
+        binding = (
+            authority_binding
+            if isinstance(authority_binding, AuthorityBinding)
+            else (
+                AuthorityBinding.from_dict(authority_binding)
+                if isinstance(authority_binding, dict)
+                else None
+            )
+        )
+        if binding is None or not binding.evidence_verified:
+            return None
+        from agentauth.receipts.workload_proof import (
+            build_workload_proof_binding,
+            credential_hash,
+            load_signing_key_from_pem,
+            sign_workload_proof,
+        )
+
+        token = self._agentauth_credential_token or ""
+        binding_doc = build_workload_proof_binding(
+            proof_id=str(proof.proof_id),
+            context_hash=proof.context_hash,
+            output_hash=proof.output_hash,
+            policy_commitment=proof.policy_commitment,
+            credential_hash_value=credential_hash(token) if token else "",
+        )
+        key = load_signing_key_from_pem(self._workload_private_pem)
+        return sign_workload_proof(binding_doc, key)
 
     def _normalize_execution_context(
         self,

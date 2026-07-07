@@ -11,9 +11,9 @@ integrations.
 
 For production or consequential agent actions, a receipt should be considered an
 **Clay Seal production receipt** only when it is bound to an attested authority identity.
-Today that identity-bound path is `AgentAuth.identify(...) -> AgentSession.wrap(...) ->
-AgentWrapper.run(...)`, where `AgentSession.wrap()` injects an `AuthorityBinding` derived
-from the live Clay Seal credential.
+Today that identity-bound path is ``Identity.identify(...)`` (or ``AgentAuth.identify``)
+-> ``AgentSession.wrap(...)`` -> ``AgentWrapper.run(...)``, where ``AgentSession.wrap()``
+injects an ``AuthorityBinding`` derived from the live Clay Seal credential.
 
 The production goal is to preserve the standalone receipts path while making the trust
 boundary explicit and machine-checkable.
@@ -148,7 +148,8 @@ Required changes:
 - Rename the deployment guide wording to "Stable receipt certificate identity" or
   "Stable receipt producer id".
 - Explicitly document that Clay Seal production identity requires
-  `AgentAuth.identify(...)` and `AgentSession.wrap(...)`.
+  ``Identity.identify(...)`` and ``AgentSession.wrap(...)`` (``AgentAuth`` remains the
+  compatibility SDK class name).
 - Update design partner docs to say standalone `AgentWrapper` receipts are unbound unless
   an `AuthorityBinding` is supplied.
 - Update verifier docs to explain the difference between execution assurance and

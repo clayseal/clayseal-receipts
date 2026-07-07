@@ -27,7 +27,9 @@ def test_delegation_scope_must_shrink():
         capabilities=[mcp_tool_capability("score_transaction")],
     )
     assert child.depth == 1
-    assert verify_delegation_chain(child, tool_name="score_transaction") == []
+    assert verify_delegation_chain(
+        child, tool_name="score_transaction", require_signature=False
+    ) == []
 
     with pytest.raises(ValueError, match="exceed parent"):
         issue_delegation(
@@ -46,7 +48,9 @@ def test_delegation_denies_tool_outside_scope():
         delegate_agent_id=uuid4(),
         capabilities=[mcp_tool_capability("score_transaction")],
     )
-    violations = verify_delegation_chain(token, tool_name="fetch_customer_profile")
+    violations = verify_delegation_chain(
+        token, tool_name="fetch_customer_profile", require_signature=False
+    )
     assert any("delegation capabilities" in v for v in violations)
 
 

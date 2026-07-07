@@ -3,10 +3,8 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from typing import Any
-from urllib.error import URLError
-from urllib.request import Request, build_opener
 
-from agentauth.core.safe_http import _NoRedirectHandler
+from agentauth.core.safe_http import SafeHttpError, safe_http_post
 from agentauth.receipts.behavior_monitor import (
     BehaviorMonitorResult,
     BehaviorMonitorWithContract,
@@ -49,21 +47,25 @@ class HttpSidecarBehaviorMonitor(BehaviorMonitorWithContract):
     def status(self) -> SidecarMonitorStatus:
         if not isinstance(self.url, str) or not self.url:
             return SidecarMonitorStatus(False, "missing url")
+        try:
+            from agentauth.core.safe_http import validate_outbound_url
+
+            validate_outbound_url(self.url)
+        except SafeHttpError as exc:
+            return SidecarMonitorStatus(False, str(exc))
         return SidecarMonitorStatus(True, None)
 
     def _post_json(self, payload: dict[str, Any]) -> dict[str, Any]:
         body = json.dumps(payload).encode("utf-8")
-        req = Request(
+        data = safe_http_post(
             self.url,
-            method="POST",
-            data=body,
+            body=body,
+            timeout=self.timeout_seconds,
             headers={
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             },
         )
-        with build_opener(_NoRedirectHandler).open(req, timeout=self.timeout_seconds) as resp:
-            data = resp.read()
         parsed = json.loads(data.decode("utf-8") if isinstance(data, (bytes, bytearray)) else data)
         if not isinstance(parsed, dict):
             raise ValueError("sidecar response must be a JSON object")
@@ -108,6 +110,6 @@ class HttpSidecarBehaviorMonitor(BehaviorMonitorWithContract):
             return None
         try:
             raw = self._post_json({"input": contract.to_dict()})
-        except (URLError, TimeoutError, ValueError, json.JSONDecodeError):
+        except (SafeHttpError, TimeoutError, ValueError, json.JSONDecodeError):
             return None
         return self._parse_result(raw)

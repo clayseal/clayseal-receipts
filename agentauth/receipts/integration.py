@@ -47,7 +47,7 @@ def wrap_agentauth_session(
     task_mandate: Any = None,
     **kwargs: Any,
 ) -> Any:
-    """Wrap a model bound to a native AgentAuth ``AgentSession``.
+    """Wrap a model bound to a native Clay Seal ``AgentSession``.
 
     Duck-typed on purpose: ``session`` only needs ``.credential`` (with
     ``to_binding_dict()`` and ``biscuit``) and ``.authorize`` — so this module
@@ -62,6 +62,10 @@ def wrap_agentauth_session(
     capability_authorizer = session.authorize if session.credential.biscuit else None
     if task_mandate is not None:
         kwargs["task_mandate"] = task_mandate
+    workload_pem = getattr(session, "_workload_private_pem", None)
+    if workload_pem:
+        kwargs.setdefault("workload_private_pem", workload_pem)
+    kwargs.setdefault("agentauth_credential_token", session.token)
     return AgentWrapper(
         model,
         policy,
@@ -77,10 +81,10 @@ def wrap_with_provider_claims(
     provider: str,
     claims: dict[str, Any],
     *,
-    evidence_verified: bool = True,
+    evidence_verified: bool = False,
     **kwargs: Any,
 ) -> Any:
-    """Wrap a model from provider claims without requiring AgentAuth L1.
+    """Wrap a model from provider claims without requiring Clay Seal Identity (L1).
 
     Requires only the capabilities package for provider normalization. L3 still
     runs without L1 if the caller supplies OIDC/SPIFFE/Auth0/AWS-STS claims.

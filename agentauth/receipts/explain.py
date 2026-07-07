@@ -64,6 +64,7 @@ def explain_receipt_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
             "authority_id": authority.get("authority_id"),
             "authority_version": authority.get("authority_version", proof.authority_version),
             "session_id": authority.get("session_id", proof.session_id),
+            "binding_state": authority.get("binding_state"),
         },
         "lineage": lineage,
         "budget": budget,
