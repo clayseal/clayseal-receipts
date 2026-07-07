@@ -50,7 +50,7 @@ mcp = [
 ]
 onnx = [
     "onnx>=1.16",
-    "numpy>=1.26",
+    "numpy>=2.2.6",
 ]
 ezkl = [
     "agentauth-receipts[onnx]",
