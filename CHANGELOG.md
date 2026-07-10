@@ -38,7 +38,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 ### Added
 
 - **Three-repo architecture** — this package is layer 3 (receipts + verification). Depends on:
-  - [agentauth-identity](https://github.com/pberlizov/clay-seal-identity) v0.4.0
+  - [agentauth-identity](https://github.com/pberlizov/clayseal-identity) v0.4.0
   - [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) v0.4.0
 - Cross-provider receipt wrapping via `agentauth.receipts.integration.wrap_with_identity_session()`.
 - `docs/DEV_GUIDE.md` — comprehensive developer guide for the full stack.

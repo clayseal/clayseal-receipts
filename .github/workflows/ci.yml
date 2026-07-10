@@ -24,7 +24,7 @@ jobs:
       # checked out here so the dev suite can exercise the full stack.
       - uses: actions/checkout@v4
         with:
-          repository: pberlizov/clay-seal-identity
+          repository: pberlizov/clayseal-identity
           token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-identity
           ref: main
@@ -110,7 +110,7 @@ jobs:
           ref: main
       - uses: actions/checkout@v4
         with:
-          repository: pberlizov/clay-seal-identity
+          repository: pberlizov/clayseal-identity
           token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
           path: deps/agentauth-identity
           ref: main

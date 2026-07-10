@@ -60,7 +60,7 @@ Runtime data flow
 
 | Layer | Repo | You use it for |
 |-------|------|----------------|
-| L1 | [agentauth-identity](https://github.com/pberlizov/clay-seal-identity) | Mint/verify agent credentials |
+| L1 | [agentauth-identity](https://github.com/pberlizov/clayseal-identity) | Mint/verify agent credentials |
 | L2 | [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) | Commit tokens, mandates, leases |
 | L3 | **this repo** | Receipts, MCP, verify, demos |
 
@@ -74,7 +74,7 @@ Runtime data flow
 
 ```bash
 pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/clay-seal-identity.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clayseal-identity.git@v0.5.0"
 pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
 pip install "agentauth-receipts[partner] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
 ```
@@ -90,7 +90,7 @@ python -m venv .venv && source .venv/bin/activate
 
 # Install lower layers first (sibling clones or git URLs)
 pip install -e "../clay-seal-core[dev]"
-pip install -e "../clay-seal-identity[dev]"
+pip install -e "../clayseal-identity[dev]"
 pip install -e "../clay-seal-capabilities[dev]"
 pip install -e ".[dev]"
 ```
@@ -411,7 +411,7 @@ Current release line: **0.5.0** (`v0.5.0`).
 | Policy syntax | [docs/policy_language.md](policy_language.md) |
 | HTTP verifier | [docs/http_verifier.md](http_verifier.md) |
 | Privacy and data handling | [docs/PRIVACY.md](PRIVACY.md) |
-| L1 operations | [identity DEV_GUIDE](https://github.com/pberlizov/clay-seal-identity/blob/main/docs/DEV_GUIDE.md) |
+| L1 operations | [identity DEV_GUIDE](https://github.com/pberlizov/clayseal-identity/blob/main/docs/DEV_GUIDE.md) |
 | L2 / IdP adapters | [capabilities DEV_GUIDE](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md) |
 
 ---

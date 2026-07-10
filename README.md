@@ -41,7 +41,7 @@ native L1/L2 binding.
 | Layer | Repository | Purpose |
 | --- | --- | --- |
 | Core | [clay-seal-core](https://github.com/pberlizov/clay-seal-core) | Shared contracts and crypto helpers |
-| L1 | [clay-seal-identity](https://github.com/pberlizov/clay-seal-identity) | Agent identity and credential issuance |
+| L1 | [clayseal-identity](https://github.com/pberlizov/clayseal-identity) | Agent identity and credential issuance |
 | L2 | [clay-seal-capabilities](https://github.com/pberlizov/clay-seal-capabilities) | Commit tokens, mandates, leases, budgets |
 | L3 | this repo | Receipts, MCP gateways, audit, verification |
 
@@ -51,7 +51,7 @@ Pinned partner install:
 
 ```bash
 pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/clay-seal-identity.git@v0.5.0"
+pip install "git+https://github.com/pberlizov/clayseal-identity.git@v0.5.0"
 pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
 pip install "agentauth-receipts[partner] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
 ```
@@ -60,13 +60,13 @@ Editable development:
 
 ```bash
 git clone https://github.com/pberlizov/clay-seal-core.git ../clay-seal-core
-git clone https://github.com/pberlizov/clay-seal-identity.git ../clay-seal-identity
+git clone https://github.com/pberlizov/clayseal-identity.git ../clayseal-identity
 git clone https://github.com/pberlizov/clay-seal-capabilities.git ../clay-seal-capabilities
 git clone https://github.com/pberlizov/clay-seal-receipts.git
 cd clay-seal-receipts
 python -m venv .venv && source .venv/bin/activate
 pip install -e "../clay-seal-core[dev]"
-pip install -e "../clay-seal-identity[dev]"
+pip install -e "../clayseal-identity[dev]"
 pip install -e "../clay-seal-capabilities[dev]"
 pip install -e ".[dev]"
 pytest python/tests -q
