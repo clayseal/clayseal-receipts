@@ -443,7 +443,7 @@ compact export stripping verification inputs).
   - [agentauth/receipts/wrapper.py](../agentauth/receipts/wrapper.py)
   - [agentauth/receipts/compose.py](../agentauth/receipts/compose.py)
   - [agentauth/receipts/prover.py](../agentauth/receipts/prover.py)
-  - [crates/clay-seal-receipts-cli/src/main.rs](../crates/clay-seal-receipts-cli/src/main.rs)
+  - [crates/agent-receipts-cli/src/main.rs](../crates/agent-receipts-cli/src/main.rs)
 - Problem:
   - `AgentWrapper.record()` calls `prove_composed()` without passing `Policy.numeric_ranges`.
   - Composed proofs always prove `min=0, max=1` (CLI defaults) while `prove_structural_policy()` uses the real policy range.

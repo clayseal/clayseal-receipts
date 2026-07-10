@@ -23,7 +23,7 @@ This is **logical composition**: the verifier checks both sub-proofs plus explic
 pip install torch onnx   # export ONNX
 # install ezkl CLI — see https://docs.ezkl.xyz
 ./scripts/ezkl_setup_fraud_head.sh
-CARGO_TARGET_DIR=$PWD/target cargo build -p clay-seal-receipts-cli --release
+CARGO_TARGET_DIR=$PWD/target cargo build -p agent-receipts-cli --release
 ```
 
 ## CLI
@@ -35,12 +35,12 @@ CARGO_TARGET_DIR=$PWD/target cargo build -p clay-seal-receipts-cli --release
   --output-hash abc --out /tmp/inf.json --allow-stub
 
 # Composed one-shot
-./target/release/clay-seal-receipts prove-composed \
+./target/release/agent-receipts prove-composed \
   --amount 2500 --fraud-score 0.25 \
   --policy-commitment <hash> --model-provenance-hash sha256:fraud-head-onnx-v1 \
   --output-hash abc --context-hash ctx --out /tmp/composed.json --allow-stub
 
-./target/release/clay-seal-receipts verify-composed --envelope /tmp/composed.json --allow-stub
+./target/release/agent-receipts verify-composed --envelope /tmp/composed.json --allow-stub
 ```
 
 ## Python

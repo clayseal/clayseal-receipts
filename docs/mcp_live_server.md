@@ -117,7 +117,7 @@ asyncio.run(run())
 Set `mode="prove"` and `prove_composed=True` on `AgentWrapper`. For `score_fraud_model`, the client unwraps `output["result"]` for policy checks and uses `context["input"]["amount"]` plus `fraud_score` for composed EZKL + Halo2 proofs.
 
 ```bash
-CARGO_TARGET_DIR=$PWD/target cargo build -p clay-seal-receipts-cli --release
+CARGO_TARGET_DIR=$PWD/target cargo build -p agent-receipts-cli --release
 python3 examples/mcp_live_prove_client.py
 ```
 

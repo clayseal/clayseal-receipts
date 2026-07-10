@@ -11,7 +11,7 @@ set -euo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$HERE"
 
-AGENT_RECEIPTS_SRC="${AGENT_RECEIPTS_SRC:-$(cd "$HERE/../agent-receipts" && pwd)}"
+AGENT_RECEIPTS_SRC="${AGENT_RECEIPTS_SRC:-$(cd "$HERE/.." && pwd)}"
 PORT="${PORT:-8849}"
 
 # 1. venv + deps (agentauth consumed editable from the sibling checkout)

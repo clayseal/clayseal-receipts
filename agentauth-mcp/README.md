@@ -1,7 +1,7 @@
 # agentauth-mcp — the Clay Seal gate as an MCP server
 
 An authorization gate for autonomous coding agents (Devin), exposed over MCP. It
-integrates the **full clay-seal-receipts stack** behind four tools and a CI merge
+integrates the **full Clay Seal receipts stack** behind three tools and a CI merge
 gate, so a closed agent you cannot modify is held to a human-signed scope.
 
 ```
@@ -14,7 +14,7 @@ Devin ──MCP/ngrok──▶ agentauth-gate (this server)
                      embedded Clay Seal backend (in-process, throwaway sqlite)
 ```
 
-## The four tools (session lifecycle)
+## The three tools (session lifecycle)
 
 1. **`begin_authorized_session(issue_ref, agent_actor)`** — issues a task-scoped
    identity + Biscuit capability grant derived from the human-signed mandate;
@@ -60,7 +60,7 @@ In Devin: **Settings → Connections → MCP servers → Add a custom MCP**, Tra
 Substitute your checkout path (or set `AGENTAUTH_MCP_PYTHON` when running `tests/test_stdio.py`).
 
 By default the gate uses `AGENTAUTH_MCP_RECEIPT_MODE=prove` when
-`target/release/clay-seal-receipts` exists, otherwise it uses `shadow` so local stdio
+`target/release/agent-receipts` exists, otherwise it uses `shadow` so local stdio
 smokes still authorize and write receipts. Set `AGENTAUTH_MCP_RECEIPT_MODE=prove`
 in production/CI to require the Rust proof path.
 
@@ -139,7 +139,7 @@ requires additionally fronting untrusted MCP servers with a receipted egress pro
 Manual integration tests (require local `.venv` setup above):
 
 ```bash
-.venv/bin/python tests/test_inproc.py    # all four tools, allow + deny, proof + signature self-check
+.venv/bin/python tests/test_inproc.py    # session lifecycle, allow + deny, proof + signature self-check
 .venv/bin/python tests/test_ci_gate.py   # CI verifier: pass + tamper (uncovered file / wrong key / corrupt proof)
 .venv/bin/python tests/test_stdio.py     # spawns BOTH servers over stdio (Devin-style), verifies clean JSON-RPC
 

@@ -44,7 +44,7 @@ Use `schema_version="v1"` on `build_receipt_bundle()` or `migrate_v1_to_v2()` fo
 | `policy_range_v2` | Range + output/policy binding |
 | `policy_range_v3` (current) | Adds in-circuit required-field presence mask |
 
-Rebuild the Rust CLI after pulling: `cargo build -p clay-seal-receipts-cli --release`.
+Rebuild the Rust CLI after pulling: `cargo build -p agent-receipts-cli --release`.
 
 ## Migration guidance
 
