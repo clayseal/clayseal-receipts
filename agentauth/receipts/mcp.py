@@ -209,6 +209,7 @@ class ReceiptedMcpGateway:
         self._tool_capability_lease: Any | None = None
         self._tool_call_budget: Any | None = None
         self._value_budget: Any | None = None
+        self._call_budget: Any | None = None
         self._tool_specs: dict[str, Any] = {}
         self.behavior_monitor = behavior_monitor or NullBehaviorMonitor()
         self.sandbox_governor = sandbox_governor or NullSandboxGovernor()
@@ -428,6 +429,14 @@ class ReceiptedMcpGateway:
         tools/servers -- e.g. the legacy connector debits the same payout
         budget as the governed tool."""
         self._value_budget = value_budget
+
+    def set_call_budget(self, call_budget: Any) -> None:
+        """Apply a shared grant-wide call-count budget (a SessionCallBudget, the
+        count sibling of the value budget). Enforces a mandate's TOOL_CALL_LIMIT
+        -- an unauthorized *number* of individually-valid calls -- across tools.
+        Share one instance across sibling gateways so the count accumulates no
+        matter which tool or server the calls are spread over."""
+        self._call_budget = call_budget
 
     def active_tool_capability_lease(self) -> Any | None:
         return self._tool_capability_lease
@@ -802,6 +811,12 @@ class ReceiptedMcpGateway:
                 violations.append(
                     f"value budget {reason}: tool={tool_name!r}"
                 )
+        if self._call_budget is not None:
+            allowed, reason = self._call_budget.would_allow(tool_name, arguments)
+            if not allowed:
+                violations.append(
+                    f"call budget {reason}: tool={tool_name!r}"
+                )
         return violations, monitoring_payload, execution_context
 
     def _monitoring_violations(
@@ -945,6 +960,7 @@ class ReceiptedMcpGateway:
         )
         tool_reservation = None
         value_reservation = None
+        call_reservation = None
         if not blocked:
             from agentauth.capabilities.scoping.tools import (
                 release_tool_call_budget,
@@ -959,17 +975,24 @@ class ReceiptedMcpGateway:
             )
             if self._value_budget is not None:
                 value_reservation = self._value_budget.reserve(name, args)
+            if self._call_budget is not None:
+                call_reservation = self._call_budget.reserve(name, args)
             budget_denied: list[str] = []
             if tool_reservation is not None and not tool_reservation.allowed:
                 budget_denied.append(f"tool call budget {tool_reservation.reason}")
             if value_reservation is not None and not value_reservation.allowed:
                 budget_denied.append(f"value budget {value_reservation.reason}: tool={name!r}")
+            if call_reservation is not None and not call_reservation.allowed:
+                budget_denied.append(f"call budget {call_reservation.reason}: tool={name!r}")
             if budget_denied:
                 release_tool_call_budget(tool_reservation)
                 if value_reservation is not None:
                     value_reservation.release()
+                if call_reservation is not None:
+                    call_reservation.release()
                 tool_reservation = None
                 value_reservation = None
+                call_reservation = None
                 violations = [*violations, *budget_denied]
                 blocked = True
 
@@ -1027,6 +1050,8 @@ class ReceiptedMcpGateway:
             tool_reservation.commit()
         if value_reservation is not None:
             value_reservation.commit()
+        if call_reservation is not None:
+            call_reservation.commit()
 
         raw = self._handlers[name](args)
         output = self._tool_output(name, status="ok", result=raw)
@@ -1100,6 +1125,7 @@ class ReceiptedMcpGateway:
         )
         tool_reservation = None
         value_reservation = None
+        call_reservation = None
         if not blocked:
             from agentauth.capabilities.scoping.tools import (
                 release_tool_call_budget,
@@ -1114,17 +1140,24 @@ class ReceiptedMcpGateway:
             )
             if self._value_budget is not None:
                 value_reservation = self._value_budget.reserve(name, args)
+            if self._call_budget is not None:
+                call_reservation = self._call_budget.reserve(name, args)
             budget_denied: list[str] = []
             if tool_reservation is not None and not tool_reservation.allowed:
                 budget_denied.append(f"tool call budget {tool_reservation.reason}")
             if value_reservation is not None and not value_reservation.allowed:
                 budget_denied.append(f"value budget {value_reservation.reason}: tool={name!r}")
+            if call_reservation is not None and not call_reservation.allowed:
+                budget_denied.append(f"call budget {call_reservation.reason}: tool={name!r}")
             if budget_denied:
                 release_tool_call_budget(tool_reservation)
                 if value_reservation is not None:
                     value_reservation.release()
+                if call_reservation is not None:
+                    call_reservation.release()
                 tool_reservation = None
                 value_reservation = None
+                call_reservation = None
                 violations = [*violations, *budget_denied]
                 blocked = True
 
@@ -1168,6 +1201,8 @@ class ReceiptedMcpGateway:
             tool_reservation.commit()
         if value_reservation is not None:
             value_reservation.commit()
+        if call_reservation is not None:
+            call_reservation.commit()
 
         if name in self._async_handlers:
             raw = await self._async_handlers[name](args)
