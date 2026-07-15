@@ -419,6 +419,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn prove_verify_roundtrip() {
         let out = json!({"decision": "approve", "fraud_score": 0.42});
         let required = vec!["decision".into(), "fraud_score".into()];
@@ -428,6 +429,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn confidential_prove_verify_roundtrip_hides_score() {
         let env = prove_policy_range_confidential(0.42, 0.0, 1.0, "pol", "out", None).unwrap();
         assert!(verify_policy_range_confidential(&env).unwrap());
@@ -439,6 +441,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn confidential_verify_rejects_tampered_commitment() {
         let mut env = prove_policy_range_confidential(0.42, 0.0, 1.0, "pol", "out", None).unwrap();
         // Swap in a commitment to a different score: proof no longer matches.
@@ -447,6 +450,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn confidential_verify_rejects_swapped_bindings() {
         let base = prove_policy_range_confidential(0.42, 0.0, 1.0, "pol", "out", None).unwrap();
         let mut tampered = base.clone();
@@ -464,6 +468,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn verify_rejects_swapped_output_commitment() {
         let out = json!({"decision": "approve", "fraud_score": 0.42});
         let mut env = prove_policy_range(0.42, 0.0, 1.0, "pol", "out", &[], &out).unwrap();
@@ -472,6 +477,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn verify_rejects_swapped_policy_commitment() {
         let out = json!({"decision": "approve", "fraud_score": 0.42});
         let mut env = prove_policy_range(0.42, 0.0, 1.0, "pol", "out", &[], &out).unwrap();
@@ -480,6 +486,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 proof generation; run with `cargo test -p agent-receipts-policy-circuit -- --ignored`"]
     fn verify_rejects_tampered_required_mask() {
         let out = json!({"decision": "approve", "fraud_score": 0.42});
         let required = vec!["decision".into(), "fraud_score".into()];

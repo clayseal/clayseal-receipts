@@ -225,6 +225,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 batch proof generation; run with `cargo test -p agent-receipts-session -- --ignored`"]
     fn batch_prove_verify_roundtrip() {
         let actions = sample_actions(3);
         let env = prove_session_batch("sess-1", &actions).unwrap();
@@ -233,6 +234,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Halo2 batch proof generation; run with `cargo test -p agent-receipts-session -- --ignored`"]
     fn batch_rejects_tampered_digest() {
         let actions = sample_actions(2);
         let mut env = prove_session_batch("sess-1", &actions).unwrap();

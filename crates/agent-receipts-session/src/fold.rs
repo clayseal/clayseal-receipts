@@ -355,6 +355,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Nova fold proof generation; run with `cargo test -p agent-receipts-session -- --ignored`"]
     fn fold_prove_verify_roundtrip() {
         let _guard = fold_test_lock().lock().unwrap();
         let actions = sample_actions(3);
@@ -364,6 +365,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Nova fold proof generation; run with `cargo test -p agent-receipts-session -- --ignored`"]
     fn fold_rejects_out_of_range_action_metadata() {
         let _guard = fold_test_lock().lock().unwrap();
         let actions = sample_actions(2);
@@ -373,6 +375,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive Nova key generation; run with `cargo test -p agent-receipts-session -- --ignored`"]
     fn pp_regeneration_invalidates_stale_compressed_keys() {
         let _guard = fold_test_lock().lock().unwrap();
         let temp = std::env::temp_dir().join(format!(

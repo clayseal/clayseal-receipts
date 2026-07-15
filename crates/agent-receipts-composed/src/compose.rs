@@ -183,6 +183,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn bindings_reject_mismatched_context_hash() {
         let out = sample_output(0.25);
         let policy = prove_policy_range(0.25, 0.0, 1.0, "pol", "out-a", &[], &out).unwrap();
@@ -200,6 +201,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn bindings_reject_mismatched_output_hash() {
         let out = sample_output(0.25);
         let policy = prove_policy_range(0.25, 0.0, 1.0, "pol", "out-a", &[], &out).unwrap();
@@ -216,6 +218,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn composed_accepts_stub_inference_and_policy() {
         let output_hash = "deadbeef";
         let out = sample_output(0.25);

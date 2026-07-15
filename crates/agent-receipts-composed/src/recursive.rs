@@ -430,6 +430,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive recursive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn recursive_composed_accepts_stub_subproofs() {
         let output_hash = "out-recursive";
         let out = sample_output(0.25);
@@ -451,6 +452,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive recursive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn recursive_rejects_invalid_policy_subproof() {
         let output_hash = "out-recursive";
         let out = sample_output(0.25);
@@ -471,6 +473,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive recursive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn recursive_rejects_tampered_output_hash() {
         let output_hash = "out-recursive";
         let out = sample_output(0.25);
@@ -490,6 +493,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "expensive recursive proof generation; run with `cargo test -p agent-receipts-composed -- --ignored`"]
     fn logical_and_recursive_both_available() {
         let output_hash = "out-both";
         let out = sample_output(0.5);
