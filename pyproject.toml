@@ -22,11 +22,9 @@ classifiers = [
 ]
 # biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.
 requires-python = ">=3.10,<3.14"
-# Hard dependency: ONLY the contract layer. Identity and capabilities are
-# optional extras — receipts runs (and verifies bundles, incl. mandates) with
-# core alone; leases/scoping/sandbox need [scoping], identity-bound demos [identity].
+# Receipts is standalone: the small agentauth.core contract layer it needs is
+# shipped in this distribution. Identity and capabilities remain optional.
 dependencies = [
-  "agentauth-core>=0.5,<0.6",
   "pyyaml>=6.0",
   "cryptography>=42.0",
   "cbor2>=5.4",
@@ -44,7 +42,9 @@ Changelog = "https://github.com/pberlizov/clay-seal-receipts/blob/main/CHANGELOG
 
 [project.optional-dependencies]
 # Dynamic sandbox / capability leases / task scoping enforcement (L2 features).
-scoping = ["agentauth-capabilities>=0.5,<0.6"]
+# The L2 package is not part of this public release yet; install it separately
+# in private Clay Seal environments and receipts will use it lazily.
+scoping = []
 # Identity-bound flows (attested sessions feeding receipts) for demos/e2e tests.
 identity = ["clayseal-identity>=0.6,<0.7"]
 # Hosted FastAPI service (identity issuance/validation + receipt verifier).
@@ -132,10 +132,10 @@ dev = [
     "coverage[toml]>=7.5",
     "diff-cover>=9.0",
     "ruff>=0.4",
-    "agentauth-receipts[server,mcp,verifier,scoping,identity]",
+    "agentauth-receipts[server,mcp,verifier]",
 ]
 partner = [
-    "agentauth-receipts[server,mcp,verifier,dev]",
+    "agentauth-receipts[server,mcp,verifier]",
 ]
 
 [project.scripts]
@@ -156,18 +156,16 @@ drata = "agentauth.receipts.exporters.drata:DrataExporter"
 nitro = "agentauth.receipts.attestation:NITRO_VERIFIER"
 eat_jwt = "agentauth.receipts.attestation:EAT_JWT_VERIFIER"
 
-# Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
-# under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the
-# clayseal-identity wheel, capabilities from agentauth-capabilities, and core/facade
-# from agentauth-core;
-# shipping copies here would overlap their RECORD on a clean install.
+# Ship the receipts runtime plus the small core contract layer it needs. Identity
+# and capabilities stay optional and are not vendored here.
 # `only-include` (not `packages`) is used so the path is kept, not relocated to the root.
 [tool.hatch.build.targets.wheel]
-only-include = ["agentauth/receipts"]
+only-include = ["agentauth/receipts", "agentauth/core"]
 
 [tool.hatch.build.targets.sdist]
 only-include = [
     "agentauth/receipts",
+    "agentauth/core",
     "compliance",
     "config",
     "policies",
@@ -193,9 +191,9 @@ exclude = [
 ]
 
 [tool.pytest.ini_options]
-# Receipts runtime suite plus the identity->receipt seam test (sdk/python/tests).
-# Identity backend/SDK and capability units are tested in their own repos.
-testpaths = ["python/tests", "sdk/python/tests", "benchmarks/tests"]
+# Default pytest should be standalone. Identity seam tests under sdk/python/tests
+# require the optional [identity] extra and are run separately in CI.
+testpaths = ["python/tests", "benchmarks/tests"]
 pythonpath = ["."]
 
 [tool.coverage.run]

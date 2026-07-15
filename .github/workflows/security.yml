@@ -1,6 +1,6 @@
 name: security
 
-# Supply-chain scanning, additive to ci.yml (python/core-only/rust jobs).
+# Supply-chain scanning, additive to ci.yml (Python/package/Rust jobs).
 # Trivy fs also scans Cargo.lock, so the Rust crates are covered here too.
 on:
   push:
@@ -17,19 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: pberlizov/clay-seal-core
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-core
-          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - name: Install (siblings + self editable, so --skip-editable audits only third-party deps)
+      - name: Install self editable, so --skip-editable audits only third-party deps
         run: |
           python -m pip install --upgrade pip
-          pip install -e ./deps/agentauth-core
           pip install -e ".[server,mcp,verifier]"
           pip install pip-audit
       - name: Audit third-party dependencies

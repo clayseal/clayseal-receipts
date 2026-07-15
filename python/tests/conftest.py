@@ -2,7 +2,29 @@
 
 from __future__ import annotations
 
+import importlib.util
+
 import pytest
+
+
+def pytest_ignore_collect(collection_path) -> bool:  # type: ignore[no-untyped-def]
+    """Skip L2 capability tests when the optional capabilities package is absent."""
+    if collection_path.suffix != ".py":
+        return False
+    if importlib.util.find_spec("agentauth.capabilities") is not None:
+        return False
+    try:
+        text = collection_path.read_text(encoding="utf-8")
+    except OSError:
+        return False
+    l2_patterns = (
+        "agentauth.capabilities",
+        "ReceiptedMcpGateway",
+        "RepoAgentSession",
+        "build_fixture_agent",
+        "wrap_mcp_session",
+    )
+    return any(pattern in text for pattern in l2_patterns)
 
 
 @pytest.fixture(autouse=True)

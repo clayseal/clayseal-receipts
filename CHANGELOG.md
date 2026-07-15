@@ -10,6 +10,11 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Added — production hardening (multi-instance deployment)
 
+- **Standalone release packaging**: `agentauth-receipts` now ships the small
+  `agentauth.core` contract layer it needs directly, so the public package no
+  longer depends on a private `agentauth-core` repository. Optional L2
+  capability checks remain lazy and fail closed only when L2-specific leases,
+  budgets, or commit tokens are actually used.
 - **Production guardrail** (`agentauth/receipts/environment.py`): `AGENT_RECEIPTS_ENV=production`
   refuses to start when any soundness escape hatch is set (`AGENT_RECEIPTS_ALLOW_STUB`,
   `ALLOW_UNSIGNED_CERTIFICATE`, `ALLOW_UNSIGNED_CHECKPOINT`, `REQUIRE_BUNDLE_SIGNATURES=0`),

@@ -190,7 +190,6 @@ class ReceiptedMcpGateway:
         resource_ref_resolvers: dict[str, Any] | None = None,
         used_token_store: Any | None = None,
     ) -> None:
-        from agentauth.capabilities.used_token_store import default_used_token_store
         from agentauth.receipts.behavior_monitor import NullBehaviorMonitor
         from agentauth.receipts.environment import is_production
         from agentauth.receipts.sandbox_governor import NullSandboxGovernor
@@ -227,20 +226,32 @@ class ReceiptedMcpGateway:
             self._authority = AuthorityContext.from_dict(authority)
         self._commit_signing_key = commit_signing_key
         self._commit_ttl_seconds = int(commit_ttl_seconds)
-        self._used_token_store = (
-            used_token_store if used_token_store is not None else default_used_token_store()
-        )
+        self._used_token_store = used_token_store
         if self._used_token_store is None:
-            if is_production():
-                raise RuntimeError(
-                    "production MCP gateway requires a distributed commit-token replay store; "
-                    "set AGENTAUTH_COMMIT_TOKEN_REDIS_URL or AGENTAUTH_COMMIT_TOKEN_STORE"
-                )
-            # Dev/single-instance default per the UsedTokenStore seam contract:
-            # replay of a consumed commit token is rejected within this process.
-            from agentauth.capabilities.commit import InMemoryUsedTokenStore
-
-            self._used_token_store = InMemoryUsedTokenStore()
+            try:
+                from agentauth.capabilities.used_token_store import default_used_token_store
+            except ImportError:
+                default_used_token_store = None
+            if default_used_token_store is not None:
+                self._used_token_store = default_used_token_store()
+        if self._used_token_store is None:
+            try:
+                from agentauth.capabilities.commit import InMemoryUsedTokenStore
+            except ImportError:
+                # Commit-token verification is optional L2 functionality. Keep
+                # plain MCP receipts usable when the capabilities package is not
+                # installed; fail closed later if a token is actually required.
+                self._used_token_store = None
+            else:
+                if is_production():
+                    raise RuntimeError(
+                        "production MCP gateway requires a distributed commit-token replay "
+                        "store; set AGENTAUTH_COMMIT_TOKEN_REDIS_URL or "
+                        "AGENTAUTH_COMMIT_TOKEN_STORE"
+                    )
+                # Dev/single-instance default per the UsedTokenStore seam contract:
+                # replay of a consumed commit token is rejected within this process.
+                self._used_token_store = InMemoryUsedTokenStore()
         self._monitor_trace_window = int(monitor_trace_window)
         self._monitor_trace: list[Any] = []
         self._resource_ref_resolvers = dict(resource_ref_resolvers or {})
@@ -526,7 +537,10 @@ class ReceiptedMcpGateway:
         trust_tier: str,
         side_effect_level: SideEffectLevel | None = None,
     ) -> None:
-        from agentauth.capabilities.scoping.tools import ToolSpec
+        try:
+            from agentauth.capabilities.scoping.tools import ToolSpec
+        except ImportError:
+            from types import SimpleNamespace as ToolSpec
 
         # _action_descriptor's own classification is unreliable for this
         # purpose: it can classify plain read tools as EXTERNAL_SIDE_EFFECT
@@ -772,18 +786,26 @@ class ReceiptedMcpGateway:
             self.agent.policy,
             compiled_resource_scope=self.agent.compiled_resource_scope or None,
         )
-        from agentauth.capabilities.scoping.lease_enforcement import capability_lease_violations
-
-        violations.extend(
-            capability_lease_violations(
-                self._capability_lease,
-                tool_name=tool_name,
-                arguments=arguments,
-                side_effect=execution_context.action.side_effect_level,
-                resource_ref=execution_context.action.resource_ref,
-            )
-        )
-        from agentauth.capabilities.scoping.tools import tool_capability_lease_violations
+        if self._capability_lease is not None:
+            try:
+                from agentauth.capabilities.scoping.lease_enforcement import (
+                    capability_lease_violations,
+                )
+            except ImportError:
+                violations.append(
+                    "capability lease validation requires the optional Clay Seal "
+                    "capabilities package"
+                )
+            else:
+                violations.extend(
+                    capability_lease_violations(
+                        self._capability_lease,
+                        tool_name=tool_name,
+                        arguments=arguments,
+                        side_effect=execution_context.action.side_effect_level,
+                        resource_ref=execution_context.action.resource_ref,
+                    )
+                )
 
         # Prefer the registered ToolSpec's side_effect_level over the
         # per-call auto-classified one: _action_descriptor's classification
@@ -795,16 +817,25 @@ class ReceiptedMcpGateway:
             if registered_spec is not None
             else execution_context.action.side_effect_level
         )
-        violations.extend(
-            tool_capability_lease_violations(
-                self._tool_capability_lease,
-                self._tool_call_budget,
-                tool_name=tool_name,
-                arguments=arguments,
-                side_effect=lease_side_effect,
-                resource_ref=execution_context.action.resource_ref,
-            )
-        )
+        if self._tool_capability_lease is not None or self._tool_call_budget is not None:
+            try:
+                from agentauth.capabilities.scoping.tools import tool_capability_lease_violations
+            except ImportError:
+                violations.append(
+                    "tool capability lease validation requires the optional Clay Seal "
+                    "capabilities package"
+                )
+            else:
+                violations.extend(
+                    tool_capability_lease_violations(
+                        self._tool_capability_lease,
+                        self._tool_call_budget,
+                        tool_name=tool_name,
+                        arguments=arguments,
+                        side_effect=lease_side_effect,
+                        resource_ref=execution_context.action.resource_ref,
+                    )
+                )
         if self._value_budget is not None:
             allowed, reason = self._value_budget.would_allow(tool_name, arguments)
             if not allowed:
@@ -840,7 +871,6 @@ class ReceiptedMcpGateway:
         commit_token_raw: Any | None = None,
     ) -> tuple[list[str], Any | None]:
         from agentauth.receipts.behavior_monitor import evaluate_behavior_monitor
-        from agentauth.capabilities.commit import SignedCommitToken, verify_commit_token
         from agentauth.receipts.monitor_contract import build_monitor_input
         from agentauth.receipts.permit import SignedToolPermit, verify_tool_permit
         from agentauth.receipts.sandbox_governor import (
@@ -903,19 +933,29 @@ class ReceiptedMcpGateway:
 
         if commit_token_raw is not None and isinstance(commit_token_raw, dict):
             try:
-                signed_commit = SignedCommitToken.from_dict(dict(commit_token_raw))
-            except Exception:
-                merged = [*merged, "sandbox: invalid commit token encoding"]
+                from agentauth.capabilities.commit import SignedCommitToken, verify_commit_token
+            except ImportError:
+                merged = [
+                    *merged,
+                    "sandbox: commit token verification requires the optional Clay Seal "
+                    "capabilities package",
+                ]
                 blocked = True
             else:
-                ok, reason = verify_commit_token(
-                    signed_commit,
-                    ctx=execution_context,
-                    used_token_store=self._used_token_store,
-                )
-                if not ok:
-                    merged = [*merged, f"sandbox: invalid commit token ({reason})"]
+                try:
+                    signed_commit = SignedCommitToken.from_dict(dict(commit_token_raw))
+                except Exception:
+                    merged = [*merged, "sandbox: invalid commit token encoding"]
                     blocked = True
+                else:
+                    ok, reason = verify_commit_token(
+                        signed_commit,
+                        ctx=execution_context,
+                        used_token_store=self._used_token_store,
+                    )
+                    if not ok:
+                        merged = [*merged, f"sandbox: invalid commit token ({reason})"]
+                        blocked = True
 
         if blocked and governor.is_blocking():
             return merged, governor
@@ -962,22 +1002,32 @@ class ReceiptedMcpGateway:
         value_reservation = None
         call_reservation = None
         if not blocked:
-            from agentauth.capabilities.scoping.tools import (
-                release_tool_call_budget,
-                reserve_tool_call_budget,
-            )
+            budget_denied: list[str] = []
 
-            tool_reservation = reserve_tool_call_budget(
-                self._tool_call_budget,
-                tool_name=name,
-                arguments=args,
-                side_effect=side_effect,
-            )
+            def release_tool_call_budget(_reservation: Any | None) -> None:
+                return None
+
+            if self._tool_call_budget is not None:
+                try:
+                    from agentauth.capabilities.scoping.tools import (
+                        release_tool_call_budget,
+                        reserve_tool_call_budget,
+                    )
+                except ImportError:
+                    budget_denied.append(
+                        "tool call budget requires the optional Clay Seal capabilities package"
+                    )
+                else:
+                    tool_reservation = reserve_tool_call_budget(
+                        self._tool_call_budget,
+                        tool_name=name,
+                        arguments=args,
+                        side_effect=side_effect,
+                    )
             if self._value_budget is not None:
                 value_reservation = self._value_budget.reserve(name, args)
             if self._call_budget is not None:
                 call_reservation = self._call_budget.reserve(name, args)
-            budget_denied: list[str] = []
             if tool_reservation is not None and not tool_reservation.allowed:
                 budget_denied.append(f"tool call budget {tool_reservation.reason}")
             if value_reservation is not None and not value_reservation.allowed:
@@ -1127,22 +1177,32 @@ class ReceiptedMcpGateway:
         value_reservation = None
         call_reservation = None
         if not blocked:
-            from agentauth.capabilities.scoping.tools import (
-                release_tool_call_budget,
-                reserve_tool_call_budget,
-            )
+            budget_denied: list[str] = []
 
-            tool_reservation = reserve_tool_call_budget(
-                self._tool_call_budget,
-                tool_name=name,
-                arguments=args,
-                side_effect=side_effect,
-            )
+            def release_tool_call_budget(_reservation: Any | None) -> None:
+                return None
+
+            if self._tool_call_budget is not None:
+                try:
+                    from agentauth.capabilities.scoping.tools import (
+                        release_tool_call_budget,
+                        reserve_tool_call_budget,
+                    )
+                except ImportError:
+                    budget_denied.append(
+                        "tool call budget requires the optional Clay Seal capabilities package"
+                    )
+                else:
+                    tool_reservation = reserve_tool_call_budget(
+                        self._tool_call_budget,
+                        tool_name=name,
+                        arguments=args,
+                        side_effect=side_effect,
+                    )
             if self._value_budget is not None:
                 value_reservation = self._value_budget.reserve(name, args)
             if self._call_budget is not None:
                 call_reservation = self._call_budget.reserve(name, args)
-            budget_denied: list[str] = []
             if tool_reservation is not None and not tool_reservation.allowed:
                 budget_denied.append(f"tool call budget {tool_reservation.reason}")
             if value_reservation is not None and not value_reservation.allowed:

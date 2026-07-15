@@ -1,10 +1,9 @@
 # Clay Seal documentation
 
 Clay Seal is one modular system for agent **identity** (L1), dynamic
-**capabilities** (L2), and verifiable **execution receipts** (L3). The current
-repositories are independently installable as `agentauth-core`,
-`agentauth-identity`, `agentauth-capabilities`, and `agentauth-receipts`, with
-the compatibility import namespace `agentauth.*`.
+**capabilities** (L2), and verifiable **execution receipts** (L3). This repo is
+standalone: it ships the small `agentauth.core` contract layer needed by
+receipts, while identity and capabilities remain optional integrations.
 
 Start with the [repository README](../README.md) for the developer surface and
 [DEV_GUIDE.md](DEV_GUIDE.md) for the layer 3 integration path.

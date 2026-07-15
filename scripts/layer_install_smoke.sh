@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Verify a clean pip install of the modular four-repo stack from pinned git tags.
-# Run from any directory; creates a temp venv and exits non-zero on failure.
+# Verify a clean install of standalone Clay Seal Receipts from a pinned git tag.
 set -euo pipefail
 
 TAG="${AGENTAUTH_TAG:-v0.5.0}"
 PY="${PYTHON:-python3}"
+REPO="${AGENTAUTH_RECEIPTS_REPO:-https://github.com/pberlizov/clay-seal-receipts.git}"
 
 "$PY" - <<'PY'
 import sys
@@ -25,37 +25,31 @@ echo "==> Creating venv in $TMP"
 source "$TMP/venv/bin/activate"
 pip install -q --upgrade pip
 
-echo "==> Installing agentauth-core @ $TAG"
-pip install -q "git+https://github.com/pberlizov/clay-seal-core.git@${TAG}"
-
-echo "==> Installing agentauth-identity @ $TAG"
-pip install -q "git+https://github.com/pberlizov/clayseal-identity.git@${TAG}"
-
-echo "==> Installing agentauth-capabilities @ $TAG"
-pip install -q "git+https://github.com/pberlizov/clay-seal-capabilities.git@${TAG}"
-
 echo "==> Installing agentauth-receipts @ $TAG"
-pip install -q "git+https://github.com/pberlizov/clay-seal-receipts.git@${TAG}[dev]"
+pip install -q "agentauth-receipts[server,verifier] @ git+${REPO}@${TAG}"
 
-echo "==> Import smoke"
+echo "==> Import and receipt smoke"
 python - <<'PY'
-from agentauth.identity import AgentAuth
-from agentauth.capabilities.commit import issue_commit_token
-from agentauth import AgentWrapper
-from agentauth.receipts import Policy
+import agentauth.core
+import agentauth.receipts as r
 
-print("identity:", AgentAuth)
-print("core facade: imports ok")
-print("capabilities: issue_commit_token ok")
-print("receipts: AgentWrapper, Policy ok")
+policy = r.Policy.from_dict({
+    "version": 1,
+    "name": "smoke",
+    "tier": "structural",
+    "capability": "operator_attested",
+})
+wrapper = r.AgentWrapper(
+    lambda item: {"decision": "approve", "fraud_score": 0.1},
+    policy,
+    mode="shadow",
+    audit_db=":memory:",
+)
+result = wrapper.run({"transaction_id": "smoke-1", "amount": 1.0})
+bundle = r.build_receipt_bundle(result, certificate=wrapper.certificate)
+assert isinstance(r.verify_receipt_bundle(bundle), dict)
+print("standalone receipts smoke passed")
 PY
 
-echo "==> Quick pytest subset (cross-provider + signing)"
-cd "$TMP"
-pytest -q \
-  --pyargs agentauth \
-  -k "cross_provider or test_signing or test_identity_adapters" \
-  2>/dev/null || python -m pytest -q -k "cross_provider" 2>/dev/null || true
-
 echo ""
-echo "Layer install smoke passed (tag=$TAG)."
+echo "Install smoke passed (tag=$TAG)."

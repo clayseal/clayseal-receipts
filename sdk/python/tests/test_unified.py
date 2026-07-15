@@ -9,7 +9,10 @@ never imports upward.
 
 from __future__ import annotations
 
+import importlib.util
 from pathlib import Path
+
+import pytest
 
 from agentauth.receipts import AgentWrapper, Policy, ReceiptedMcpGateway, build_receipt_bundle
 from agentauth.receipts.integration import wrap_agentauth_session
@@ -56,6 +59,10 @@ def test_wrapper_without_identity_still_runs(tmp_path):
     assert w.default_authority_binding is None
 
 
+@pytest.mark.skipif(
+    importlib.util.find_spec("agentauth.capabilities") is None,
+    reason="requires optional Clay Seal capabilities package",
+)
 def test_mcp_gateway_uses_biscuit_capability_token(auth, tmp_path):
     agent = auth.identify(
         agent_type="fraud-reviewer",

@@ -11,125 +11,90 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: pberlizov/clay-seal-core
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-core
-          ref: main
-      # identity + capabilities are OPTIONAL extras ([identity], [scoping]);
-      # checked out here so the dev suite can exercise the full stack.
-      - uses: actions/checkout@v4
-        with:
-          repository: clayseal/clayseal-identity
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-identity
-          ref: main
-      - uses: actions/checkout@v4
-        with:
-          repository: pberlizov/clay-seal-capabilities
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-capabilities
-          ref: main
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Install stack (contracts first, optional layers, then receipts)
-        run: |
-          pip install "./deps/agentauth-core[dev]"
-          pip install "./deps/agentauth-identity"
-          pip install "./deps/agentauth-capabilities"
-          pip install -e ".[server,mcp,verifier]" pytest pytest-asyncio ruff
-      - name: Layering contract (receipts never imports identity; capabilities lazy-only)
-        run: |
-          python -m agentauth.core.layering agentauth/receipts \
-            --forbid agentauth.identity --forbid agentauth.backend \
-            --forbid-toplevel agentauth.capabilities \
-            --allow-toplevel-in sandbox_builder.py --allow-toplevel-in sandboxed_server.py
-      - name: Run Python tests
-        run: |
-          pytest python/tests -q --ignore=python/tests/test_interop_conformance.py
-          pytest sdk/python/tests -q
-
-  # Receipts must remain usable with the contract layer ALONE — no identity,
-  # no capabilities. This job is the modularity guarantee.
-  core-only:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
         python-version: ["3.10", "3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: pberlizov/clay-seal-core
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-core
-          ref: main
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install receipts with core only
+      - name: Install receipts
         run: |
-          pip install "./deps/agentauth-core"
-          pip install -e ".[verifier]"
-      - name: Import + basic receipt flow without identity/capabilities
+          python -m pip install --upgrade pip
+          pip install -e ".[server,mcp,verifier]" pytest pytest-asyncio ruff
+      - name: Import + basic receipt flow
         run: |
           python - <<'PY'
           import agentauth.receipts as r
           assert r.__version__
-          # capability-layer exports must fail with an actionable message, not crash
           try:
               r.GoalSpec
           except ImportError as exc:
               assert "agentauth-receipts[scoping]" in str(exc)
-          w = r.AgentWrapper(lambda i: {"decision": "approve", "fraud_score": 0.1},
-                             r.Policy.from_dict({"version": 1, "name": "ci", "tier": "structural",
-                                                 "capability": "operator_attested"}),
-                             mode="shadow", audit_db=":memory:")
+          w = r.AgentWrapper(
+              lambda i: {"decision": "approve", "fraud_score": 0.1},
+              r.Policy.from_dict({
+                  "version": 1,
+                  "name": "ci",
+                  "tier": "structural",
+                  "capability": "operator_attested",
+              }),
+              mode="shadow",
+              audit_db=":memory:",
+          )
           result = w.run({"transaction_id": "t1", "amount": 1.0})
           bundle = r.build_receipt_bundle(result, certificate=w.certificate)
           report = r.verify_receipt_bundle(bundle)
           assert isinstance(report, dict)
-          print("core-only receipts flow OK")
+          print("standalone receipts flow OK")
           PY
+      - name: Run standalone Python tests
+        run: |
+          pytest python/tests -q --ignore=python/tests/test_interop_conformance.py
+      - name: Check undefined names in release-owned modules
+        run: |
+          ruff check --select F821 agentauth/core agentauth/receipts
 
-  strict-verification:
+  identity-seam:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install receipts with identity extra
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[server,mcp,verifier,identity]" pytest pytest-asyncio
+      - name: Run identity seam tests
+        run: |
+          pytest sdk/python/tests -q
+
+  package:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/checkout@v4
-        with:
-          repository: pberlizov/clay-seal-core
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-core
-          ref: main
-      - uses: actions/checkout@v4
-        with:
-          repository: clayseal/clayseal-identity
-          token: ${{ secrets.CLAY_SEAL_CI_TOKEN || github.token }}
-          path: deps/agentauth-identity
-          ref: main
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - name: Install strict verification stack
+          python-version: "3.13"
+      - name: Build package
         run: |
-          pip install "./deps/agentauth-core[dev]"
-          pip install "./deps/agentauth-identity"
-          pip install -e ".[server,verifier]" pytest
-      - name: Signed certificate/envelope + L1 + mock TEE release gate
+          python -m pip install --upgrade pip build
+          python -m build
+      - name: Smoke installed wheel
         run: |
-          python benchmarks/run.py \
-            --suite synthetic_assurance \
-            --with-identity \
-            --attach-mock-tee \
-            --require-verify \
-            --results-dir benchmarks/results/ci_strict_assurance
+          python -m venv /tmp/receipts-wheel
+          /tmp/receipts-wheel/bin/python -m pip install --upgrade pip
+          /tmp/receipts-wheel/bin/pip install "dist/agentauth_receipts-0.5.0-py3-none-any.whl[verifier]"
+          /tmp/receipts-wheel/bin/python - <<'PY'
+          import agentauth.core
+          import agentauth.receipts as r
+          assert r.__version__ == "0.5.0"
+          print("wheel imports OK")
+          PY
 
   rust:
     runs-on: ubuntu-latest

@@ -21,24 +21,25 @@ pip install "agentauth-receipts[server,verifier]"
 For local development from this repo:
 
 ```bash
-# Use Python 3.11-3.13 for the full dev stack.
 python -m venv .venv
 source .venv/bin/activate
-
-# Install sibling layers first when working from local checkouts.
-pip install -e "../clay-seal-core[dev]"
-pip install -e "../clayseal-identity[dev]"
-pip install -e "../clay-seal-capabilities[dev]"
 pip install -e ".[dev]"
 pytest python/tests -q
 ```
 
-Receipts has one required Clay Seal dependency: `agentauth-core`. Native Clay
+The identity seam tests need the optional identity package:
+
+```bash
+pip install -e ".[identity]"
+pytest sdk/python/tests -q
+```
+
+Receipts is standalone. It ships the small `agentauth.core` contract layer it
+needs, so you do not need a private Clay Seal dependency to use it. Native Clay
 Seal identity and capability binding are optional extras:
 
 ```bash
 pip install "agentauth-receipts[identity]"   # Clay Seal identity sessions
-pip install "agentauth-receipts[scoping]"    # Clay Seal capability leases
 pip install "agentauth-receipts[frameworks]" # common agent framework adapters
 pip install "agentauth-receipts[mcp]"        # MCP examples and gateway pieces
 ```

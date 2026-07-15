@@ -49,37 +49,37 @@ Lower layers use subpackages (`agentauth.identity`, `agentauth.capabilities`).
 ```
 Partner / operator view
 ─────────────────────────────────────────────────────────────
-  pip install identity → capabilities → receipts (in order)
+  pip install receipts directly
 
 Runtime data flow
 ─────────────────────────────────────────────────────────────
-  L1 verify credential → AuthorityBinding / IdentitySession
-  L2 issue commit token / lease for action
-  L3 AgentWrapper records DecisionResult → ExecutionProof → audit log
+  Optional identity claims → AuthorityBinding / IdentitySession
+  Optional capability lease → action scope
+  AgentWrapper records DecisionResult → ExecutionProof → audit log
 ```
 
 | Layer | Repo | You use it for |
 |-------|------|----------------|
-| L1 | [clayseal-identity](https://github.com/clayseal/clayseal-identity) | Mint/verify agent credentials |
-| L2 | [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) | Commit tokens, mandates, leases |
-| L3 | **this repo** | Receipts, MCP, verify, demos |
+| Built-in core | **this repo** | Shared contracts, signing, runtime descriptors |
+| Optional identity | [clayseal-identity](https://github.com/clayseal/clayseal-identity) | Mint/verify agent credentials |
+| Optional capabilities | Clay Seal L2 package | Commit tokens, mandates, leases |
+| Receipts | **this repo** | Receipts, MCP, verify, demos |
 
-**Release rule:** tags are cut **identity → capabilities → receipts**. Dependency ranges in `pyproject.toml` should match the released layer versions.
+**Release rule:** receipts must install and run without any private Clay Seal repository.
 
 ---
 
 ## Installation
 
-### Production / partner (pinned tags)
+### Production / partner (pinned tag)
 
 ```bash
-pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
-pip install "git+https://github.com/clayseal/clayseal-identity.git@v0.6.1"
-pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
-pip install "agentauth-receipts[partner] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
+pip install "agentauth-receipts[server,verifier] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
 ```
 
-The `[partner]` extra pulls server, MCP, verifier, and dev tooling.
+Use `[identity]` when you want native Clay Seal identity sessions. Use
+`[scoping]` only in environments where the unreleased L2 capabilities package is
+available.
 
 ### Local development (editable)
 
@@ -88,17 +88,13 @@ git clone https://github.com/pberlizov/clay-seal-receipts.git
 cd clay-seal-receipts
 python -m venv .venv && source .venv/bin/activate
 
-# Install lower layers first (sibling clones or git URLs)
-pip install -e "../clay-seal-core[dev]"
-pip install -e "../clayseal-identity[dev]"
-pip install -e "../clay-seal-capabilities[dev]"
 pip install -e ".[dev]"
 ```
 
 ### Smoke verification
 
 ```bash
-bash scripts/layer_install_smoke.sh   # clean venv, install all three tags
+bash scripts/layer_install_smoke.sh   # clean venv, install receipts from a tag
 arctl doctor                          # config + import checks
 python demo/poisoned_mcp_demo.py      # narrated security demo
 ```
@@ -303,8 +299,8 @@ pytest python/tests -q       # receipts runtime
 pytest sdk/python/tests -q    # identity->receipt seam e2e
 ```
 
-Identity backend/SDK and capability unit tests live in the `clayseal-identity`
-and `agentauth-capabilities` repos.
+Capability-scoping tests are skipped automatically when the optional L2 package
+is not installed.
 
 CI also runs `cargo test --all`. Locally, Rust builds are optional unless you work on ZK proving.
 
@@ -344,13 +340,13 @@ High-value test modules for integrators:
 
 **Cause:** Python merged multiple `agentauth` directories from sibling clones via `PYTHONPATH` or cwd.
 
-**Fix:** Use a single venv; `pip install` layers in order; avoid exporting `PYTHONPATH=.` across repos.
+**Fix:** Use a single venv and avoid exporting `PYTHONPATH=.` across repos.
 
 ### Version skew
 
 **Symptom:** Subtle verification failures after upgrading one repo only.
 
-**Fix:** Align tags (`v0.5.0` on all three). Check `VERSION`, `pyproject.toml`, and `agentauth/receipts/_version.py` in this repo match.
+**Fix:** Check `VERSION`, `pyproject.toml`, and `agentauth/receipts/_version.py` in this repo match.
 
 ### Shadow vs bounded_auto confusion
 
@@ -421,7 +417,7 @@ Current release line: **0.5.0** (`v0.5.0`).
 | HTTP verifier | [docs/http_verifier.md](http_verifier.md) |
 | Privacy and data handling | [docs/PRIVACY.md](PRIVACY.md) |
 | L1 operations | [identity DEV_GUIDE](https://github.com/clayseal/clayseal-identity/blob/main/docs/DEV_GUIDE.md) |
-| L2 / IdP adapters | [capabilities DEV_GUIDE](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md) |
+| L2 / IdP adapters | Capability package docs, when available |
 
 ---
 
