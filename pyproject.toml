@@ -79,7 +79,7 @@ otel = [
 # heavy dependency tree the rest of the test suite doesn't need.
 deepagents = [
     "deepagents>=0.6.12",
-    "langchain-openai>=1.3.3",
+    "langchain-openai>=1.3.5",
     "langgraph>=1.2.7",
 ]
 langchain = [
