@@ -5,6 +5,7 @@ This module is the L3 side of the identity seam: it consumes core contracts
 receipts never imports the identity layer itself. The umbrella package's
 ``agentauth.wrap()`` delegates here.
 """
+
 from __future__ import annotations
 
 from typing import Any
@@ -86,12 +87,16 @@ def wrap_with_provider_claims(
 ) -> Any:
     """Wrap a model from provider claims without requiring Clay Seal Identity (L1).
 
-    Requires only the capabilities package for provider normalization. L3 still
-    runs without L1 if the caller supplies OIDC/SPIFFE/Auth0/AWS-STS claims.
+    Requires only receipts-local provider normalization. L3 still runs without
+    L1 or L2 if the caller supplies verified OIDC/SPIFFE/Auth0/AWS/Azure/GCP
+    claims.
     """
-    from agentauth.capabilities.identity_adapters import get_identity_provider
+    from agentauth.receipts.identity_providers import get_identity_provider
 
     session = get_identity_provider(provider).build_session(
         claims, evidence_verified=evidence_verified
     )
     return wrap_with_identity_session(model, policy, session, **kwargs)
+
+
+wrap_clayseal_session = wrap_agentauth_session

@@ -115,6 +115,12 @@ from agentauth.receipts.export import (
 from agentauth.receipts.fraud_tools import FRAUD_TOOL_NAMES
 from agentauth.receipts.handoff import SessionHandoffArtifact
 from agentauth.receipts.inference import amount_to_score, prove_inference, verify_inference
+from agentauth.receipts.identity_providers import (
+    build_identity_session,
+    get_identity_provider,
+    list_identity_providers,
+    register_identity_provider,
+)
 from agentauth.receipts.invariant_policy_engine import InvariantPolicyEngine
 from agentauth.receipts.mcp import ReceiptedMcpGateway, ToolCallResult
 from agentauth.receipts.mcp_client import (
@@ -209,6 +215,10 @@ __all__ = [
     "GoalSpec",
     "build_capability_lease",
     "build_repo_chunk_index",
+    "build_identity_session",
+    "get_identity_provider",
+    "list_identity_providers",
+    "register_identity_provider",
     "TaskScope",
     "compile_human_authorization",
     "compile_mandate_scope",

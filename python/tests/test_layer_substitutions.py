@@ -3,9 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from agentauth.capabilities.identity_adapters import get_identity_provider
-
 from agentauth.receipts import Policy
+from agentauth.receipts.identity_providers import get_identity_provider, list_identity_providers
 from agentauth.receipts.integration import wrap_with_identity_session, wrap_with_provider_claims
 
 
@@ -48,6 +47,7 @@ def test_l3_wraps_oidc_claims_without_agentauth_l1(tmp_path):
 
     assert result.output["ok"] is True
     assert result.execution_context.authority.authority_id == "agent-1"
+    assert "oidc" in list_identity_providers()
 
 
 def test_l3_accepts_substituted_capability_layer_metadata(tmp_path):
@@ -94,3 +94,35 @@ def test_l3_wraps_azure_and_gcp_provider_claims(tmp_path):
         gcp.run({"x": 4}).execution_context.authority.authority_id
         == "agent@project.iam.gserviceaccount.com"
     )
+
+
+def test_l3_wraps_auth0_and_aws_provider_claims(tmp_path):
+    auth0 = wrap_with_provider_claims(
+        lambda inp: {"ok": True, **inp},
+        _policy(),
+        "auth0",
+        {
+            "sub": "client|agent-123",
+            "iss": "https://tenant.us.auth0.com/",
+            "permissions": ["payments:read"],
+            "org_id": "org_demo",
+        },
+        evidence_verified=True,
+        mode="shadow",
+        audit_db=str(tmp_path / "auth0.sqlite"),
+    )
+    aws = wrap_with_provider_claims(
+        lambda inp: {"ok": True, **inp},
+        _policy(),
+        "aws_sts",
+        {
+            "Arn": "arn:aws:sts::123456789012:assumed-role/AgentRole/run-1",
+            "Account": "123456789012",
+        },
+        evidence_verified=True,
+        mode="shadow",
+        audit_db=str(tmp_path / "aws.sqlite"),
+    )
+
+    assert auth0.run({"x": 5}).execution_context.authority.evidence_verified is True
+    assert aws.run({"x": 6}).execution_context.authority.tenant_id == "123456789012"

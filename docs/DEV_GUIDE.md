@@ -60,7 +60,7 @@ Runtime data flow
 
 | Layer | Repo | You use it for |
 |-------|------|----------------|
-| L1 | [agentauth-identity](https://github.com/pberlizov/clayseal-identity) | Mint/verify agent credentials |
+| L1 | [clayseal-identity](https://github.com/pberlizov/clayseal-identity) | Mint/verify agent credentials |
 | L2 | [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) | Commit tokens, mandates, leases |
 | L3 | **this repo** | Receipts, MCP, verify, demos |
 
@@ -186,16 +186,22 @@ Append-only Merkle log (`agentauth/receipts/audit.py`). Supports inclusion proof
 
 ---
 
-## Cross-provider identity (L1 choice ≠ lock-in)
+## Cross-provider identity
 
-Since v0.5.0, layer 3 accepts the same **IdentitySession** abstraction as layer 2. You can wrap agents with OIDC, SPIFFE, Auth0, or AWS STS sessions — not only native Clay Seal credentials.
+Layer 3 accepts the same `IdentitySession` abstraction as the rest of the stack.
+You can wrap agents with OIDC, SPIFFE, Auth0, AWS STS, Azure AD, GCP service
+account, or native Clay Seal sessions.
 
 ```python
-from agentauth.capabilities.identity_adapters import get_identity_provider
 from agentauth.receipts import Policy
+from agentauth.receipts.identity_providers import get_identity_provider
 from agentauth.receipts.integration import wrap_with_identity_session
 
-session = get_identity_provider("oidc").build_session(verified_claims)
+# verified_claims should already have been checked by your IdP/gateway.
+session = get_identity_provider("oidc").build_session(
+    verified_claims,
+    evidence_verified=True,
+)
 wrapper = wrap_with_identity_session(
     model,
     Policy.from_yaml("policies/fraud_decision.yaml"),
@@ -205,7 +211,10 @@ wrapper = wrap_with_identity_session(
 result = wrapper.run({"transaction_id": "t1"})
 ```
 
-Details: [capabilities cross_layer_integration.md](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/cross_layer_integration.md).
+The built-in providers are claim mappers, not JWT verifiers. That is deliberate:
+receipts can be used behind your existing gateway, OIDC middleware, SPIFFE
+verifier, or cloud workload identity verifier without taking over your auth
+stack.
 
 ---
 
@@ -259,7 +268,7 @@ For teams that want verification as a service:
 ```bash
 pip install -e ".[verifier,server]"
 # or docker compose up verifier
-uvicorn agentauth.backend.main:app --port 8787
+arctl serve --host 127.0.0.1 --port 8787
 curl -s http://localhost:8787/health | jq .
 curl -s -X POST http://localhost:8787/v1/verify \
   -H 'Content-Type: application/json' \
@@ -294,7 +303,7 @@ pytest python/tests -q       # receipts runtime
 pytest sdk/python/tests -q    # identity->receipt seam e2e
 ```
 
-Identity backend/SDK and capability unit tests live in the `agentauth-identity`
+Identity backend/SDK and capability unit tests live in the `clayseal-identity`
 and `agentauth-capabilities` repos.
 
 CI also runs `cargo test --all`. Locally, Rust builds are optional unless you work on ZK proving.

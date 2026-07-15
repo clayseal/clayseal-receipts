@@ -12,16 +12,15 @@ The stack is designed so each layer can be used independently:
 - **L1 only:** `agentauth.identity.adapters` normalizes OIDC, SPIFFE JWT-SVID,
   Azure AD, GCP service-account, and static/local identities without importing
   capabilities or receipts.
-- **L2 only:** `agentauth.capabilities.identity_adapters` and
-  `agentauth.capabilities.layer` normalize external identity claims and register
-  capability-layer implementations without installing the Clay Seal identity
-  server/client package. `agentauth.capabilities.authorizers` also adapts
+- **L2 only:** `agentauth.capabilities.layer` registers capability-layer
+  implementations without installing the Clay Seal identity server/client
+  package. `agentauth.capabilities.authorizers` also adapts
   OPA/Rego, Cedar, OpenFGA, or other external decision engines into the same
   provider-neutral capability-authorizer shape.
 - **L3 only:** `AgentWrapper` works with a model and policy directly. When an
   external identity is present, `wrap_with_provider_claims()` can bind OIDC,
   SPIFFE, Auth0, AWS STS, Azure AD, or GCP service-account claims into receipts
-  without requiring native L1.
+  without requiring native L1 or L2.
 - **Full stack:** `wrap_with_identity_session()` still binds a provider-neutral
   `IdentitySession` into receipts, and can carry a substituted capability-layer
   name for audit/debug metadata.

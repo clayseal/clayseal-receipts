@@ -1,4 +1,4 @@
-"""The unified seam: an attested AgentAuth identity flows into every receipt.
+"""The unified seam: an attested Clay Seal identity flows into every receipt.
 
 These exercise the merged system end-to-end over the real in-process backend:
 ``identify()`` (L1/L2) -> ``wrap_agentauth_session()`` -> ``run()`` (L3/L4),
@@ -6,6 +6,7 @@ asserting the receipt's authority is the *attested* identity, not a declared
 value. The wiring is receipts-side (duck-typed session) — the identity layer
 never imports upward.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -22,9 +23,7 @@ def _model(_inp):
 
 
 def test_identify_then_wrap_binds_identity_into_receipt(auth, tmp_path):
-    agent = auth.identify(
-        agent_type="researcher", owner="alice@acme.ai", scopes=["db:read"]
-    )
+    agent = auth.identify(agent_type="researcher", owner="alice@acme.ai", scopes=["db:read"])
     receipted = wrap_agentauth_session(
         agent,
         _model,

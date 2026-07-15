@@ -34,7 +34,7 @@ Changelog = "https://github.com/pberlizov/clay-seal-receipts/blob/main/CHANGELOG
 # Dynamic sandbox / capability leases / task scoping enforcement (L2 features).
 scoping = ["agentauth-capabilities>=0.5,<0.6"]
 # Identity-bound flows (attested sessions feeding receipts) for demos/e2e tests.
-identity = ["agentauth-identity>=0.5,<0.6"]
+identity = ["clayseal-identity>=0.6,<0.7"]
 # Hosted FastAPI service (identity issuance/validation + receipt verifier).
 server = [
     "fastapi>=0.110,<1.0",
@@ -146,7 +146,7 @@ eat_jwt = "agentauth.receipts.attestation:EAT_JWT_VERIFIER"
 
 # Ship ONLY what this dist owns, at its natural path (so `agentauth.receipts` stays
 # under the shared namespace). Identity/backend/workload_keys/biscuit_scope come from the
-# agentauth-identity wheel, capabilities from agentauth-capabilities, and core/facade
+# clayseal-identity wheel, capabilities from agentauth-capabilities, and core/facade
 # from agentauth-core;
 # shipping copies here would overlap their RECORD on a clean install.
 # `only-include` (not `packages`) is used so the path is kept, not relocated to the root.

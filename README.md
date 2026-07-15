@@ -106,13 +106,14 @@ report = result.proof.verify()
 assert report.valid
 ```
 
-Identity-bound usage:
+Identity-bound usage with an external provider:
 
 ```python
-from agentauth.capabilities.identity_adapters import get_identity_provider
 from agentauth.receipts import Policy
+from agentauth.receipts.identity_providers import get_identity_provider
 from agentauth.receipts.integration import wrap_with_identity_session
 
+# verified_claims should already have been checked by your IdP/gateway.
 session = get_identity_provider("oidc").build_session(
     verified_claims,
     evidence_verified=True,

@@ -1,11 +1,12 @@
 """Receipt e2e with pluggable identity + capability layers."""
+
 from __future__ import annotations
 
 from pathlib import Path
 
 import pytest
 
-from agentauth.capabilities.identity_adapters import get_identity_provider
+from agentauth.receipts.identity_providers import get_identity_provider
 from agentauth.receipts.integration import wrap_with_identity_session
 
 ROOT = Path(__file__).resolve().parents[2]
