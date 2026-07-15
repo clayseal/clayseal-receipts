@@ -81,6 +81,8 @@ def init_issue_repo(issue: int) -> tuple[Path, str]:
         json.dumps(live, indent=2) + "\n", encoding="utf-8"
     )
     run(["git", "init", "-b", "main"], cwd=tmp)
+    run(["git", "config", "user.email", "fixture@example.com"], cwd=tmp)
+    run(["git", "config", "user.name", "fixture"], cwd=tmp)
     run(["git", "add", "-A"], cwd=tmp)
     run(["git", "commit", "-m", f"baseline issue {issue}"], cwd=tmp)
     return tmp, run(["git", "rev-parse", "HEAD"], cwd=tmp).stdout.strip()
