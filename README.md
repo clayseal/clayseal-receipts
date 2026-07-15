@@ -42,6 +42,7 @@ Seal identity and capability binding are optional extras:
 pip install "clayseal-receipts[identity] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"   # Clay Seal identity sessions
 pip install "clayseal-receipts[frameworks] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2" # common agent framework adapters
 pip install "clayseal-receipts[mcp] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"        # MCP examples and gateway pieces
+pip install "clayseal-receipts[opa] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"        # OPA authorization provider
 ```
 
 ## Quickstart
@@ -86,6 +87,24 @@ wrapper = wrap_with_identity_session(
 Provider adapters map already-verified identity claims into receipt authority
 bindings. They do not replace JWT verification, PoP checks, token revocation, or
 your normal gateway policy.
+
+## Authorization Providers
+
+Receipts can enforce actions through a session authorizer or through a
+swappable provider. Built-in provider names are `agentauth`, `opa`, `cedar`,
+`openfga`, and `casbin`; teams can also register a provider from a Python
+callable.
+
+```python
+from agentauth.receipts.capability_providers import from_callable
+from agentauth.receipts.integration import authorizer_from_provider
+
+provider = from_callable(
+    lambda action, resource, context: action == "read",
+    name="read_only",
+)
+authorize = authorizer_from_provider(provider)
+```
 
 ## What This Is
 

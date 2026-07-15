@@ -3,6 +3,7 @@ from agentauth.core.signing import SigningKey, generate_keypair, load_or_create_
 from agentauth.core.runtime import ActionDescriptor, AuthorityContext, ExecutionContext, SideEffectLevel
 from agentauth.core.decision import DecisionResult
 from agentauth.core.outcomes import DecisionOutcome
+from agentauth.core.identity_protocol import CapabilityDecision, CapabilityProvider
 
 __all__ = [
     "hash_canonical_json",
@@ -14,4 +15,6 @@ __all__ = [
     "ExecutionContext",
     "DecisionResult",
     "DecisionOutcome",
+    "CapabilityDecision",
+    "CapabilityProvider",
 ]

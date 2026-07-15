@@ -1,12 +1,26 @@
 """Provider-neutral identity contracts for cross-layer integration."""
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Any, Callable, Protocol, runtime_checkable
+from typing import Any, Protocol, runtime_checkable
 
 from agentauth.core.authority_binding import AuthorityBinding
 
 CapabilityAuthorizer = Callable[[str, str], dict[str, Any]]
+
+
+@dataclass
+class CapabilityDecision:
+    """Normalized authorization decision from a swappable capability provider."""
+
+    allowed: bool
+    reason: str | None = None
+    obligations: list[Any] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+    def __bool__(self) -> bool:
+        return self.allowed
 
 
 @dataclass
@@ -26,7 +40,12 @@ class IdentityProvider(Protocol):
 
     name: str
 
-    def to_binding(self, raw: dict[str, Any], *, evidence_verified: bool = False) -> AuthorityBinding:
+    def to_binding(
+        self,
+        raw: dict[str, Any],
+        *,
+        evidence_verified: bool = False,
+    ) -> AuthorityBinding:
         """Map provider credential claims → AuthorityBinding."""
 
     def build_session(
@@ -36,6 +55,30 @@ class IdentityProvider(Protocol):
         capability_authorizer: CapabilityAuthorizer | None = None,
         evidence_verified: bool = False,
     ) -> IdentitySession:
+        ...
+
+
+@runtime_checkable
+class CapabilityProvider(Protocol):
+    """Provider-neutral authorization backend consumed by receipts."""
+
+    name: str
+
+    def authorize(
+        self,
+        *,
+        action: str,
+        resource: str,
+        context: dict[str, Any] | None = None,
+    ) -> CapabilityDecision:
+        ...
+
+    def check_path(
+        self,
+        path: str,
+        *,
+        context: dict[str, Any] | None = None,
+    ) -> CapabilityDecision:
         ...
 
 

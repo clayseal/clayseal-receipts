@@ -75,6 +75,18 @@ verifier = [
 otel = [
     "opentelemetry-exporter-otlp-proto-http>=1.24",
 ]
+opa = [
+    "httpx>=0.27",
+]
+cedar = [
+    "cedarpy>=3.0",
+]
+openfga = [
+    "openfga-sdk>=0.6",
+]
+casbin = [
+    "casbin>=1.36",
+]
 # Rippling-style Deep Agents red-team fixture (examples/rippling-deepagents-demo/,
 # demo/rippling_deepagents_demo.py). Opt-in only -- deepagents/langgraph pull a
 # heavy dependency tree the rest of the test suite doesn't need.
@@ -166,6 +178,12 @@ ocsf_ai_operation = "agentauth.receipts.exporters.ocsf:OcsfExporter"
 scitt = "agentauth.receipts.exporters.scitt_scrapi:ScittExporter"
 vanta = "agentauth.receipts.exporters.vanta:VantaExporter"
 drata = "agentauth.receipts.exporters.drata:DrataExporter"
+
+[project.entry-points."agentauth.capability_providers"]
+opa = "agentauth.receipts.capability_providers.opa:provider"
+cedar = "agentauth.receipts.capability_providers.cedar:provider"
+openfga = "agentauth.receipts.capability_providers.openfga:provider"
+casbin = "agentauth.receipts.capability_providers.casbin:provider"
 
 [project.entry-points."agentauth.attestation_verifiers"]
 nitro = "agentauth.receipts.attestation:NITRO_VERIFIER"

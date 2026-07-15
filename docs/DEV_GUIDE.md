@@ -109,6 +109,7 @@ python demo/poisoned_mcp_demo.py      # narrated security demo
 | `deepagents` | Rippling-style red-team fixtures (heavy deps) |
 | `kms` | AWS/GCP KMS for signing key encryption |
 | `frameworks` | LangChain, Pydantic AI, LlamaIndex, CrewAI, OpenAI Agents, Semantic Kernel, AutoGen, Haystack |
+| `opa` / `cedar` / `openfga` / `casbin` | Swappable authorization providers for existing policy engines |
 
 ---
 
@@ -129,6 +130,34 @@ What happens:
 4. You verify with `arctl verify-bundle receipts/<id>.json`.
 
 Shadow mode is ideal for **instrumentation** before you enable blocking.
+
+---
+
+## Swappable authorization providers
+
+Receipts has one public seam for authorization providers:
+`agentauth.receipts.capability_providers`. Built-ins cover native Clay Seal
+session authorizers, OPA, Cedar, OpenFGA, Casbin, and user-supplied callables.
+
+```python
+from agentauth.receipts.capability_providers import from_callable
+from agentauth.receipts.integration import wrap_with_identity_session
+
+provider = from_callable(
+    lambda action, resource, context: action == "read",
+    name="read_only",
+)
+
+wrapper = wrap_with_identity_session(
+    model=my_model,
+    policy=policy,
+    session=session,
+    capability_provider=provider,
+)
+```
+
+Use this when receipts should sit on top of an authorization system you already
+trust. Provider metadata cannot override the provider's allow or deny decision.
 
 ---
 
