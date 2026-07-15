@@ -8,6 +8,18 @@ version = "0.5.0"
 description = "Clay Seal — verifiable execution receipts and policy runtime for autonomous AI agents"
 readme = "README.md"
 license = "MIT"
+keywords = ["ai-agents", "security", "audit", "receipts", "mcp"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Topic :: Security",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
 # biscuit-python is a native PyO3 wheel that supports CPython <= 3.13.
 requires-python = ">=3.10,<3.14"
 # Hard dependency: ONLY the contract layer. Identity and capabilities are
@@ -154,8 +166,8 @@ eat_jwt = "agentauth.receipts.attestation:EAT_JWT_VERIFIER"
 only-include = ["agentauth/receipts"]
 
 [tool.hatch.build.targets.sdist]
-include = [
-    "agentauth",
+only-include = [
+    "agentauth/receipts",
     "compliance",
     "config",
     "policies",
@@ -163,9 +175,21 @@ include = [
     "sdk",
     "docs",
     "scripts",
+    "README.md",
     "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md",
     "VERSION",
     "RELEASE.md",
+    ".gitleaks.toml",
+    ".gitleaksignore",
+]
+exclude = [
+    "sdk/typescript/**/node_modules",
+    "benchmarks/corpus/**",
+    "benchmarks/results/**",
+    ".venv/**",
+    "dist/**",
 ]
 
 [tool.pytest.ini_options]

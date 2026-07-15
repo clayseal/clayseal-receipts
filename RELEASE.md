@@ -5,7 +5,7 @@ Design partners and production integrators should pin **git tags**, not floating
 Clay Seal is split into four repositories. Install and tag them **in order**:
 
 1. [agentauth-core](https://github.com/pberlizov/clay-seal-core) (shared contracts + facade)
-2. [agentauth-identity](https://github.com/pberlizov/clayseal-identity) (layer 1)
+2. [clayseal-identity](https://github.com/clayseal/clayseal-identity) (layer 1)
 3. [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) (layer 2)
 4. [agentauth-receipts](https://github.com/pberlizov/clay-seal-receipts) (layer 3 — this repo)
 
@@ -16,7 +16,7 @@ Clay Seal is split into four repositories. Install and tag them **in order**:
 | Version | **0.5.0** |
 | Tag | `v0.5.0` |
 | Core pin | `agentauth-core @ v0.5.0` |
-| Identity pin | `agentauth-identity @ v0.5.0` |
+| Identity pin | `clayseal-identity @ v0.6.1` |
 | Capabilities pin | `agentauth-capabilities @ v0.5.0` |
 
 See [CHANGELOG.md](CHANGELOG.md) for changes.
@@ -25,7 +25,7 @@ See [CHANGELOG.md](CHANGELOG.md) for changes.
 
 ```bash
 pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/clayseal-identity.git@v0.5.0"
+pip install "git+https://github.com/clayseal/clayseal-identity.git@v0.6.1"
 pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
 pip install "agentauth-receipts[partner] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
 ```
@@ -34,7 +34,7 @@ Or clone this repo at the tag and install editable:
 
 ```bash
 git clone https://github.com/pberlizov/clay-seal-receipts.git
-cd agentauth-receipts
+cd clay-seal-receipts
 git checkout v0.5.0
 pip install -e ".[partner]"
 ```
@@ -46,8 +46,8 @@ Tag **core → identity → capabilities → receipts** so downstream version ra
 ```bash
 # 1. Align versions in each repo
 #    identity:     pyproject.toml
-#    capabilities: pyproject.toml + identity pin
-#    receipts:     VERSION, pyproject.toml, agentauth/receipts/_version.py + both pins
+#    capabilities: pyproject.toml + identity dependency range
+#    receipts:     VERSION, pyproject.toml, agentauth/receipts/_version.py + optional dependency ranges
 
 # 2. Smoke from receipts repo (after all three tags exist on GitHub)
 bash scripts/layer_install_smoke.sh
@@ -64,7 +64,7 @@ git push origin v0.5.0
 - [ ] `pyproject.toml` `[project].version`
 - [ ] `agentauth/receipts/_version.py`
 - [ ] `CHANGELOG.md` section for the release
-- [ ] Identity and capabilities git pins in `pyproject.toml`
+- [ ] Identity and capabilities dependency ranges in `pyproject.toml`
 - [ ] `Cargo.toml` `[workspace.package].version` (Rust crates, if releasing Rust artifacts)
 
 ## Verify a receipt via HTTP
@@ -90,5 +90,5 @@ python demo/poisoned_mcp_demo.py
 ## Documentation
 
 - [docs/DEV_GUIDE.md](docs/DEV_GUIDE.md) — comprehensive guide for layer 3
-- [agentauth-identity docs](https://github.com/pberlizov/clayseal-identity/blob/main/docs/DEV_GUIDE.md)
+- [clayseal-identity docs](https://github.com/clayseal/clayseal-identity/blob/main/docs/DEV_GUIDE.md)
 - [agentauth-capabilities docs](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md)

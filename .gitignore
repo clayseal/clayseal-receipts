@@ -35,10 +35,12 @@ backend/.venv-test/
 backend/agents.db
 backend/audit.jsonl
 backend/.env
+agents.db
 
 # Node / dashboard
 dashboard/node_modules/
 dashboard/dist/
+sdk/typescript/**/node_modules/
 
 # Local dev
 .env
@@ -62,6 +64,13 @@ certs/*.json
 
 # Local experiment outputs (Devin red-team runs, gate JSON, clones)
 artifacts/
+
+# Downloaded benchmark corpora and generated benchmark outputs are local-only.
+# Keep the small synthetic checked-in corpus.
+/benchmarks/corpus/*
+!/benchmarks/corpus/synthetic/
+!/benchmarks/corpus/synthetic/**
+/benchmarks/results/
 
 # Proving artifacts and generated key caches (large)
 /proofs/

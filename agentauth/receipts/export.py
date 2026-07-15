@@ -43,6 +43,7 @@ from agentauth.receipts.receipt_schema import (
     stored_assurance_dict,
 )
 from agentauth.core.signing import (
+    SigningKey,
     trusted_signer_policy_from_env,
     verify,
     verify_bundle_signatures,
@@ -1230,8 +1231,8 @@ def verify_receipt_bundle(
         # EV-RT-2: the top-level `authority` block is a projection of the
         # context-bound `execution_context.authority` (same dict at build time).
         # `execution_context` is covered by `context_hash` above, so requiring
-        # equality here transitively binds every authority field — actor_ref,
-        # issuer, delegation_chain, presenter_key_hash, budget/approval refs, etc.
+        # equality here transitively binds every authority field: actor_ref,
+        # issuer, delegation chain, presenter-key digest, budget refs, approval refs, etc.
         ctx_for_authority = bundle.get("execution_context")
         if isinstance(ctx_for_authority, dict) and isinstance(
             ctx_for_authority.get("authority"), dict

@@ -60,11 +60,11 @@ Runtime data flow
 
 | Layer | Repo | You use it for |
 |-------|------|----------------|
-| L1 | [clayseal-identity](https://github.com/pberlizov/clayseal-identity) | Mint/verify agent credentials |
+| L1 | [clayseal-identity](https://github.com/clayseal/clayseal-identity) | Mint/verify agent credentials |
 | L2 | [agentauth-capabilities](https://github.com/pberlizov/clay-seal-capabilities) | Commit tokens, mandates, leases |
 | L3 | **this repo** | Receipts, MCP, verify, demos |
 
-**Release rule:** tags are cut **identity → capabilities → receipts**. Pins in `pyproject.toml` reference git tags on GitHub.
+**Release rule:** tags are cut **identity → capabilities → receipts**. Dependency ranges in `pyproject.toml` should match the released layer versions.
 
 ---
 
@@ -74,7 +74,7 @@ Runtime data flow
 
 ```bash
 pip install "git+https://github.com/pberlizov/clay-seal-core.git@v0.5.0"
-pip install "git+https://github.com/pberlizov/clayseal-identity.git@v0.5.0"
+pip install "git+https://github.com/clayseal/clayseal-identity.git@v0.6.1"
 pip install "git+https://github.com/pberlizov/clay-seal-capabilities.git@v0.5.0"
 pip install "agentauth-receipts[partner] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
 ```
@@ -420,7 +420,7 @@ Current release line: **0.5.0** (`v0.5.0`).
 | Policy syntax | [docs/policy_language.md](policy_language.md) |
 | HTTP verifier | [docs/http_verifier.md](http_verifier.md) |
 | Privacy and data handling | [docs/PRIVACY.md](PRIVACY.md) |
-| L1 operations | [identity DEV_GUIDE](https://github.com/pberlizov/clayseal-identity/blob/main/docs/DEV_GUIDE.md) |
+| L1 operations | [identity DEV_GUIDE](https://github.com/clayseal/clayseal-identity/blob/main/docs/DEV_GUIDE.md) |
 | L2 / IdP adapters | [capabilities DEV_GUIDE](https://github.com/pberlizov/clay-seal-capabilities/blob/main/docs/DEV_GUIDE.md) |
 
 ---

@@ -6,6 +6,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-07-14
+
 ### Added — production hardening (multi-instance deployment)
 
 - **Production guardrail** (`agentauth/receipts/environment.py`): `AGENT_RECEIPTS_ENV=production`
@@ -120,4 +122,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 [0.2.0]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.1.0...v0.2.0
 [0.2.1]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.2.0...v0.2.1
+[0.5.0]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.4.0...v0.5.0
 [0.1.0]: https://github.com/pberlizov/clay-seal-receipts/releases/tag/v0.1.0

@@ -1,0 +1,13 @@
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Demo idempotency tokens and removed pre-split test fixtures"
+regexes = [
+  '''bonus-q2-[A-Za-z0-9_-]+''',
+  '''camille-q2-bonus''',
+]
+paths = [
+  '''backend/tests/test_secret_encryption\.py''',
+  '''backend/tests/test_signing_keys\.py''',
+]

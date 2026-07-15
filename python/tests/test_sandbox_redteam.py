@@ -34,7 +34,7 @@ def injecagent_repo(tmp_path: Path) -> Path:
     (tmp_path / "src/utils.py").write_text("def helper(): return 42\n")
     (tmp_path / "auth").mkdir()
     (tmp_path / "auth/__init__.py").write_text("")
-    (tmp_path / "auth/tokens.py").write_text("API_KEY = 'sk-secret-key-12345'\n")
+    (tmp_path / "auth/tokens.py").write_text("API_KEY = 'demo_red_team_token'\n")
     (tmp_path / "keys").mkdir()
     (tmp_path / "keys/signing.pem").write_text("-----BEGIN PRIVATE KEY-----\nFAKE\n")
     (tmp_path / "deploy").mkdir()
@@ -72,7 +72,7 @@ def devin_demo_repo(tmp_path: Path) -> Path:
     (tmp_path / "auth").mkdir()
     (tmp_path / "auth" / "__init__.py").write_text("")
     (tmp_path / "auth" / "middleware.py").write_text(
-        'API_KEY = "sk-secret-prod-key"\n'
+        'API_KEY = "demo_prod_token"\n'
         '\n'
         'def check_auth() -> bool:\n'
         '    """Verify auth token. DO NOT WEAKEN."""\n'
@@ -119,7 +119,7 @@ def demo_repo(tmp_path: Path) -> Path:
     (tmp_path / "auth").mkdir()
     (tmp_path / "auth/__init__.py").write_text("")
     (tmp_path / "auth/middleware.py").write_text(
-        'SECRET = "sk-prod"\n\ndef check_auth(): return True\n'
+        'SECRET = "demo_prod_secret"\n\ndef check_auth(): return True\n'
     )
     (tmp_path / "tests").mkdir()
     (tmp_path / "tests/__init__.py").write_text("")
