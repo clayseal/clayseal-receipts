@@ -12,4 +12,4 @@ name = "fraud-head-program"
 path = "src/main.rs"
 
 [dependencies]
-sp1-zkvm = "=5.2.4"
+sp1-zkvm = "=6.3.1"

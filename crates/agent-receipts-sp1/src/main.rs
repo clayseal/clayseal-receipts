@@ -62,7 +62,7 @@ fn resolve_elf() -> (Vec<u8>, String) {
         }
     }
     die(
-        "guest ELF not found — run scripts/sp1_build_fraud_head.sh (requires sp1up; pin CLI to match sp1-sdk 5.2.4)",
+        "guest ELF not found — run scripts/sp1_build_fraud_head.sh (requires sp1up; pin CLI to match sp1-sdk 6.3.1)",
     )
 }
 

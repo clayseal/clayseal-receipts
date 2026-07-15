@@ -268,7 +268,7 @@ IETF SCITT standardizes almost exactly what we built by hand: a *Signed Statemen
 
 **Status:** guest + host CLI in [`crates/clay-seal-receipts-sp1/`](../crates/clay-seal-receipts-sp1/) (detached
 workspace); `prove_inference_sp1` / `verify_inference_sp1` in composed crate; `--backend sp1` on
-main CLI and Python; build/benchmark scripts pin `sp1-sdk` 5.2.4. Measured SP1 prove times still
+main CLI and Python; build/benchmark scripts pin `sp1-sdk` 6.3.1. Measured SP1 prove times still
 require a version-locked `sp1up` run — see [sp1_benchmark.md](sp1_benchmark.md).
 
 **Pillar:** verifiable inference / proof systems. **Effort:** M. **Risk:** med. **Source:** corpus review §C/§D; SP1 (Plonky3), a16z zkvm-benchmarks. **Relates to:** SOTA-8.

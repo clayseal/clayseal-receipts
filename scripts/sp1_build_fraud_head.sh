@@ -2,14 +2,15 @@
 # Build the SP1 fraud-head guest ELF and the detached host binary.
 # Requires the SP1 toolchain: https://sp1up.succinct.xyz
 #
-# Pin the cargo-prove CLI to the same release as sp1-sdk in Cargo.toml (default 5.2.4).
-# A bleeding-edge sp1up emits riscv64im ELFs that panic against crates.io sp1-sdk 5.2.4
+# Pin the cargo-prove CLI to the same release as sp1-sdk in Cargo.toml (default 6.3.1).
+# Keep sp1up and crates.io sp1-sdk on the same minor line; mismatches can emit
+# guest ELFs that the host SDK rejects.
 # ("must be a 32-bit elf").
 #
 # Usage: scripts/sp1_build_fraud_head.sh
 set -euo pipefail
 
-SP1_VERSION="${SP1_VERSION:-5.2.4}"
+SP1_VERSION="${SP1_VERSION:-6.3.1}"
 CRATE="crates/agent-receipts-sp1"
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"

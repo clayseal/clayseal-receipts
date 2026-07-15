@@ -119,7 +119,7 @@ attest to identical semantics. The composed crate shells out to `clay-seal-recei
 (`AGENT_RECEIPTS_SP1_BIN`, default `clay-seal-receipts-sp1`), mirroring the RISC Zero integration.
 
 ```bash
-# one-time: https://sp1up.succinct.xyz — pin CLI to match sp1-sdk 5.2.4
+# one-time: https://sp1up.succinct.xyz — pin CLI to match sp1-sdk 6.3.1
 scripts/sp1_build_fraud_head.sh
 scripts/sp1_benchmark_fraud_head.sh 25000
 
@@ -131,7 +131,7 @@ scripts/sp1_benchmark_fraud_head.sh 25000
 
 The SP1 crate is **detached from the workspace** (like RISC Zero). Pin `cargo-prove` and
 `sp1-sdk` to the same release — a bleeding-edge CLI emits riscv64im ELFs that panic against
-crates.io `sp1-sdk` 5.2.4 (`must be a 32-bit elf`). See [sp1_benchmark.md](sp1_benchmark.md).
+the host `sp1-sdk`. See [sp1_benchmark.md](sp1_benchmark.md).
 
 ### Cost comparison (fraud head)
 

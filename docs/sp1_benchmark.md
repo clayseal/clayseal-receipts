@@ -23,12 +23,12 @@ as RISC Zero's `image_id`).
 
 ## Toolchain pin
 
-Pin **`cargo-prove` CLI** and **`sp1-sdk` / `sp1-zkvm`** to the same release (currently **5.2.4** in
-`Cargo.toml`). A bleeding-edge `sp1up` emits **riscv64im** ELFs that panic against crates.io
-`sp1-sdk` 5.2.4: `must be a 32-bit elf`.
+Pin **`cargo-prove` CLI** and **`sp1-sdk` / `sp1-zkvm`** to the same release (currently **6.3.1** in
+`Cargo.toml`). Keep the CLI and SDK on one release line; mismatches can emit guest ELFs that the
+host SDK rejects.
 
 ```bash
-export SP1_VERSION=5.2.4
+export SP1_VERSION=6.3.1
 curl -L https://sp1up.succinct.xyz | bash
 sp1up --version "${SP1_VERSION}"
 scripts/sp1_build_fraud_head.sh

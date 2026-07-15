@@ -14,7 +14,7 @@ name = "agent-receipts-sp1"
 path = "src/main.rs"
 
 [dependencies]
-sp1-sdk = "=5.2.4"
+sp1-sdk = "=6.3.1"
 serde_json = "1"
 bincode = "1"
 hex = "0.4"
@@ -22,7 +22,7 @@ hex = "0.4"
 # Guest ELF is built separately with `cargo prove build` (in program/) and loaded at
 # runtime — we deliberately avoid a build.rs sp1-build step, which fails when the
 # cargo-prove CLI and crates.io sp1-sdk target different ISAs (riscv64im vs riscv32im).
-# Pin both to 5.2.4 via scripts/sp1_build_fraud_head.sh.
+# Pin both to 6.3.1 via scripts/sp1_build_fraud_head.sh.
 
 [profile.release]
 opt-level = 3
