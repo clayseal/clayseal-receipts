@@ -74,7 +74,7 @@ Runtime data flow
 ### Production / partner (pinned tag)
 
 ```bash
-pip install "clayseal-receipts[server,verifier] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.1"
+pip install "clayseal-receipts[server,verifier] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"
 ```
 
 Use `[identity]` when you want native Clay Seal identity sessions. Use
@@ -242,7 +242,7 @@ For sandboxed gateways (goal-bound leases, protected zones):
 
 ## The `arctl` CLI
 
-Installed as `arctl` when you `pip install clayseal-receipts`.
+Installed as `arctl` when you install Clay Seal Receipts from the pinned release tag.
 
 Common commands:
 
@@ -277,7 +277,7 @@ Configure API keys, rate limits, and body size caps for production (`docs/http_v
 
 ## Partner deployment workflow
 
-1. **Pin a tag**: see [RELEASE.md](../RELEASE.md) (currently `v0.5.1`).
+1. **Pin a tag**: see [RELEASE.md](../RELEASE.md) (currently `v0.5.2`).
 2. **Copy config**: `cp config/partner.example.yaml config/partner.yaml`.
 3. **Preflight**: `bash scripts/partner_preflight.sh config/partner.yaml`.
 4. **Run smoke**: `bash scripts/layer_install_smoke.sh` then `arctl doctor`.
@@ -401,7 +401,7 @@ and [docs/deployment.md](deployment.md).
 4. Run `bash scripts/layer_install_smoke.sh` against published tags.
 5. Notify partners with exact pip lines (in RELEASE.md).
 
-Current release line: **0.5.1** (`v0.5.1`).
+Current release line: **0.5.2** (`v0.5.2`).
 
 ---
 

@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "clayseal-receipts"
-version = "0.5.1"
+version = "0.5.2"
 description = "Verifiable execution receipts and policy runtime for autonomous AI agents"
 readme = "README.md"
 license = "MIT"
@@ -65,7 +65,8 @@ onnx = [
     "numpy>=1.26",
 ]
 ezkl = [
-    "clayseal-receipts[onnx]",
+    "onnx>=1.16",
+    "numpy>=1.26",
 ]
 verifier = [
     "uvicorn>=0.30",
@@ -132,10 +133,24 @@ dev = [
     "coverage[toml]>=7.5",
     "diff-cover>=9.0",
     "ruff>=0.4",
-    "clayseal-receipts[server,mcp,verifier]",
+    "fastapi>=0.110,<1.0",
+    "uvicorn[standard]>=0.27,<1.0",
+    "SQLAlchemy>=2.0,<3.0",
+    "pydantic>=2.6,<3.0",
+    "mcp>=1.0",
+    "httpx>=0.27",
+    "groq>=0.11",
+    "starlette>=0.37",
 ]
 partner = [
-    "clayseal-receipts[server,mcp,verifier]",
+    "fastapi>=0.110,<1.0",
+    "uvicorn[standard]>=0.27,<1.0",
+    "SQLAlchemy>=2.0,<3.0",
+    "pydantic>=2.6,<3.0",
+    "mcp>=1.0",
+    "httpx>=0.27",
+    "groq>=0.11",
+    "starlette>=0.37",
 ]
 
 [project.scripts]

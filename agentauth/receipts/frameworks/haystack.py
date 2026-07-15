@@ -14,7 +14,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_haystack(exc: ImportError) -> ImportError:
     return ImportError(
         "Haystack support requires optional dependencies. "
-        'Install with: pip install "clayseal-receipts[haystack]".'
+        'Install with: pip install "clayseal-receipts[haystack] @ git+https://github.com/clayseal/clayseal-receipts.git.5.2".'
     ).with_traceback(exc.__traceback__)
 
 

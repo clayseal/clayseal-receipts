@@ -6,6 +6,15 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-07-15
+
+### Fixed
+
+- Documented the GitHub tag install path until `clayseal-receipts` is published
+  on PyPI.
+- Removed self-referential optional extras so editable installs do not try to
+  resolve `clayseal-receipts` from PyPI.
+
 ## [0.5.1] - 2026-07-15
 
 ### Changed
@@ -139,4 +148,5 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 [0.2.1]: https://github.com/clayseal/clayseal-receipts/compare/v0.2.0...v0.2.1
 [0.5.0]: https://github.com/clayseal/clayseal-receipts/compare/v0.4.0...v0.5.0
 [0.5.1]: https://github.com/clayseal/clayseal-receipts/compare/v0.5.0...v0.5.1
+[0.5.2]: https://github.com/clayseal/clayseal-receipts/compare/v0.5.1...v0.5.2
 [0.1.0]: https://github.com/clayseal/clayseal-receipts/releases/tag/v0.1.0

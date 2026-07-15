@@ -88,11 +88,11 @@ jobs:
         run: |
           python -m venv /tmp/receipts-wheel
           /tmp/receipts-wheel/bin/python -m pip install --upgrade pip
-          /tmp/receipts-wheel/bin/pip install "dist/clayseal_receipts-0.5.1-py3-none-any.whl[verifier]"
+          /tmp/receipts-wheel/bin/pip install "dist/clayseal_receipts-0.5.2-py3-none-any.whl[verifier]"
           /tmp/receipts-wheel/bin/python - <<'PY'
           import agentauth.core
           import agentauth.receipts as r
-          assert r.__version__ == "0.5.1"
+          assert r.__version__ == "0.5.2"
           print("wheel imports OK")
           PY
 

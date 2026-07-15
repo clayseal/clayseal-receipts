@@ -14,7 +14,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_openai_agents(exc: ImportError) -> ImportError:
     return ImportError(
         "OpenAI Agents SDK support requires optional dependencies. "
-        'Install with: pip install "clayseal-receipts[openai-agents]".'
+        'Install with: pip install "clayseal-receipts[openai-agents] @ git+https://github.com/clayseal/clayseal-receipts.git.5.2".'
     ).with_traceback(exc.__traceback__)
 
 

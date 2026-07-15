@@ -20,7 +20,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_langchain(exc: ImportError) -> ImportError:
     return ImportError(
         "LangChain support requires optional dependencies. "
-        'Install with: pip install "clayseal-receipts[langchain]".'
+        'Install with: pip install "clayseal-receipts[langchain] @ git+https://github.com/clayseal/clayseal-receipts.git.5.2".'
     ).with_traceback(exc.__traceback__)
 
 

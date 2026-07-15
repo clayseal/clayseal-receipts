@@ -14,7 +14,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_crewai(exc: ImportError) -> ImportError:
     return ImportError(
         "CrewAI support requires optional dependencies. "
-        'Install with: pip install "clayseal-receipts[crewai]".'
+        'Install with: pip install "clayseal-receipts[crewai] @ git+https://github.com/clayseal/clayseal-receipts.git.5.2".'
     ).with_traceback(exc.__traceback__)
 
 

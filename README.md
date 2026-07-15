@@ -15,7 +15,7 @@ The Python package is named `clayseal-receipts`. The Python import path remains
 ## Install
 
 ```bash
-pip install "clayseal-receipts[server,verifier]"
+pip install "clayseal-receipts[server,verifier] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"
 ```
 
 For local development from this repo:
@@ -39,9 +39,9 @@ needs, so you do not need a private Clay Seal dependency to use it. Native Clay
 Seal identity and capability binding are optional extras:
 
 ```bash
-pip install "clayseal-receipts[identity]"   # Clay Seal identity sessions
-pip install "clayseal-receipts[frameworks]" # common agent framework adapters
-pip install "clayseal-receipts[mcp]"        # MCP examples and gateway pieces
+pip install "clayseal-receipts[identity] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"   # Clay Seal identity sessions
+pip install "clayseal-receipts[frameworks] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2" # common agent framework adapters
+pip install "clayseal-receipts[mcp] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"        # MCP examples and gateway pieces
 ```
 
 ## Quickstart

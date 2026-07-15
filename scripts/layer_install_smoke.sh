@@ -2,7 +2,7 @@
 # Verify a clean install of standalone Clay Seal Receipts from a pinned git tag.
 set -euo pipefail
 
-TAG="${AGENTAUTH_TAG:-v0.5.1}"
+TAG="${AGENTAUTH_TAG:-v0.5.2}"
 PY="${PYTHON:-python3}"
 REPO="${AGENTAUTH_RECEIPTS_REPO:-https://github.com/clayseal/clayseal-receipts.git}"
 

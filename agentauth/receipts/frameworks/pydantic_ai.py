@@ -19,7 +19,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_pydantic_ai(exc: ImportError) -> ImportError:
     return ImportError(
         "Pydantic AI support requires optional dependencies. "
-        'Install with: pip install "clayseal-receipts[pydantic-ai]".'
+        'Install with: pip install "clayseal-receipts[pydantic-ai] @ git+https://github.com/clayseal/clayseal-receipts.git.5.2".'
     ).with_traceback(exc.__traceback__)
 
 
