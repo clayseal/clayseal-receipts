@@ -25,7 +25,7 @@ def _policy() -> Policy:
 
 def test_standalone_imports_core_from_receipts_distribution() -> None:
     assert agentauth.core is not None
-    assert receipts.__version__ == "0.5.0"
+    assert receipts.__version__ == "0.5.1"
 
 
 def test_standalone_wrapper_builds_and_verifies_receipt() -> None:
@@ -63,5 +63,5 @@ def test_missing_capabilities_extra_is_actionable() -> None:
     if importlib.util.find_spec("agentauth.capabilities") is not None:
         pytest.skip("capabilities package is installed in this environment")
 
-    with pytest.raises(ImportError, match=r"agentauth-receipts\[scoping\]"):
+    with pytest.raises(ImportError, match=r"clayseal-receipts\[scoping\]"):
         receipts.GoalSpec

@@ -14,7 +14,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_autogen(exc: ImportError) -> ImportError:
     return ImportError(
         "AutoGen support requires optional dependencies. "
-        'Install with: pip install "agentauth-receipts[autogen]".'
+        'Install with: pip install "clayseal-receipts[autogen]".'
     ).with_traceback(exc.__traceback__)
 
 

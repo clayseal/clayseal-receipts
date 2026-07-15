@@ -158,7 +158,7 @@ def test_langchain_missing_dependency_has_actionable_error(monkeypatch):
 
     monkeypatch.setattr(builtins, "__import__", blocked_import)
 
-    with pytest.raises(ImportError, match="agentauth-receipts\\[langchain\\]"):
+    with pytest.raises(ImportError, match="clayseal-receipts\\[langchain\\]"):
         receipted_runnable(lambda inp: inp, _policy(), mode="shadow", audit_db=":memory:")
 
 

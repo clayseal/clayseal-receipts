@@ -14,7 +14,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_semantic_kernel(exc: ImportError) -> ImportError:
     return ImportError(
         "Semantic Kernel support requires optional dependencies. "
-        'Install with: pip install "agentauth-receipts[semantic-kernel]".'
+        'Install with: pip install "clayseal-receipts[semantic-kernel]".'
     ).with_traceback(exc.__traceback__)
 
 

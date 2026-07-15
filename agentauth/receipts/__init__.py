@@ -1,4 +1,4 @@
-"""Agent Receipts — cryptographic receipts for autonomous AI agents."""
+"""Agent Receipts: cryptographic receipts for autonomous AI agents."""
 
 from agentauth.core.authority_binding import AuthorityBinding
 from agentauth.core.budget import BudgetType, CapabilityBudget
@@ -170,7 +170,7 @@ from agentauth.receipts.tee import TeeQuote, TeeQuoteFormat, verify_tee_quote
 from agentauth.receipts.wrapper import AgentWrapper, RunResult
 
 # Dynamic-sandbox scoping (capability leases, repo chunk indexes) needs the
-# capabilities layer — an optional extra, resolved lazily via PEP 562 so plain
+# capabilities layer: an optional extra, resolved lazily via PEP 562 so plain
 # receipt flows never import it.
 _SCOPING_EXPORTS = {
     "CapabilityLease",
@@ -187,7 +187,7 @@ def __getattr__(name: str):
         except ImportError as exc:
             raise ImportError(
                 f"agentauth.receipts.{name} needs the capabilities layer. "
-                "Install with: pip install 'agentauth-receipts[scoping]'"
+                "Install with: pip install 'clayseal-receipts[scoping]'"
             ) from exc
         return getattr(_scoping, name)
     raise AttributeError(f"module 'agentauth.receipts' has no attribute {name!r}")

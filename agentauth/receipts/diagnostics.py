@@ -68,7 +68,7 @@ def run_diagnostics(*, require_prover: bool = False) -> dict[str, Any]:
         _check(
             "mcp_sdk",
             mcp_ok,
-            "pip install 'agentauth-receipts[mcp]'" if not mcp_ok else "installed",
+            "pip install 'clayseal-receipts[mcp]'" if not mcp_ok else "installed",
             required=False,
         )
     )

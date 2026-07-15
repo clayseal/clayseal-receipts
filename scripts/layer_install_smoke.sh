@@ -2,9 +2,9 @@
 # Verify a clean install of standalone Clay Seal Receipts from a pinned git tag.
 set -euo pipefail
 
-TAG="${AGENTAUTH_TAG:-v0.5.0}"
+TAG="${AGENTAUTH_TAG:-v0.5.1}"
 PY="${PYTHON:-python3}"
-REPO="${AGENTAUTH_RECEIPTS_REPO:-https://github.com/pberlizov/clay-seal-receipts.git}"
+REPO="${AGENTAUTH_RECEIPTS_REPO:-https://github.com/clayseal/clayseal-receipts.git}"
 
 "$PY" - <<'PY'
 import sys
@@ -25,8 +25,8 @@ echo "==> Creating venv in $TMP"
 source "$TMP/venv/bin/activate"
 pip install -q --upgrade pip
 
-echo "==> Installing agentauth-receipts @ $TAG"
-pip install -q "agentauth-receipts[server,verifier] @ git+${REPO}@${TAG}"
+echo "==> Installing clayseal-receipts @ $TAG"
+pip install -q "clayseal-receipts[server,verifier] @ git+${REPO}@${TAG}"
 
 echo "==> Import and receipt smoke"
 python - <<'PY'

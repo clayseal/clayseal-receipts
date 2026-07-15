@@ -14,7 +14,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_llamaindex(exc: ImportError) -> ImportError:
     return ImportError(
         "LlamaIndex support requires optional dependencies. "
-        'Install with: pip install "agentauth-receipts[llamaindex]".'
+        'Install with: pip install "clayseal-receipts[llamaindex]".'
     ).with_traceback(exc.__traceback__)
 
 

@@ -8,9 +8,9 @@ private core repository.
 
 | Field | Value |
 |-------|-------|
-| Version | **0.5.0** |
-| Tag | `v0.5.0` |
-| Package | `agentauth-receipts` |
+| Version | **0.5.1** |
+| Tag | `v0.5.1` |
+| Package | `clayseal-receipts` |
 
 Identity binding is optional through `clayseal-identity>=0.6,<0.7`.
 Capability scoping remains optional and should only be installed where the L2
@@ -19,15 +19,15 @@ package is available.
 ## Install From A Tag
 
 ```bash
-pip install "agentauth-receipts[server,verifier] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
+pip install "clayseal-receipts[server,verifier] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.1"
 ```
 
 For local development:
 
 ```bash
-git clone https://github.com/pberlizov/clay-seal-receipts.git
-cd clay-seal-receipts
-git checkout v0.5.0
+git clone https://github.com/clayseal/clayseal-receipts.git
+cd clayseal-receipts
+git checkout v0.5.1
 python -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
@@ -47,9 +47,9 @@ python -m build
 pip-audit --skip-editable --progress-spinner off
 gitleaks detect --source . --redact --verbose
 
-git tag -a v0.5.0 -m "Release v0.5.0"
+git tag -a v0.5.1 -m "Release v0.5.1"
 git push origin main
-git push origin v0.5.0
+git push origin v0.5.1
 ```
 
 ## Checklist

@@ -1,7 +1,7 @@
 """LangChain adapters for Agent Receipts.
 
 The helpers in this module keep LangChain optional. Install with
-``agentauth-receipts[langchain]`` before using them.
+``clayseal-receipts[langchain]`` before using them.
 """
 from __future__ import annotations
 
@@ -20,7 +20,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_langchain(exc: ImportError) -> ImportError:
     return ImportError(
         "LangChain support requires optional dependencies. "
-        'Install with: pip install "agentauth-receipts[langchain]".'
+        'Install with: pip install "clayseal-receipts[langchain]".'
     ).with_traceback(exc.__traceback__)
 
 

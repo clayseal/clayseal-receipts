@@ -9,13 +9,13 @@ what policy was checked, which identity or capability context was bound to the
 decision, and what happened. The result is a receipt that another service,
 partner, or auditor can verify later without trusting your application logs.
 
-The Python package is still named `agentauth-receipts` and imports from
+The Python package is named `clayseal-receipts`. The Python import path remains
 `agentauth.receipts` for compatibility.
 
 ## Install
 
 ```bash
-pip install "agentauth-receipts[server,verifier]"
+pip install "clayseal-receipts[server,verifier]"
 ```
 
 For local development from this repo:
@@ -39,9 +39,9 @@ needs, so you do not need a private Clay Seal dependency to use it. Native Clay
 Seal identity and capability binding are optional extras:
 
 ```bash
-pip install "agentauth-receipts[identity]"   # Clay Seal identity sessions
-pip install "agentauth-receipts[frameworks]" # common agent framework adapters
-pip install "agentauth-receipts[mcp]"        # MCP examples and gateway pieces
+pip install "clayseal-receipts[identity]"   # Clay Seal identity sessions
+pip install "clayseal-receipts[frameworks]" # common agent framework adapters
+pip install "clayseal-receipts[mcp]"        # MCP examples and gateway pieces
 ```
 
 ## Quickstart

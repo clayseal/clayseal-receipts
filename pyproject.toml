@@ -3,9 +3,9 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentauth-receipts"
-version = "0.5.0"
-description = "Clay Seal — verifiable execution receipts and policy runtime for autonomous AI agents"
+name = "clayseal-receipts"
+version = "0.5.1"
+description = "Verifiable execution receipts and policy runtime for autonomous AI agents"
 readme = "README.md"
 license = "MIT"
 keywords = ["ai-agents", "security", "audit", "receipts", "mcp"]
@@ -34,11 +34,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/pberlizov/clay-seal-receipts"
-Documentation = "https://github.com/pberlizov/clay-seal-receipts/blob/main/docs/DEV_GUIDE.md"
-Repository = "https://github.com/pberlizov/clay-seal-receipts"
-Issues = "https://github.com/pberlizov/clay-seal-receipts/issues"
-Changelog = "https://github.com/pberlizov/clay-seal-receipts/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/clayseal/clayseal-receipts"
+Documentation = "https://github.com/clayseal/clayseal-receipts/blob/main/docs/DEV_GUIDE.md"
+Repository = "https://github.com/clayseal/clayseal-receipts"
+Issues = "https://github.com/clayseal/clayseal-receipts/issues"
+Changelog = "https://github.com/clayseal/clayseal-receipts/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 # Dynamic sandbox / capability leases / task scoping enforcement (L2 features).
@@ -65,7 +65,7 @@ onnx = [
     "numpy>=1.26",
 ]
 ezkl = [
-    "agentauth-receipts[onnx]",
+    "clayseal-receipts[onnx]",
 ]
 verifier = [
     "uvicorn>=0.30",
@@ -132,10 +132,10 @@ dev = [
     "coverage[toml]>=7.5",
     "diff-cover>=9.0",
     "ruff>=0.4",
-    "agentauth-receipts[server,mcp,verifier]",
+    "clayseal-receipts[server,mcp,verifier]",
 ]
 partner = [
-    "agentauth-receipts[server,mcp,verifier]",
+    "clayseal-receipts[server,mcp,verifier]",
 ]
 
 [project.scripts]
@@ -198,7 +198,7 @@ pythonpath = ["."]
 
 [tool.coverage.run]
 # Measure the installed package, with branch coverage so we catch untaken
-# conditionals — a missed `else:` is a blind spot even at 100% line coverage.
+# conditionals; a missed `else:` is a blind spot even at 100% line coverage.
 branch = true
 source = ["agentauth"]
 # The three suites run as separate pytest invocations that share process-global

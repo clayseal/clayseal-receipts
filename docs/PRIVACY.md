@@ -71,4 +71,4 @@ intentional. Before production:
 ## Compatibility and Branding
 
 The product brand is Clay Seal. Package names and import paths currently remain
-`agentauth-receipts` and `agentauth.receipts` for compatibility.
+`clayseal-receipts` and `agentauth.receipts` for compatibility.

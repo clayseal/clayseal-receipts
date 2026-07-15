@@ -2,7 +2,7 @@
 
 Use ``receipted_plain_tool`` when registering plain functions directly with a
 Pydantic AI agent. Use ``receipted_tool`` when you want a Pydantic AI ``Tool``
-object and have installed ``agentauth-receipts[pydantic-ai]``.
+object and have installed ``clayseal-receipts[pydantic-ai]``.
 """
 from __future__ import annotations
 
@@ -19,7 +19,7 @@ from agentauth.receipts.frameworks.generic import (
 def _missing_pydantic_ai(exc: ImportError) -> ImportError:
     return ImportError(
         "Pydantic AI support requires optional dependencies. "
-        'Install with: pip install "agentauth-receipts[pydantic-ai]".'
+        'Install with: pip install "clayseal-receipts[pydantic-ai]".'
     ).with_traceback(exc.__traceback__)
 
 

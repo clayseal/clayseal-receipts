@@ -6,11 +6,21 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-07-15
+
+### Changed
+
+- Renamed the public Python distribution from `agentauth-receipts` to
+  `clayseal-receipts`. The Python import path remains `agentauth.receipts` for
+  compatibility.
+- Updated public install docs, CI wheel smoke tests, optional-extra error
+  messages, and repository URLs for `clayseal/clayseal-receipts`.
+
 ## [0.5.0] - 2026-07-14
 
 ### Added — production hardening (multi-instance deployment)
 
-- **Standalone release packaging**: `agentauth-receipts` now ships the small
+- **Standalone release packaging**: `clayseal-receipts` now ships the small
   `agentauth.core` contract layer it needs directly, so the public package no
   longer depends on a private `agentauth-core` repository. Optional L2
   capability checks remain lazy and fail closed only when L2-specific leases,
@@ -100,7 +110,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - HTTP verifier service (`POST /v1/verify`, `GET /health`, `GET /v1/version`) via `arctl serve`
 - Partner onboarding guide ([docs/design_partner.md](docs/design_partner.md))
 - Partner operations runbook ([docs/partner_runbook.md](docs/partner_runbook.md))
-- Receipt bundle export (`clay-seal-receipts.receipt-bundle.v1`) and `arctl verify-bundle`
+- Receipt bundle export (`clayseal-receipts.receipt-bundle.v1`) and `arctl verify-bundle`
 - `arctl` CLI: `doctor`, `export-audit`, `show-config`, `redact`, `serve`
 - Partner YAML config (`config/partner.example.yaml`) and `examples/partner_pilot.py`
 - `scripts/bootstrap.sh` and `scripts/partner_smoke.sh`
@@ -113,7 +123,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 - MCP server supports stdio, SSE, and streamable HTTP transports
 - `ReceiptedMcpClient` supports prove + composed proofs on live MCP
-- Python tooling CLI renamed to **`arctl`** (Rust binary remains **`clay-seal-receipts`**)
+- Python tooling CLI renamed to **`arctl`** (Rust binary remains **`clayseal-receipts`**)
 
 ## [0.1.0] - 2026-05-29
 
@@ -125,7 +135,8 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - MCP integration: gateway, delegation, live server
 - EZKL fraud head path and logical composed verification
 
-[0.2.0]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.1.0...v0.2.0
-[0.2.1]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.2.0...v0.2.1
-[0.5.0]: https://github.com/pberlizov/clay-seal-receipts/compare/v0.4.0...v0.5.0
-[0.1.0]: https://github.com/pberlizov/clay-seal-receipts/releases/tag/v0.1.0
+[0.2.0]: https://github.com/clayseal/clayseal-receipts/compare/v0.1.0...v0.2.0
+[0.2.1]: https://github.com/clayseal/clayseal-receipts/compare/v0.2.0...v0.2.1
+[0.5.0]: https://github.com/clayseal/clayseal-receipts/compare/v0.4.0...v0.5.0
+[0.5.1]: https://github.com/clayseal/clayseal-receipts/compare/v0.5.0...v0.5.1
+[0.1.0]: https://github.com/clayseal/clayseal-receipts/releases/tag/v0.1.0

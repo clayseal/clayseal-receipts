@@ -1,26 +1,26 @@
-# Developer guide — Clay Seal Receipts (Layer 3)
+# Developer guide: Clay Seal Receipts (Layer 3)
 
 This is the operational manual for **Clay Seal Receipts**: the top layer of the
-Clay Seal stack. The package name remains `agentauth-receipts`, and the Python
+Clay Seal stack. The package name remains `clayseal-receipts`, and the Python
 namespace remains `agentauth.receipts`, for compatibility. The product name for
 developers and customers is Clay Seal. This guide covers installation,
 day-to-day use of `AgentWrapper`, MCP gateways, verification, partner
 deployment, and how this repo relates to identity (L1) and capabilities (L2).
 
-If you read one document before integrating Clay Seal into a production agent, make it this one — then drill into the linked deep dives (`docs/trust_model.md`, `docs/deployment.md`, etc.) as needed.
+If you read one document before integrating Clay Seal into a production agent, make it this one. Then drill into the linked deep dives (`docs/trust_model.md`, `docs/deployment.md`, etc.) as needed.
 
 ---
 
 ## What this repository delivers
 
-Autonomous agents create **consequential side effects**: commits, payments, database writes, infrastructure changes. Traditional logging is not enough — logs can be altered, and OAuth tokens only prove *who could act*, not *what happened under policy*.
+Autonomous agents create **consequential side effects**: commits, payments, database writes, infrastructure changes. Traditional logging is not enough. Logs can be altered, and OAuth tokens only prove *who could act*, not *what happened under policy*.
 
 This repo answers:
 
-1. **Authorization** — Was this specific action allowed *before* it ran?
-2. **Attribution** — Which agent identity, under which human principal?
-3. **Integrity** — Is the record of what happened tamper-evident?
-4. **Verification** — Can a third party validate a receipt offline or via HTTP?
+1. **Authorization:** Was this specific action allowed *before* it ran?
+2. **Attribution:** Which agent identity, under which human principal?
+3. **Integrity:** Is the record of what happened tamper-evident?
+4. **Verification:** Can a third party validate a receipt offline or via HTTP?
 
 Main artifacts:
 
@@ -53,9 +53,9 @@ Partner / operator view
 
 Runtime data flow
 ─────────────────────────────────────────────────────────────
-  Optional identity claims → AuthorityBinding / IdentitySession
-  Optional capability lease → action scope
-  AgentWrapper records DecisionResult → ExecutionProof → audit log
+  Optional identity claims to AuthorityBinding / IdentitySession
+  Optional capability lease to action scope
+  AgentWrapper records DecisionResult to ExecutionProof to audit log
 ```
 
 | Layer | Repo | You use it for |
@@ -74,7 +74,7 @@ Runtime data flow
 ### Production / partner (pinned tag)
 
 ```bash
-pip install "agentauth-receipts[server,verifier] @ git+https://github.com/pberlizov/clay-seal-receipts.git@v0.5.0"
+pip install "clayseal-receipts[server,verifier] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.1"
 ```
 
 Use `[identity]` when you want native Clay Seal identity sessions. Use
@@ -84,8 +84,8 @@ available.
 ### Local development (editable)
 
 ```bash
-git clone https://github.com/pberlizov/clay-seal-receipts.git
-cd clay-seal-receipts
+git clone https://github.com/clayseal/clayseal-receipts.git
+cd clayseal-receipts
 python -m venv .venv && source .venv/bin/activate
 
 pip install -e ".[dev]"
@@ -114,7 +114,7 @@ python demo/poisoned_mcp_demo.py      # narrated security demo
 
 ## First hour: shadow mode fraud agent
 
-The gentlest on-ramp is **shadow mode** — receipts are recorded but policy violations do not block execution.
+The gentlest on-ramp is **shadow mode**. Receipts are recorded but policy violations do not block execution.
 
 ```bash
 pip install -e ".[dev]"
@@ -136,7 +136,7 @@ Shadow mode is ideal for **instrumentation** before you enable blocking.
 
 ### Policy
 
-Policies are committed rules (YAML) hashed into the receipt. Changing the policy changes the commitment — verifiers detect mismatch.
+Policies are committed rules (YAML) hashed into the receipt. Changing the policy changes the commitment, so verifiers detect mismatch.
 
 ```python
 from agentauth.receipts import Policy
@@ -242,7 +242,7 @@ For sandboxed gateways (goal-bound leases, protected zones):
 
 ## The `arctl` CLI
 
-Installed as `arctl` when you `pip install agentauth-receipts`.
+Installed as `arctl` when you `pip install clayseal-receipts`.
 
 Common commands:
 
@@ -277,12 +277,12 @@ Configure API keys, rate limits, and body size caps for production (`docs/http_v
 
 ## Partner deployment workflow
 
-1. **Pin a tag** — see [RELEASE.md](../RELEASE.md) (currently `v0.5.0`).
-2. **Copy config** — `cp config/partner.example.yaml config/partner.yaml`.
-3. **Preflight** — `bash scripts/partner_preflight.sh config/partner.yaml`.
-4. **Run smoke** — `bash scripts/layer_install_smoke.sh` then `arctl doctor`.
-5. **Choose mode** — start in `shadow`, move to `bounded_auto` after review.
-6. **Verify exports** — `arctl verify-bundle` on sample receipts.
+1. **Pin a tag**: see [RELEASE.md](../RELEASE.md) (currently `v0.5.1`).
+2. **Copy config**: `cp config/partner.example.yaml config/partner.yaml`.
+3. **Preflight**: `bash scripts/partner_preflight.sh config/partner.yaml`.
+4. **Run smoke**: `bash scripts/layer_install_smoke.sh` then `arctl doctor`.
+5. **Choose mode**: start in `shadow`, move to `bounded_auto` after review.
+6. **Verify exports**: `arctl verify-bundle` on sample receipts.
 
 Environment variables use the `AGENT_RECEIPTS_*` prefix (documented in `config/env.example`).
 
@@ -306,9 +306,9 @@ CI also runs `cargo test --all`. Locally, Rust builds are optional unless you wo
 
 High-value test modules for integrators:
 
-- `python/tests/test_cross_provider_integration.py` — L2 adapters → L3 wrap
-- `python/tests/test_interop_conformance.py` — SCITT/COSE/tlog interop
-- Signing and audit tests — bundle signatures and checkpoint verification
+- `python/tests/test_cross_provider_integration.py`: L2 adapters to L3 wrap
+- `python/tests/test_interop_conformance.py`: SCITT/COSE/tlog interop
+- Signing and audit tests: bundle signatures and checkpoint verification
 
 ---
 
@@ -356,13 +356,13 @@ High-value test modules for integrators:
 
 ### Unsigned bundle verification in dev
 
-Demos set `AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES=0` for convenience. **Production partners must enable signatures** and signed audit checkpoints — see `docs/trust_model.md`.
+Demos set `AGENT_RECEIPTS_REQUIRE_BUNDLE_SIGNATURES=0` for convenience. **Production partners must enable signatures** and signed audit checkpoints: see `docs/trust_model.md`.
 
 ### Git pip install fails on capabilities/receipts
 
 **Cause:** Identity tag not published yet.
 
-**Fix:** Maintain release order — push and tag **identity first**.
+**Fix:** Maintain release order: push and tag **identity first**.
 
 ---
 
@@ -397,11 +397,11 @@ and [docs/deployment.md](deployment.md).
 
 1. Align versions in identity, capabilities, receipts.
 2. Update [CHANGELOG.md](../CHANGELOG.md) and [RELEASE.md](../RELEASE.md).
-3. Tag and push **L1 → L2 → L3**.
+3. Tag and push **L1 to L2 to L3**.
 4. Run `bash scripts/layer_install_smoke.sh` against published tags.
 5. Notify partners with exact pip lines (in RELEASE.md).
 
-Current release line: **0.5.0** (`v0.5.0`).
+Current release line: **0.5.1** (`v0.5.1`).
 
 ---
 
