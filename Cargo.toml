@@ -22,7 +22,7 @@ hex = "0.4"
 thiserror = "2"
 chrono = { version = "0.4", features = ["serde"] }
 uuid = { version = "1", features = ["v4", "serde"] }
-bincode = "1"
+bincode = "3"
 rand = "0.8"
 ff = "0.13"
 group = "0.13"
