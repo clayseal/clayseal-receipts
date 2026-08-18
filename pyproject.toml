@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "clayseal-receipts"
 version = "0.5.2"
-description = "Verifiable execution receipts and policy runtime for autonomous AI agents"
+description = "Signed receipts for what an agent asked, what policy said, and what happened"
 readme = "README.md"
 license = "MIT"
 keywords = ["ai-agents", "security", "audit", "receipts", "mcp"]

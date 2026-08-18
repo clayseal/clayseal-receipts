@@ -2,15 +2,11 @@
 
 <img src="docs/assets/clay-seal-logo.png" alt="Clay Seal logo" width="360">
 
-Verifiable receipts for AI agent actions.
+After an agent acts, logs lie. A receipt is a signed record of what was
+requested, what policy said, and what happened. Another party can check it
+later without trusting your app.
 
-Clay Seal Receipts wraps an agent or tool call and records what was requested,
-what policy was checked, which identity or capability context was bound to the
-decision, and what happened. The result is a receipt that another service,
-partner, or auditor can verify later without trusting your application logs.
-
-The Python package is named `clayseal-receipts`. The Python import path remains
-`agentauth.receipts` for compatibility.
+Python package: `clayseal-receipts`. Import path remains `agentauth.receipts`.
 
 ## Install
 
@@ -106,14 +102,10 @@ provider = from_callable(
 authorize = authorizer_from_provider(provider)
 ```
 
-## What This Is
+## What this is
 
-Clay Seal Receipts is an audit and verification layer. It helps you prove what
-an agent was allowed to do and what it actually did.
-
-It is not a full sandbox by itself. For production agent systems, use receipts
-with short-lived identity, online checks for sensitive actions, scoped
-capabilities, signed bundles, and retention rules for prompt/tool data.
+Clay Seal Receipts is an audit layer. It helps you prove what an agent was
+allowed to do and what it actually did. It is not a sandbox by itself.
 
 ## Docs
 
