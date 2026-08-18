@@ -1,71 +1,24 @@
-# Developer guide: Clay Seal Receipts (Layer 3)
+# Developer guide: Clay Seal Receipts
 
-This is the operational manual for **Clay Seal Receipts**: the top layer of the
-Clay Seal stack. The package name remains `clayseal-receipts`, and the Python
-namespace remains `agentauth.receipts`, for compatibility. The product name for
-developers and customers is Clay Seal. This guide covers installation,
-day-to-day use of `AgentWrapper`, MCP gateways, verification, partner
-deployment, and how this repo relates to identity (L1) and capabilities (L2).
+Operational manual for Clay Seal Receipts. Package: `clayseal-receipts`. Import:
+`agentauth.receipts`. Covers `AgentWrapper`, MCP gateways, verification, and
+deployment.
 
-If you read one document before integrating Clay Seal into a production agent, make it this one. Then drill into the linked deep dives (`docs/trust_model.md`, `docs/deployment.md`, etc.) as needed.
-
----
-
-## What this repository delivers
-
-Autonomous agents create **consequential side effects**: commits, payments, database writes, infrastructure changes. Traditional logging is not enough. Logs can be altered, and OAuth tokens only prove *who could act*, not *what happened under policy*.
-
-This repo answers:
-
-1. **Authorization:** Was this specific action allowed *before* it ran?
-2. **Attribution:** Which agent identity, under which human principal?
-3. **Integrity:** Is the record of what happened tamper-evident?
-4. **Verification:** Can a third party validate a receipt offline or via HTTP?
-
-Main artifacts:
+Logs can be altered. OAuth tokens prove who could act, not what happened under
+policy. This repo records the decision and the action so a third party can check
+both later.
 
 | Artifact | Role |
 |----------|------|
-| `AgentWrapper` | Wrap a model/agent; enforce policy; emit receipts |
-| `ExecutionProof` | Cryptographic bundle binding output, policy, identity |
-| Audit log (Merkle) | Hash-chained append-only history |
-| MCP gateway / sandbox | Enforce capability scope at tool-call time |
+| `AgentWrapper` | Wrap a model or agent; enforce policy; emit receipts |
+| `ExecutionProof` | Bundle binding output, policy, identity |
+| Audit log | Hash-chained append-only history |
+| MCP gateway | Enforce capability scope at tool-call time |
 | `arctl` CLI | Doctor, verify, export, preflight |
-| HTTP verifier | Partner-facing verification API |
+| HTTP verifier | Verification API |
 
-This repo **owns the top-level Python namespace**:
-
-```python
-from agentauth import Identity, AgentWrapper
-from agentauth.receipts import Policy
-```
-
-Lower layers use subpackages (`agentauth.identity`, `agentauth.capabilities`).
-
----
-
-## Three-layer architecture
-
-```
-Partner / operator view
-─────────────────────────────────────────────────────────────
-  pip install receipts directly
-
-Runtime data flow
-─────────────────────────────────────────────────────────────
-  Optional identity claims to AuthorityBinding / IdentitySession
-  Optional capability lease to action scope
-  AgentWrapper records DecisionResult to ExecutionProof to audit log
-```
-
-| Layer | Repo | You use it for |
-|-------|------|----------------|
-| Built-in core | **this repo** | Shared contracts, signing, runtime descriptors |
-| Optional identity | [clayseal-identity](https://github.com/clayseal/clayseal-identity) | Mint/verify agent credentials |
-| Optional capabilities | Clay Seal L2 package | Commit tokens, mandates, leases |
-| Receipts | **this repo** | Receipts, MCP, verify, demos |
-
-**Release rule:** receipts must install and run without any private Clay Seal repository.
+Receipts install and run without any private Clay Seal repository. Identity is
+optional: [clayseal-identity](https://github.com/clayseal/clayseal-identity).
 
 ---
 
@@ -77,9 +30,7 @@ Runtime data flow
 pip install "clayseal-receipts[server,verifier] @ git+https://github.com/clayseal/clayseal-receipts.git@v0.5.2"
 ```
 
-Use `[identity]` when you want native Clay Seal identity sessions. Use
-`[scoping]` only in environments where the unreleased L2 capabilities package is
-available.
+Use `[identity]` when you want Clay Seal identity sessions.
 
 ### Local development (editable)
 
@@ -103,13 +54,12 @@ python demo/poisoned_mcp_demo.py      # narrated security demo
 
 | Extra | Purpose |
 |-------|---------|
-| `server` | FastAPI identity + verifier dependencies |
-| `mcp` | MCP server and Groq-backed demos |
+| `server` | FastAPI verifier dependencies |
+| `mcp` | MCP server and demos |
 | `verifier` | Standalone HTTP verifier |
-| `deepagents` | Rippling-style red-team fixtures (heavy deps) |
 | `kms` | AWS/GCP KMS for signing key encryption |
-| `frameworks` | LangChain, Pydantic AI, LlamaIndex, CrewAI, OpenAI Agents, Semantic Kernel, AutoGen, Haystack |
-| `opa` / `cedar` / `openfga` / `casbin` | Swappable authorization providers for existing policy engines |
+| `frameworks` | Common agent framework adapters |
+| `opa` / `cedar` / `openfga` / `casbin` | Swappable authorization providers |
 
 ---
 

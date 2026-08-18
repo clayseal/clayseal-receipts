@@ -160,8 +160,7 @@ def test_monitoring_class_thresholds_lower_bar_for_external_side_effects():
 def test_merge_policy_in_default_gate_json():
     policy = json.loads(
         (
-            ROOT
-            / "examples/devin-agentauth-demo/gated/.agentauth/policies/devin-pr-gate.policy.json"
+            ROOT / "python" / "tests" / "fixtures" / "pr-gate.policy.json"
         ).read_text()
     )
     assert "merge_policy" in policy

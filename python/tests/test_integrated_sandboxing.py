@@ -1,9 +1,4 @@
 """Integrated test: full dynamic sandboxing stack vs red-team scenarios.
-
-Composes ALL components into a single system and runs the scenarios from
-devin_redteaming_backlog against it:
-
-Stack under test:
   1. RepoChunkIndex → CapabilityLease (goal scoping)
   2. ProtectedZoneGovernor (protected-zone enforcement)
   3. DefaultDenySandboxGovernor (fail-closed on missing authority)

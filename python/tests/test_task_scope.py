@@ -13,15 +13,7 @@ from agentauth.capabilities.task_scope import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-DEVIN_TEMPLATE = (
-    ROOT
-    / "examples"
-    / "devin-agentauth-demo"
-    / "gated"
-    / ".agentauth"
-    / "mandates"
-    / "issue-c1b-d3.authorization.template.json"
-)
+AUTH_TEMPLATE = ROOT / "python" / "tests" / "fixtures" / "human-authorization.template.json"
 
 
 def _tool_policy() -> Policy:
@@ -37,10 +29,10 @@ def _tool_policy() -> Policy:
     )
 
 
-def test_devin_authorization_template_round_trips():
-    document = json.loads(DEVIN_TEMPLATE.read_text())
+def test_authorization_template_round_trips():
+    document = json.loads(AUTH_TEMPLATE.read_text())
     scope = compile_human_authorization(document)
-    assert scope.mandate_id == "issue-c1b-d3"
+    assert scope.mandate_id == "issue-parser-normalize"
     assert scope.source_schema == "agentauth.human_authorization.v1"
     assert "swe_triage/parser.py" in scope.allowed_paths
     assert "swe_triage/auth.py" in scope.denied_paths
@@ -52,7 +44,7 @@ def test_devin_authorization_template_round_trips():
 
 
 def test_policy_engine_denies_out_of_scope_file_path():
-    document = json.loads(DEVIN_TEMPLATE.read_text())
+    document = json.loads(AUTH_TEMPLATE.read_text())
     scope = compile_task_scope(document)
     policy = _tool_policy()
     engine = YamlPolicyEngine(policy)
@@ -77,7 +69,7 @@ def test_policy_engine_denies_out_of_scope_file_path():
 
 
 def test_policy_engine_allows_in_scope_file_path():
-    document = json.loads(DEVIN_TEMPLATE.read_text())
+    document = json.loads(AUTH_TEMPLATE.read_text())
     scope = compile_task_scope(document)
     policy = _tool_policy()
     engine = YamlPolicyEngine(policy)
@@ -102,7 +94,7 @@ def test_policy_engine_allows_in_scope_file_path():
 
 
 def test_agent_wrapper_task_mandate_blocks_denied_path_in_bounded_auto():
-    document = json.loads(DEVIN_TEMPLATE.read_text())
+    document = json.loads(AUTH_TEMPLATE.read_text())
     policy = _tool_policy()
     cert = dev_certificate(policy.commitment(), scope=["write_file", "read_file"])
     agent = AgentWrapper(

@@ -111,7 +111,7 @@ async def test_lab() -> None:
             assert {"get_engineering_standards", "auth", "get_issue_triage_context"} <= tools
             out = payload(
                 await session.call_tool(
-                    "get_engineering_standards", {"repo": "devin-agentauth-demo"}
+                    "get_engineering_standards", {"repo": "acme-demo"}
                 )
             )
             text = out.get("text", "") if isinstance(out, dict) else str(out)

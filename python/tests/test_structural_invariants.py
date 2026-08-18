@@ -12,15 +12,7 @@ from agentauth.receipts.structural_invariants import (
 )
 
 ROOT = Path(__file__).resolve().parents[2]
-HARDENED_POLICY = (
-    ROOT
-    / "examples"
-    / "devin-agentauth-demo"
-    / "gated"
-    / ".agentauth"
-    / "policies"
-    / "devin-pr-gate.hardened.policy.json"
-)
+HARDENED_POLICY = ROOT / "python" / "tests" / "fixtures" / "pr-gate.hardened.policy.json"
 
 
 def test_scan_obfuscation_detects_zero_width():
@@ -90,7 +82,7 @@ def test_l1_cross_session_attribution_denies_when_configured():
         head_sha="head",
         file_snapshots={
             "DELEGATION.md": {
-                "base": (ROOT / "examples/devin-agentauth-demo/fixtures/l1-delegation-poison.md").read_text(),
+                "base": (ROOT / "python/tests/fixtures/delegation-poison.md").read_text(),
             },
             "swe_triage/parser.py": {
                 "base": "if not release_preview_allows_ticket_parse(actor):\n    return None\n",

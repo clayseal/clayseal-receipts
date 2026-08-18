@@ -13,7 +13,6 @@ set. Otherwise they boot a throwaway in-process backend.
 | [`01_quickstart.py`](01_quickstart.py) | Identity lifecycle |
 | [`shadow_fraud_agent.py`](shadow_fraud_agent.py) | Receipted agent in `shadow` mode |
 | [`../demo/poisoned_mcp_demo.py`](../demo/poisoned_mcp_demo.py) | Poisoned MCP server, receipts |
-| [`rippling-deepagents-demo/`](rippling-deepagents-demo/) | Local HR/payroll fixture |
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate

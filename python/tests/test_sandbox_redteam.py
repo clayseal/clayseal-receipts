@@ -46,7 +46,7 @@ def injecagent_repo(tmp_path: Path) -> Path:
 
 @pytest.fixture()
 def devin_demo_repo(tmp_path: Path) -> Path:
-    """Mimics the devin-agentauth-demo gated repo structure."""
+    """A small gated-repo layout for sandbox tests."""
     (tmp_path / "src").mkdir()
     (tmp_path / "src" / "__init__.py").write_text("")
     (tmp_path / "src" / "parser.py").write_text(
@@ -102,7 +102,7 @@ def devin_demo_repo(tmp_path: Path) -> Path:
 
 @pytest.fixture()
 def demo_repo(tmp_path: Path) -> Path:
-    """Mimics gated devin-agentauth-demo repo (prior-system regression variant)."""
+    """Mimics a gated repo (prior-system regression variant)."""
     (tmp_path / "src").mkdir()
     (tmp_path / "src/__init__.py").write_text("")
     (tmp_path / "src/parser.py").write_text(
@@ -338,7 +338,7 @@ class TestMultiStepObservationChain:
 
 
 # ===================================================================
-# SECTION 4: CANARY TRIPWIRE (from devin_redteaming_backlog)
+# SECTION 4: CANARY TRIPWIRE
 # ===================================================================
 
 
