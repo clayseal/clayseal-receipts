@@ -1,2 +1,2 @@
 # Optional: SWE parquet adapter
-pyarrow>=25.0.0
+pyarrow>=25.0.1
